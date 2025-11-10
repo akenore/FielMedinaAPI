@@ -1,0 +1,21 @@
+{
+  "editor.defaultFormatter": null,
+  "[django-html]": {
+    "editor.defaultFormatter": "monosans.djlint",
+    "editor.formatOnSave": true
+  },
+
+  "[html]": {
+    "editor.defaultFormatter": "vscode.html-language-features"
+  },
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.autopep8",
+    "editor.formatOnSave": true
+  },
+  "files.associations": {
+    "**/templates/**/*.html": "django-html"
+  },
+  "tailwindCSS.includeLanguages": {
+    "django-html": "html"
+  }
+}

@@ -1,0 +1,169 @@
+{% extends 'guard/base/index.html' %}
+{% load static i18n %}
+
+{% block title %}{% trans "Settings" %}{% endblock title %}
+
+{% block body %}
+<div class="space-y-6">
+    {% if messages %}
+        <div class="space-y-2">
+            {% for message in messages %}
+                <div class="flex items-center justify-between rounded-lg border px-4 py-3 text-sm font-medium
+                    {% if 'success' in message.tags %}border-green-200 bg-green-50 text-green-800 dark:border-green-700 dark:bg-green-900/40 dark:text-green-100
+                    {% elif 'warning' in message.tags %}border-yellow-200 bg-yellow-50 text-yellow-800 dark:border-yellow-600 dark:bg-yellow-900/40 dark:text-yellow-100
+                    {% else %}border-blue-200 bg-blue-50 text-blue-800 dark:border-blue-700 dark:bg-blue-900/40 dark:text-blue-100{% endif %}">
+                    <span>{{ message }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if subscription_alert %}
+        <div class="rounded-xl border border-yellow-200 bg-yellow-50 px-4 py-4 text-sm text-yellow-900 dark:border-yellow-600 dark:bg-yellow-900/40 dark:text-yellow-50">
+            <div class="flex items-start gap-3">
+                <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-200">
+                    ⚠️
+                </span>
+                <div>
+                    <p class="font-semibold">{% trans "Subscription expiring soon" %}</p>
+                    <p>{% blocktrans with days=subscription_alert.days_left renew_date=subscription_alert.renew_date %}You have {{ days }} day(s) left. Renewal date: {{ renew_date }}.{% endblocktrans %}</p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="grid gap-6 lg:grid-cols-3">
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                <div class="p-6 border-b border-gray-100 dark:border-gray-700">
+                    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                        <div>
+                            <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">
+                                {{ request.user.get_full_name|default:request.user.username }}
+                            </h1>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">
+                                {% trans "Signed in as" %} {{ request.user.email|default:request.user.username }}
+                            </p>
+                        </div>
+                        <span class="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-blue-700 dark:bg-blue-900/30 dark:text-blue-200">
+                            {% if user_profile %}
+                                {{ user_profile.get_user_type_display }}
+                            {% else %}
+                                {% trans "Unknown role" %}
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                <form method="post" class="p-6 space-y-4" novalidate>
+                    {% csrf_token %}
+                    {% if profile_form.non_field_errors %}
+                        <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800 dark:border-red-500/60 dark:bg-red-900/40 dark:text-red-100">
+                            {{ profile_form.non_field_errors|join:", " }}
+                        </div>
+                    {% endif %}
+                    <div class="grid gap-4 md:grid-cols-2">
+                        {% for field in profile_form %}
+                            <div {% if field.field.required %}class="required"{% endif %}>
+                                <label for="{{ field.id_for_label }}" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white">
+                                    {{ field.label }}
+                                </label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                        {{ field.help_text }}
+                                    </p>
+                                {% endif %}
+                                {% if field.errors %}
+                                    <p class="mt-1 text-xs font-medium text-red-600 dark:text-red-400">
+                                        {{ field.errors|join:", " }}
+                                    </p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="flex items-center justify-end gap-3">
+                        <button type="submit" class="inline-flex items-center rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-800">
+                            {% trans "Save changes" %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="space-y-6">
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{% trans "Security" %}</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                    {% trans "Update your password frequently to keep your workspace safe." %}
+                </p>
+                <a href="{% url 'guard:password_change' %}" class="mt-4 inline-flex w-full items-center justify-center rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:border-gray-600 dark:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-800">
+                    {% trans "Change password" %}
+                </a>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{% trans "Session" %}</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                    {% trans "Need a fresh start? You can sign out of this device safely." %}
+                </p>
+                <form action="{% url 'guard:logout' %}" method="post" class="mt-4">
+                    {% csrf_token %}
+                    <button type="submit" class="inline-flex w-full items-center justify-center rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-200 dark:focus:ring-red-800">
+                        {% trans "Logout" %}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-gray-100 p-6 dark:border-gray-700">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{% trans "Subscription overview" %}</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                    {% trans "Konnect integration is coming soon. These values are placeholders for now." %}
+                </p>
+            </div>
+            <button type="button" disabled class="inline-flex items-center rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-500 cursor-not-allowed dark:border-gray-700 dark:text-gray-400">
+                {% trans "Open Konnect (Soon)" %}
+            </button>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-gray-600 dark:text-gray-300">
+                <thead class="bg-gray-50 text-xs uppercase tracking-wide text-gray-500 dark:bg-gray-900 dark:text-gray-400">
+                    <tr>
+                        <th class="px-6 py-3">{% trans "Plan" %}</th>
+                        <th class="px-6 py-3">{% trans "Status" %}</th>
+                        <th class="px-6 py-3">{% trans "Started" %}</th>
+                        <th class="px-6 py-3">{% trans "Renews" %}</th>
+                        <th class="px-6 py-3 text-right">{% trans "Days left" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if subscription_rows %}
+                        {% for row in subscription_rows %}
+                            <tr class="border-t border-gray-100 text-sm dark:border-gray-700">
+                                <td class="px-6 py-3 font-semibold text-gray-900 dark:text-white">{{ row.plan }}</td>
+                                <td class="px-6 py-3">{{ row.status }}</td>
+                                <td class="px-6 py-3">
+                                    {% if row.started %}{{ row.started }}{% else %}&mdash;{% endif %}
+                                </td>
+                                <td class="px-6 py-3">
+                                    {% if row.renews %}{{ row.renews }}{% else %}&mdash;{% endif %}
+                                </td>
+                                <td class="px-6 py-3 text-right">
+                                    {{ row.days_left }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr class="border-t border-gray-100 dark:border-gray-700">
+                            <td colspan="5" class="px-6 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                                {% trans "No subscription data yet. Konnect billing will appear here once connected." %}
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock body %}

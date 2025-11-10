@@ -1,7 +1,14 @@
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import (
+    AuthenticationForm,
+    PasswordChangeForm,
+    PasswordResetForm,
+    SetPasswordForm,
+)
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
+
+from .models import UserProfile
 
 
 class FlowbiteFormMixin:
@@ -103,7 +110,58 @@ class RegisterForm(FlowbiteFormMixin, forms.ModelForm):
 
     def save(self, commit=True):
         user = super().save(commit=False)
+        user.is_staff = False
         user.set_password(self.cleaned_data["password1"])
         if commit:
             user.save()
+            UserProfile.objects.update_or_create(
+                user=user,
+                defaults={"user_type": UserProfile.UserType.CLIENT_PARTNER},
+            )
         return user
+
+
+class FlowbitePasswordResetForm(FlowbiteFormMixin, PasswordResetForm):
+    pass
+
+
+class FlowbiteSetPasswordForm(FlowbiteFormMixin, SetPasswordForm):
+    pass
+
+
+class FlowbitePasswordChangeForm(FlowbiteFormMixin, PasswordChangeForm):
+    pass
+
+
+class ProfileUpdateForm(FlowbiteFormMixin, forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ["first_name", "last_name", "email"]
+        labels = {
+            "first_name": _("First name"),
+            "last_name": _("Last name"),
+            "email": _("Email"),
+        }
+        widgets = {
+            "first_name": forms.TextInput(attrs={
+                "placeholder": _("Your first name"),
+                "autocomplete": "given-name",
+            }),
+            "last_name": forms.TextInput(attrs={
+                "placeholder": _("Your last name"),
+                "autocomplete": "family-name",
+            }),
+            "email": forms.EmailInput(attrs={
+                "placeholder": _("name@example.com"),
+                "autocomplete": "email",
+            }),
+        }
+
+    def clean_email(self):
+        email = self.cleaned_data.get("email")
+        if not email:
+            return email
+        qs = User.objects.filter(email__iexact=email).exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise forms.ValidationError(_("This email is already in use."))
+        return email
