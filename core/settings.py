@@ -1,20 +1,19 @@
 from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+import environ
+env = environ.Env()
+env.read_env(env_file=str(BASE_DIR / '.env'))
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-8r_r#$%g(f$*1a10hhxyhi15#-1x+t=*f$m4t9y8%dnu48!siu'
+SECRET_KEY = env('SECRET_KEY')
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
-
-
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -27,6 +26,7 @@ INSTALLED_APPS = [
     'graphene_django',
     'tinymce',
     'api',
+    'guard'
 ]
 
 MIDDLEWARE = [
@@ -71,10 +71,6 @@ DATABASES = {
     }
 }
 
-
-# Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -106,15 +102,9 @@ LOCALE_PATHS = [
 ]
 
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
 USE_L10N = True
-
 USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
@@ -124,9 +114,6 @@ STATICFILES_DIRS = [
 MEDIA_URL = 'upload/'
 MEDIA_ROOT = BASE_DIR / 'upload'
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
@@ -134,20 +121,15 @@ GRAPHENE = {
     "SCHEMA": "api.schema.schema"
 }
 
-# CORS Configuration
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "https://fielmedina.com",
 ]
 
-# Allow all origins in development (remove in production)
+
 CORS_ALLOW_ALL_ORIGINS = DEBUG
-
-# Allow credentials (cookies, authorization headers)
 CORS_ALLOW_CREDENTIALS = True
-
-# Allowed headers
 CORS_ALLOW_HEADERS = [
     'accept',
     'accept-encoding',
@@ -170,3 +152,7 @@ TINYMCE_DEFAULT_CONFIG = {
     'plugins': 'lists link image table code',
     'toolbar': 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image table | code',
 }
+
+LOGIN_URL = "guard:login"
+# LOGIN_REDIRECT_URL = "guard:profile"
+# LOGOUT_REDIRECT_URL = "guard:login"
