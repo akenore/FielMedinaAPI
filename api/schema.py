@@ -15,22 +15,11 @@ class PageInput(graphene.InputObjectType):
     is_active = graphene.Boolean()
 
 class Query(graphene.ObjectType):
-    # Get all pages
     all_pages = graphene.List(PageType)
-    
-    # Get pages by language
     pages_by_language = graphene.List(PageType, language=graphene.String(required=True))
-    
-    # Get a specific page by slug and language
     page = graphene.Field(PageType, slug=graphene.String(required=True), language=graphene.String())
-    
-    # Get available languages for a page
     available_languages = graphene.List(graphene.String, slug=graphene.String(required=True))
-    
-    # Get all active pages
     active_pages = graphene.List(PageType)
-    
-    # Get active pages by language
     active_pages_by_language = graphene.List(PageType, language=graphene.String(required=True))
 
     def resolve_all_pages(self, info):
