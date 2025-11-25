@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 
 from .views import (
     CustomLoginView,
@@ -11,13 +11,17 @@ from .views import (
     CustomPasswordChangeView,
     CustomPasswordChangeDoneView,
     SettingView,
-    index,
+    dashboard,
+    subscribersList,
+    locationsList,
+    eventsList,
+    adsList,
 )
 
 app_name = "guard"
 
 urlpatterns = [
-    path('', index, name='index'),
+    path('', dashboard, name='dashboard'),
     path('auth/login/', CustomLoginView.as_view(), name='login'),
     path('auth/logout/', CustomLogoutView.as_view(), name='logout'),
     path('auth/register/', RegisterView.as_view(), name='register'),
@@ -34,4 +38,10 @@ urlpatterns = [
     path('auth/password-change/done/',
          CustomPasswordChangeDoneView.as_view(), name='password_change_done'),
     path('auth/settings/', SettingView.as_view(), name='settings'),
+    path('staff/' , include([
+     path('subscribersList/', subscribersList, name='subscribersList'),
+     path('locationsList/', locationsList, name='locationsList'),
+    ] )),
+    path('eventsList/', eventsList, name='eventsList'),
+    path('adsList/', adsList, name='adsList'),
 ]

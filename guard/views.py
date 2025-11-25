@@ -144,5 +144,22 @@ class SettingView(LoginRequiredMixin, TemplateView):
 
 
 @login_required
-def index(request):
-    return render(request, 'guard/views/index.html')
+def dashboard(request):
+    return render(request, 'guard/views/dashboard.html')
+
+@login_required
+def subscribersList(request):
+    return render(request, 'guard/views/subscribers/list.html')
+
+@login_required
+def locationsList(request):
+    return render(request, 'guard/views/locations/list.html')
+
+@login_required
+def eventsList(request):
+    return render(request, 'guard/views/events/list.html')
+
+@login_required
+def adsList(request):
+    return render(request, 'guard/views/ads/list.html')
+
