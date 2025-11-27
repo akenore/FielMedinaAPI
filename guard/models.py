@@ -110,7 +110,6 @@ def ensure_profile_exists(sender, instance, created, **kwargs):
 
 
 def location_image_path(instance, filename):
-    # Ensure the filename is clean and has .jpg extension
     name, ext = os.path.splitext(filename)
     return f'locations/{instance.location.id}/{name}.jpg'
 
@@ -125,23 +124,13 @@ class Image(models.Model):
         verbose_name_plural = _("Images")
 
     def save(self, *args, **kwargs):
-        # Only process if image is present and (it's a new record OR the image field has changed)
-        # For simplicity in this step, we process if there is an image and no pk (new) 
-        # or if we assume it's being uploaded. 
-        # To avoid re-processing on every save, we can check if it's an upload instance.
-        
         if self.image and (not self.pk or hasattr(self.image, 'file')):
-             # Check if it is already processed (optional, but good for safety)
-             # Here we assume any save with a file object needs processing
-             
-             try:
+            try:
                 img = PilImage.open(self.image)
                 
-                # Convert to RGB
                 if img.mode != 'RGB':
                     img = img.convert('RGB')
                 
-                # 1. Process Tablet/Desktop Version (Max 1920px)
                 img_tablet = img.copy()
                 if img_tablet.width > 1920:
                     ratio = 1920 / float(img_tablet.width)
@@ -152,15 +141,12 @@ class Image(models.Model):
                 img_tablet.save(output_tablet, format='JPEG', quality=80)
                 output_tablet.seek(0)
                 
-                # Update the main image field
-                # We use the original filename but ensure .jpg
                 original_name = os.path.basename(self.image.name)
                 name_base, _ = os.path.splitext(original_name)
                 filename = f"{name_base}.jpg"
                 
                 self.image = ContentFile(output_tablet.read(), name=filename)
 
-                # 2. Process Mobile Version (Max 500px)
                 img_mobile = img.copy()
                 if img_mobile.width > 500:
                     ratio = 500 / float(img_mobile.width)
@@ -173,34 +159,27 @@ class Image(models.Model):
                 
                 self.image_mobile = ContentFile(output_mobile.read(), name=f"mobile_{filename}")
                 
-                # If the original image was already saved to disk (e.g. via script or previous save),
-                # we should delete it to avoid duplicates and allow filename reuse.
-                # If it's an upload in memory, .path might fail or not exist.
                 try:
                     if self.image.storage.exists(self.image.name):
                         self.image.storage.delete(self.image.name)
                 except Exception:
                     pass
                 
-             except Exception as e:
-                 print(f"Error processing image: {e}")
-                 # Fallback: let original save if processing fails, or raise
-                 pass
+            except Exception as e:
+                print(f"Error processing image: {e}")
+                pass
 
         super().save(*args, **kwargs)
 
 @receiver(post_delete, sender=Image)
 def cleanup_image_files(sender, instance, **kwargs):
     """Delete image files when the Image record is deleted."""
-    # Delete main image
     if instance.image and os.path.isfile(instance.image.path):
         os.remove(instance.image.path)
         
-    # Delete mobile image
     if instance.image_mobile and os.path.isfile(instance.image_mobile.path):
         os.remove(instance.image_mobile.path)
             
-    # Try to remove the directory if it's empty
     try:
         if instance.image:
             directory = os.path.dirname(instance.image.path)
