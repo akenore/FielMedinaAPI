@@ -154,7 +154,7 @@ TINYMCE_DEFAULT_CONFIG = {
 }
 
 LOGIN_URL = "guard:login"
-LOGIN_REDIRECT_URL = "guard:index"
+LOGIN_REDIRECT_URL = "guard:dashboard"
 LOGOUT_REDIRECT_URL = "guard:login"
 
 DEFAULT_FROM_EMAIL = env(

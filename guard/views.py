@@ -27,7 +27,7 @@ class CustomLoginView(LoginView):
     redirect_authenticated_user = True
 
     def get_success_url(self):
-        return self.get_redirect_url() or reverse_lazy("guard:index")
+        return self.get_redirect_url() or reverse_lazy("guard:dashboard")
 
     def form_valid(self, form):
         messages.success(self.request, _("Welcome back!"))
