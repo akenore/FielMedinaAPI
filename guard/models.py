@@ -9,7 +9,6 @@ from django.utils.translation import gettext_lazy as _
 from tinymce.models import HTMLField
 
 User = get_user_model()
-# LANGUAGE_CHOICES removed as we use modeltranslation
 
 class UserProfile(models.Model):
     class UserType(models.TextChoices):
@@ -107,7 +106,6 @@ def ensure_profile_exists(sender, instance, created, **kwargs):
 
 
 class Image(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
     location = models.ForeignKey("guard.Location", on_delete=models.CASCADE, related_name="images")
     created_at = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to='images/locations')
@@ -117,7 +115,6 @@ class Image(models.Model):
         verbose_name_plural = _("Images")
     
 class Location(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=255)
     longitude = models.DecimalField(max_digits=9, decimal_places=6)
