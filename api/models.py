@@ -2,10 +2,7 @@ from django.db import models
 from tinymce.models import HTMLField
 from django.utils.translation import gettext_lazy as _
 
-LANGUAGE_CHOICES = [
-    ('en', 'English'),
-    ('fr', 'Français'),
-]
+# LANGUAGE_CHOICES removed as we use modeltranslation
 
 class Page(models.Model):
     slug = models.SlugField(unique=True, verbose_name=_("URL Slug"))
@@ -13,36 +10,13 @@ class Page(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
-    language = models.CharField(
-        max_length=2, 
-        choices=LANGUAGE_CHOICES, 
-        default='en',
-        verbose_name=_("Language")
-    )
     title = models.CharField(max_length=255, verbose_name=_("Title"))
     content = HTMLField(verbose_name=_("Content"))
     
     class Meta:
-        unique_together = ['slug', 'language']
         verbose_name = _("Page")
         verbose_name_plural = _("Pages")
-        ordering = ['slug', 'language']
+        ordering = ['slug']
 
     def __str__(self):
-        return f"{self.title} ({self.get_language_display()})"
-    
-    @classmethod
-    def get_page(cls, slug, language='en'):
-        try:
-            return cls.objects.get(slug=slug, language=language, is_active=True)
-        except cls.DoesNotExist:
-            if language != 'en':
-                try:
-                    return cls.objects.get(slug=slug, language='en', is_active=True)
-                except cls.DoesNotExist:
-                    return None
-            return None
-    
-    @classmethod
-    def get_available_languages(cls, slug):
-        return cls.objects.filter(slug=slug, is_active=True).values_list('language', flat=True)
+        return self.title

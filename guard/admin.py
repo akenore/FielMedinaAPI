@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import UserProfile
+from .models import UserProfile, Location
 
 
 @admin.register(UserProfile)
@@ -20,3 +20,6 @@ class UserProfileAdmin(admin.ModelAdmin):
         obj.user.is_staff = obj.user_type == UserProfile.UserType.STAFF
         obj.user.save(update_fields=["is_staff"])
         super().save_model(request, obj, form, change)
+
+
+

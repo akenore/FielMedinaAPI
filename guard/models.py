@@ -6,9 +6,10 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from tinymce.models import HTMLField
 
 User = get_user_model()
-
+# LANGUAGE_CHOICES removed as we use modeltranslation
 
 class UserProfile(models.Model):
     class UserType(models.TextChoices):
@@ -74,7 +75,6 @@ class UserProfile(models.Model):
         key = (self.subscription_status or "").lower()
         return mapping.get(key, key.capitalize() or _("Pending"))
 
-
 @receiver(post_save, sender=User)
 def ensure_profile_exists(sender, instance, created, **kwargs):
     """Create or sync the related profile whenever a user is saved."""
@@ -104,3 +104,33 @@ def ensure_profile_exists(sender, instance, created, **kwargs):
         updated_fields.append("subscription_renews_at")
     if updated_fields:
         profile.save(update_fields=updated_fields)
+
+
+class Image(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    location = models.ForeignKey("guard.Location", on_delete=models.CASCADE, related_name="images")
+    created_at = models.DateTimeField(auto_now_add=True)
+    image = models.ImageField(upload_to='images/locations')
+    
+    class Meta:
+        verbose_name = _("Image")
+        verbose_name_plural = _("Images")
+    
+class Location(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    name = models.CharField(max_length=255)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6)
+    is_active_ads = models.BooleanField(default=False, verbose_name=_("Active Ads"))
+    story = HTMLField(verbose_name=_("Story"))
+    
+    class Meta:
+        verbose_name = _("Location")
+        verbose_name_plural = _("Locations")
+
+    def __str__(self):
+        return self.name
+    
+    
+    
