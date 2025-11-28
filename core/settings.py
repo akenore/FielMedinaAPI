@@ -17,6 +17,7 @@ ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     'modeltranslation',
+    'cities_light',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -147,12 +148,19 @@ CORS_ALLOW_HEADERS = [
 CORS_ALLOW_CREDENTIALS = True
 CORS_PREFLIGHT_MAX_AGE = 86400
 TINYMCE_DEFAULT_CONFIG = {
-    'height': 500,
+    'height': 360,
     'width': '100%',
-    'menubar': False,
-    'plugins': 'lists link image table code',
-    'toolbar': 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image table | code',
+    'cleanup_on_startup': True,
+    'custom_undo_redo_levels': 20,
+    'selector': 'textarea',
+    'plugins': 'link lists code',
+    'toolbar': 'undo redo | bold italic | bullist numlist | link code'
 }
+
+# Cities Light Configuration
+CITIES_LIGHT_TRANSLATION_LANGUAGES = ['en', 'fr', 'ar']  # English, French, Arabic
+CITIES_LIGHT_INCLUDE_COUNTRIES = ['TN', 'MA', 'DZ', 'LY', 'EG', 'LB', 'YE', 'SY']  # Tunisia, Morocco, Algeria, Libya, Egypt, Lebanon, Yemen, Syria
+CITIES_LIGHT_INCLUDE_CITY_TYPES = ['PPL', 'PPLA', 'PPLA2', 'PPLA3', 'PPLA4', 'PPLC']  # Populated places
 
 LOGIN_URL = "guard:login"
 LOGIN_REDIRECT_URL = "guard:dashboard"

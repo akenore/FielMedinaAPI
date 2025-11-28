@@ -31,8 +31,9 @@ class ImageInline(admin.TabularInline):
 
 @admin.register(Location)
 class LocationAdmin(TranslationAdmin):
-    list_display = ['name', 'created_at']
-    search_fields = ['name', 'story']
+    list_display = ['name', 'country', 'city', 'created_at']
+    list_filter = ['country', 'is_active_ads']
+    search_fields = ['name', 'story', 'city__name', 'country__name']
     inlines = [ImageInline]
     
     fieldsets = (
@@ -40,6 +41,6 @@ class LocationAdmin(TranslationAdmin):
             'fields': ('name', 'is_active_ads')
         }),
         (_('Location Details'), {
-            'fields': ('latitude', 'longitude', 'story')
+            'fields': ('country', 'city', 'latitude', 'longitude', 'story')
         }),
     )

@@ -274,14 +274,12 @@
     --spacing-8xl: 90rem;
     --leading-9: 36px;
     --leading-6: 24px;
-    --leading-5: 20px;
     --radius-base: 12px;
     --color-body: var(--color-gray-600);
     --color-heading: var(--color-gray-900);
     --color-fg-brand: var(--color-blue-700);
     --color-fg-success-strong: var(--color-emerald-900);
     --color-fg-disabled: var(--color-gray-400);
-    --color-neutral-primary-soft: var(--color-white);
     --color-neutral-primary: var(--color-white);
     --color-neutral-primary-medium: var(--color-white);
     --color-neutral-secondary-soft: var(--color-gray-50);
@@ -1261,9 +1259,6 @@
   }
   .block {
     display: block;
-  }
-  .contents {
-    display: contents;
   }
   .flex {
     display: flex;
