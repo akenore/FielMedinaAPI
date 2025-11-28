@@ -150,6 +150,9 @@ def dashboard(request):
 @login_required
 def subscribersList(request):
     return render(request, 'guard/views/subscribers/list.html')
+@login_required
+def publicTransportsList(request):
+    return render(request, 'guard/views/publicTransports/list.html')
 
 @login_required
 def locationsList(request):

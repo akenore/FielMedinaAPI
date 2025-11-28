@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
-from .models import UserProfile, Location, Image
+from .models import UserProfile, Location, Image, LocationCategory
 
 
 @admin.register(UserProfile)
@@ -31,16 +31,21 @@ class ImageInline(admin.TabularInline):
 
 @admin.register(Location)
 class LocationAdmin(TranslationAdmin):
-    list_display = ['name', 'country', 'city', 'created_at']
-    list_filter = ['country', 'is_active_ads']
-    search_fields = ['name', 'story', 'city__name', 'country__name']
+    list_display = ['name', 'country', 'city', 'category', 'created_at']
+    list_filter = ['country', 'is_active_ads', 'category']
+    search_fields = ['name', 'story', 'city__name', 'country__name', 'category__name']
     inlines = [ImageInline]
     
     fieldsets = (
         (_('Basic Information'), {
-            'fields': ('name', 'is_active_ads')
+            'fields': ('country', 'city', 'is_active_ads', 'category')
         }),
         (_('Location Details'), {
-            'fields': ('country', 'city', 'latitude', 'longitude', 'story')
+            'fields': ('name','latitude', 'longitude', 'story')
         }),
     )
+
+@admin.register(LocationCategory)
+class LocationCategoryAdmin(TranslationAdmin):
+    list_display = ['name', 'created_at']
+    search_fields = ['name']

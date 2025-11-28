@@ -187,9 +187,22 @@ def cleanup_image_files(sender, instance, **kwargs):
                 os.rmdir(directory)
     except Exception:
         pass
+
+class LocationCategory(models.Model):
+    name = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
+    class Meta:
+        verbose_name = _("Location Category")
+        verbose_name_plural = _("Location Categories")
+        
+    def __str__(self):
+        return self.name  
+
 class Location(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
+    category = models.ForeignKey(LocationCategory, on_delete=models.SET_NULL, null=True, blank=True, related_name='locations', verbose_name=_("Category"))
     name = models.CharField(max_length=255)
     country = models.ForeignKey('cities_light.Country', on_delete=models.SET_NULL, null=True, blank=True, related_name='locations', verbose_name=_("Country"))
     city = models.ForeignKey('cities_light.City', on_delete=models.SET_NULL, null=True, blank=True, related_name='locations', verbose_name=_("City"))

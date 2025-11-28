@@ -16,6 +16,7 @@ from .views import (
     locationsList,
     eventsList,
     adsList,
+    publicTransportsList,
 )
 
 app_name = "guard"
@@ -41,6 +42,7 @@ urlpatterns = [
     path('staff/' , include([
      path('subscribersList/', subscribersList, name='subscribersList'),
      path('locationsList/', locationsList, name='locationsList'),
+     path('publicTransportsList/', publicTransportsList, name='publicTransportsList'),
     ] )),
     path('eventsList/', eventsList, name='eventsList'),
     path('adsList/', adsList, name='adsList'),
