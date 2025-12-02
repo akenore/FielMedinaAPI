@@ -11,9 +11,11 @@ from .views import (
     CustomPasswordChangeView,
     CustomPasswordChangeDoneView,
     SettingView,
-    dashboard,
+    DashboardView,
     subscribersList,
-    locationsList,
+    LocationsListView,
+    LocationCreateView,
+    LocationUpdateView,
     eventsList,
     adsList,
     publicTransportsList,
@@ -22,7 +24,7 @@ from .views import (
 app_name = "guard"
 
 urlpatterns = [
-    path('', dashboard, name='dashboard'),
+    path('', DashboardView.as_view(), name='dashboard'),
     path('auth/login/', CustomLoginView.as_view(), name='login'),
     path('auth/logout/', CustomLogoutView.as_view(), name='logout'),
     path('auth/register/', RegisterView.as_view(), name='register'),
@@ -41,7 +43,9 @@ urlpatterns = [
     path('auth/settings/', SettingView.as_view(), name='settings'),
     path('staff/' , include([
      path('subscribersList/', subscribersList, name='subscribersList'),
-     path('locationsList/', locationsList, name='locationsList'),
+     path('locationsList/', LocationsListView.as_view(), name='locationsList'),
+     path('locations/create/', LocationCreateView.as_view(), name='location_create'),
+     path('locations/update/<int:pk>/', LocationUpdateView.as_view(), name='location_update'),
      path('publicTransportsList/', publicTransportsList, name='publicTransportsList'),
     ] )),
     path('eventsList/', eventsList, name='eventsList'),

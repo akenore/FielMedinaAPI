@@ -11,4 +11,12 @@
 
 {% block body %}
    <h1 class="text-2xl font-bold dark:text-white">{% if object %}{% trans "Edit Location" %}{% else %}{% trans "Add Location" %}{% endif %}</h1>
+   <form action="" method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      {{ form.media }}
+      <button type="submit" class="inline-flex items-center text-white bg-brand box-border border border-transparent hover:bg-brand-strong focus:ring-4 focus:ring-brand-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">
+         {% trans "Save" %}
+      </button>
+   </form>
 {% endblock body %}

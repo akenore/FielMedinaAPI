@@ -8,7 +8,7 @@ from django.contrib.auth.forms import (
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
-from .models import UserProfile
+from .models import UserProfile, Location, LocationCategory
 
 
 class FlowbiteFormMixin:
@@ -165,3 +165,39 @@ class ProfileUpdateForm(FlowbiteFormMixin, forms.ModelForm):
         if qs.exists():
             raise forms.ValidationError(_("This email is already in use."))
         return email
+
+
+class LocationUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Location
+        fields = '__all__'
+        widgets = {
+            "name": forms.TextInput(attrs={
+                "placeholder": _("Enter location name"),
+                "autocomplete": "location-name",
+            }),
+            "category": forms.Select(attrs={
+                "placeholder": _("Select location category"),
+                "autocomplete": "location-category",
+            }),
+            "state": forms.TextInput(attrs={
+                "placeholder": _("Enter location state"),
+                "autocomplete": "location-state",
+            }),
+            "city": forms.TextInput(attrs={
+                "placeholder": _("Enter location city"),
+                "autocomplete": "location-city",
+            }),
+            "country": forms.Select(attrs={
+                "placeholder": _("Select location country"),
+                "autocomplete": "location-country",
+            }),
+            "latitude": forms.TextInput(attrs={
+                "placeholder": _("Enter location latitude"),
+                "autocomplete": "location-latitude",
+            }),
+            "longitude": forms.TextInput(attrs={
+                "placeholder": _("Enter location longitude"),
+                "autocomplete": "location-longitude",
+            }),
+        }

@@ -210,6 +210,9 @@ class Location(models.Model):
     latitude = models.DecimalField(max_digits=9, decimal_places=6)
     is_active_ads = models.BooleanField(default=False, verbose_name=_("Active Ads"))
     story = HTMLField(verbose_name=_("Story"))
+    openFrom = models.TimeField(verbose_name=_("Open From"),blank=True,null=True, help_text=_("Add opening hours if the location is open from a specific time"))
+    openTo = models.TimeField(verbose_name=_("Open To"),blank=True,null=True, help_text=_("Add opening hours if the location is open to a specific time"))
+    admissionFee = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_("Admission Fee"),blank=True,null=True, help_text=_("Add admission fee if the location has a specific admission fee"))
     
     class Meta:
         verbose_name = _("Location")

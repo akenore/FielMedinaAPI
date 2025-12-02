@@ -7,7 +7,7 @@ from django.contrib.auth.views import (
 )
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
-from django.views.generic import CreateView, TemplateView
+from django.views.generic import CreateView,UpdateView,DeleteView, ListView, DetailView, TemplateView
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.utils.translation import gettext as _
@@ -18,8 +18,10 @@ from .forms import (
     FlowbiteSetPasswordForm,
     FlowbitePasswordChangeForm,
     ProfileUpdateForm,
+    LocationUpdateForm,
 )
 
+from .models import LocationCategory, Location
 
 class CustomLoginView(LoginView):
     template_name = "guard/auth/login.html"
@@ -143,9 +145,30 @@ class SettingView(LoginRequiredMixin, TemplateView):
         }
 
 
-@login_required
-def dashboard(request):
-    return render(request, 'guard/views/dashboard.html')
+
+class DashboardView(TemplateView, LoginRequiredMixin):
+    template_name = "guard/views/dashboard.html"
+
+class LocationsListView(ListView, LoginRequiredMixin):
+    model = Location
+    template_name = "guard/views/locations/list.html"
+    context_object_name = "locations"
+    paginate_by = 10
+
+
+class LocationCreateView(CreateView, LoginRequiredMixin):
+    model = Location
+    template_name = "guard/views/locations/index.html"
+    form_class = LocationUpdateForm
+    success_url = reverse_lazy("guard:locations")
+
+
+class LocationUpdateView(UpdateView, LoginRequiredMixin):
+    model = Location
+    template_name = "guard/views/locations/index.html"
+    form_class = LocationUpdateForm
+    success_url = reverse_lazy("guard:locations")
+    
 
 @login_required
 def subscribersList(request):
@@ -153,10 +176,6 @@ def subscribersList(request):
 @login_required
 def publicTransportsList(request):
     return render(request, 'guard/views/publicTransports/list.html')
-
-@login_required
-def locationsList(request):
-    return render(request, 'guard/views/locations/list.html')
 
 @login_required
 def eventsList(request):

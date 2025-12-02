@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 from .models import UserProfile, Location, Image, LocationCategory
+from modeltranslation.admin import TranslationAdmin
 
 
 @admin.register(UserProfile)
@@ -21,10 +22,6 @@ class UserProfileAdmin(admin.ModelAdmin):
         obj.user.save(update_fields=["is_staff"])
         super().save_model(request, obj, form, change)
 
-
-
-from modeltranslation.admin import TranslationAdmin
-
 class ImageInline(admin.TabularInline):
     model = Image
     extra = 1
@@ -41,7 +38,7 @@ class LocationAdmin(TranslationAdmin):
             'fields': ('country', 'city', 'is_active_ads', 'category')
         }),
         (_('Location Details'), {
-            'fields': ('name','latitude', 'longitude', 'story')
+            'fields': ('name','latitude', 'longitude', 'openFrom', 'openTo', 'admissionFee','story')
         }),
     )
 
