@@ -7,6 +7,7 @@ from django.contrib.auth.forms import (
 )
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
+from tinymce.widgets import TinyMCE
 
 from .models import UserProfile, Location, LocationCategory
 
@@ -19,13 +20,25 @@ class FlowbiteFormMixin:
         "dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
     )
 
+    checkbox_class = "w-5 h-5 border border-default-medium rounded bg-neutral-secondary-medium focus:ring-2 focus:ring-brand-soft"
+    radio_class = "w-4 h-4 text-blue-600 focus:ring-2 focus:ring-blue-500"
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         for name, field in self.fields.items():
-            classes = field.widget.attrs.get("class", "")
-            field.widget.attrs["class"] = f"{classes} {self.input_class}".strip(
-            )
-            field.widget.attrs.setdefault("id", f"id_{name}")
+            widget = field.widget
+            classes = widget.attrs.get("class", "")
+
+            if isinstance(widget, (forms.CheckboxInput,)):
+                widget.attrs["class"] = f"{classes} {self.checkbox_class}".strip()
+            elif isinstance(widget, (forms.RadioSelect,)):
+                widget.attrs["class"] = f"{classes} {self.radio_class}".strip()
+            else:
+                widget.attrs["class"] = f"{classes} {self.input_class}".strip()
+
+            widget.attrs.setdefault("id", f"id_{name}")
+
 
 
 class LoginForm(FlowbiteFormMixin, AuthenticationForm):
@@ -167,37 +180,109 @@ class ProfileUpdateForm(FlowbiteFormMixin, forms.ModelForm):
         return email
 
 
-class LocationUpdateForm(forms.ModelForm):
+class LocationUpdateForm(FlowbiteFormMixin, forms.ModelForm):
+    name_en = forms.CharField(
+        label=_("Name (English)"),
+        max_length=255,
+        required=False,
+        widget=forms.TextInput(attrs={
+            "placeholder": _("Enter location name in English"),
+        })
+    )
+    name_fr = forms.CharField(
+        label=_("Name (French)"),
+        max_length=255,
+        required=False,
+        widget=forms.TextInput(attrs={
+            "placeholder": _("Enter location name in French"),
+        })
+    )
+    
+    story_en = forms.CharField(
+        label=_("Story (English)"),
+        required=False,
+        widget=TinyMCE(attrs={'cols': 80, 'rows': 30})
+    )
+    story_fr = forms.CharField(
+        label=_("Story (French)"),
+        required=False,
+        widget=TinyMCE(attrs={'cols': 80, 'rows': 30})
+    )
+    
     class Meta:
         model = Location
-        fields = '__all__'
+        fields = [
+            'name_en', 'name_fr',
+            'category', 
+            'country', 
+            'city',
+            'latitude',
+            'longitude',
+            'story_en', 'story_fr',
+            'openFrom',
+            'openTo',
+            'admissionFee',
+            'is_active_ads',
+        ]
         widgets = {
-            "name": forms.TextInput(attrs={
-                "placeholder": _("Enter location name"),
-                "autocomplete": "location-name",
-            }),
             "category": forms.Select(attrs={
                 "placeholder": _("Select location category"),
-                "autocomplete": "location-category",
-            }),
-            "state": forms.TextInput(attrs={
-                "placeholder": _("Enter location state"),
-                "autocomplete": "location-state",
-            }),
-            "city": forms.TextInput(attrs={
-                "placeholder": _("Enter location city"),
-                "autocomplete": "location-city",
             }),
             "country": forms.Select(attrs={
                 "placeholder": _("Select location country"),
-                "autocomplete": "location-country",
             }),
-            "latitude": forms.TextInput(attrs={
-                "placeholder": _("Enter location latitude"),
-                "autocomplete": "location-latitude",
+            "city": forms.Select(attrs={
+                "placeholder": _("Select location city"),
             }),
-            "longitude": forms.TextInput(attrs={
-                "placeholder": _("Enter location longitude"),
-                "autocomplete": "location-longitude",
+            "latitude": forms.NumberInput(attrs={
+                "placeholder": _("e.g., 36.8065"),
+                "step": "0.000001",
             }),
+            "longitude": forms.NumberInput(attrs={
+                "placeholder": _("e.g., 10.1815"),
+                "step": "0.000001",
+            }),
+            "openFrom": forms.TimeInput(attrs={
+                "type": "time",
+                "placeholder": _("Opening time"),
+            }),
+            "openTo": forms.TimeInput(attrs={
+                "type": "time",
+                "placeholder": _("Closing time"),
+            }),
+            "admissionFee": forms.NumberInput(attrs={
+                "placeholder": _("e.g., 5.00"),
+                "step": "0.01",
+                "min": "0",
+            }),
+            "is_active_ads": forms.CheckboxInput(),
         }
+        
+        help_texts = {
+            'latitude': _('Latitude in decimal degrees (e.g., 36.8065)'),
+            'longitude': _('Longitude in decimal degrees (e.g., 10.1815)'),
+            'openFrom': _('Leave empty if location is always open'),
+            'openTo': _('Leave empty if location is always open'),
+            'admissionFee': _('Leave empty if admission is free'),
+            'is_active_ads': _('Enable advertisements for this location'),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        if 'city' in self.fields:
+            from cities_light.models import City
+            if self.instance and self.instance.country:
+                self.fields['city'].queryset = City.objects.filter(country=self.instance.country)
+            else:
+                self.fields['city'].queryset = City.objects.all()
+        
+    def clean(self):
+        cleaned_data = super().clean()
+        open_from = cleaned_data.get('openFrom')
+        open_to = cleaned_data.get('openTo')
+        
+        if open_from and open_to and open_from >= open_to:
+            self.add_error('openTo', _('Closing time must be after opening time.'))
+        
+        return cleaned_data

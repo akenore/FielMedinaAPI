@@ -160,14 +160,14 @@ class LocationCreateView(CreateView, LoginRequiredMixin):
     model = Location
     template_name = "guard/views/locations/index.html"
     form_class = LocationUpdateForm
-    success_url = reverse_lazy("guard:locations")
+    success_url = reverse_lazy("guard:locationsList")
 
 
 class LocationUpdateView(UpdateView, LoginRequiredMixin):
     model = Location
     template_name = "guard/views/locations/index.html"
     form_class = LocationUpdateForm
-    success_url = reverse_lazy("guard:locations")
+    success_url = reverse_lazy("guard:locationsList")
     
 
 @login_required

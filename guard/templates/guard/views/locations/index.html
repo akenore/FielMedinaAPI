@@ -10,13 +10,456 @@
 {% endblock title %}
 
 {% block body %}
-   <h1 class="text-2xl font-bold dark:text-white">{% if object %}{% trans "Edit Location" %}{% else %}{% trans "Add Location" %}{% endif %}</h1>
-   <form action="" method="post">
-      {% csrf_token %}
-      {{ form.as_p }}
-      {{ form.media }}
-      <button type="submit" class="inline-flex items-center text-white bg-brand box-border border border-transparent hover:bg-brand-strong focus:ring-4 focus:ring-brand-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">
-         {% trans "Save" %}
-      </button>
-   </form>
+<nav class="flex mb-5" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-1 md:space-x-3">
+        <li class="inline-flex items-center">
+            <a href="{% url 'guard:dashboard' %}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
+                {% trans "Dashboard" %}
+            </a>
+        </li>
+        <li>
+            <div class="flex items-center">
+                <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                <a href="{% url 'guard:locationsList' %}" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">{% trans "Locations" %}</a>
+            </div>
+        </li>
+        <li aria-current="page">
+            <div class="flex items-center">
+                <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">
+                    {% if object %}{% trans "Edit" %}{% else %}{% trans "Add" %}{% endif %}
+                </span>
+            </div>
+        </li>
+    </ol>
+</nav>
+
+<div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+        {% if object %}
+            {% trans "Edit Location" %}
+        {% else %}
+            {% trans "Add Location" %}
+        {% endif %}
+    </h1>
+    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        {% if object %}
+            {% trans "Update the location details below" %}
+        {% else %}
+            {% trans "Fill in the details to create a new location" %}
+        {% endif %}
+    </p>
+</div>
+
+<form action="" method="post" class="space-y-6" id="locationForm">
+    {% csrf_token %}
+    {{ form.media}}
+    {% if form.non_field_errors %}
+    <div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+        {% for error in form.non_field_errors %}
+            <div>{{ error }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div class="bg-white dark:bg-gray-800 shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="border-b border-gray-200 dark:border-gray-700 pb-4 mb-6">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    {% trans "Basic Information" %}
+                </h2>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{% trans "Enter the location name in different languages" %}</p>
+            </div>
+            
+            <div class="mb-4">
+                <div class="border-b border-gray-200 dark:border-gray-700">
+                    <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" role="tablist">
+                        <li class="mr-2" role="presentation">
+                            <button class="cursor-pointer inline-block p-4 border-b-2 rounded-t-lg border-blue-600 text-blue-600 dark:text-blue-500 dark:border-blue-500" type="button" role="tab" aria-selected="true" onclick="switchTab(event, 'name-en')">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8"/></svg>
+                                    {% trans "English" %}
+                                </span>
+                            </button>
+                        </li>
+                        <li class="mr-2" role="presentation">
+                            <button class="cursor-pointer inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" type="button" role="tab" aria-selected="false" onclick="switchTab(event, 'name-fr')">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8"/></svg>
+                                    {% trans "French" %}
+                                </span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div id="name-en" class="tab-content pt-4">
+                    <div>
+                        <label for="{{ form.name_en.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            {{ form.name_en.label }}
+                            {% if form.name_en.field.required %}<span class="text-red-600">*</span>{% endif %}
+                        </label>
+                        {{ form.name_en }}
+                        {% if form.name_en.errors %}
+                            <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.name_en.errors.0 }}</p>
+                        {% endif %}
+                        {% if form.name_en.help_text %}
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ form.name_en.help_text }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div id="name-fr" class="tab-content pt-4 hidden">
+                    <div>
+                        <label for="{{ form.name_fr.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            {{ form.name_fr.label }}
+                            {% if form.name_fr.field.required %}<span class="text-red-600">*</span>{% endif %}
+                        </label>
+                        {{ form.name_fr }}
+                        {% if form.name_fr.errors %}
+                            <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.name_fr.errors.0 }}</p>
+                        {% endif %}
+                        {% if form.name_fr.help_text %}
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ form.name_fr.help_text }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="border-b border-gray-200 dark:border-gray-700 pb-4 mb-6">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    {% trans "Location Details" %}
+                </h2>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{% trans "Geographic and category information" %}</p>
+            </div>
+            
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                    <label for="{{ form.category.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        {{ form.category.label }}
+                        {% if form.category.field.required %}<span class="text-red-600">*</span>{% endif %}
+                    </label>
+                    {{ form.category }}
+                    {% if form.category.errors %}
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.category.errors.0 }}</p>
+                    {% endif %}
+                    {% if form.category.help_text %}
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ form.category.help_text }}</p>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <label for="{{ form.country.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        {{ form.country.label }}
+                        {% if form.country.field.required %}<span class="text-red-600">*</span>{% endif %}
+                    </label>
+                    {{ form.country }}
+                    {% if form.country.errors %}
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.country.errors.0 }}</p>
+                    {% endif %}
+                    {% if form.country.help_text %}
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ form.country.help_text }}</p>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <label for="{{ form.city.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        {{ form.city.label }}
+                        {% if form.city.field.required %}<span class="text-red-600">*</span>{% endif %}
+                    </label>
+                    {{ form.city }}
+                    {% if form.city.errors %}
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.city.errors.0 }}</p>
+                    {% endif %}
+                    {% if form.city.help_text %}
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ form.city.help_text }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="sm:col-span-2">
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <div>
+                            <label for="{{ form.latitude.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                                {{ form.latitude.label }}
+                                {% if form.latitude.field.required %}<span class="text-red-600">*</span>{% endif %}
+                            </label>
+                            {{ form.latitude }}
+                            {% if form.latitude.errors %}
+                                <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.latitude.errors.0 }}</p>
+                            {% endif %}
+                            {% if form.latitude.help_text %}
+                                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ form.latitude.help_text }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.longitude.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                                {{ form.longitude.label }}
+                                {% if form.longitude.field.required %}<span class="text-red-600">*</span>{% endif %}
+                            </label>
+                            {{ form.longitude }}
+                            {% if form.longitude.errors %}
+                                <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.longitude.errors.0 }}</p>
+                            {% endif %}
+                            {% if form.longitude.help_text %}
+                                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ form.longitude.help_text }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="border-b border-gray-200 dark:border-gray-700 pb-4 mb-6">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    {% trans "Content" %}
+                </h2>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{% trans "Location story and description" %}</p>
+            </div>
+            
+            <div class="mb-4">
+                <div class="border-b border-gray-200 dark:border-gray-700">
+                    <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" role="tablist">
+                        <li class="mr-2" role="presentation">
+                            <button class="cursor-pointer inline-block p-4 border-b-2 rounded-t-lg border-blue-600 text-blue-600 dark:text-blue-500 dark:border-blue-500" type="button" role="tab" aria-selected="true" onclick="switchTab(event, 'story-en')">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8"/></svg>
+                                    {% trans "English" %}
+                                </span>
+                            </button>
+                        </li>
+                        <li class="mr-2" role="presentation">
+                            <button class="cursor-pointer inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" type="button" role="tab" aria-selected="false" onclick="switchTab(event, 'story-fr')">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8"/></svg>
+                                    {% trans "French" %}
+                                </span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div id="story-en" class="tab-content pt-4">
+                    <div>
+                        <label for="{{ form.story_en.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            {{ form.story_en.label }}
+                            {% if form.story_en.field.required %}<span class="text-red-600">*</span>{% endif %}
+                        </label>
+                        {{ form.story_en }}
+                        {% if form.story_en.errors %}
+                            <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.story_en.errors.0 }}</p>
+                        {% endif %}
+                        {% if form.story_en.help_text %}
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ form.story_en.help_text }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div id="story-fr" class="tab-content pt-4 hidden">
+                    <div>
+                        <label for="{{ form.story_fr.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            {{ form.story_fr.label }}
+                            {% if form.story_fr.field.required %}<span class="text-red-600">*</span>{% endif %}
+                        </label>
+                        {{ form.story_fr }}
+                        {% if form.story_fr.errors %}
+                            <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.story_fr.errors.0 }}</p>
+                        {% endif %}
+                        {% if form.story_fr.help_text %}
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ form.story_fr.help_text }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="border-b border-gray-200 dark:border-gray-700 pb-4 mb-6">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    {% trans "Operational Details" %}
+                </h2>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{% trans "Opening hours and pricing information" %}</p>
+            </div>
+            
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+                <div>
+                    <label for="{{ form.openFrom.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        {{ form.openFrom.label }}
+                        {% if form.openFrom.field.required %}<span class="text-red-600">*</span>{% endif %}
+                    </label>
+                    {{ form.openFrom }}
+                    {% if form.openFrom.errors %}
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.openFrom.errors.0 }}</p>
+                    {% endif %}
+                    {% if form.openFrom.help_text %}
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ form.openFrom.help_text }}</p>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <label for="{{ form.openTo.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        {{ form.openTo.label }}
+                        {% if form.openTo.field.required %}<span class="text-red-600">*</span>{% endif %}
+                    </label>
+                    {{ form.openTo }}
+                    {% if form.openTo.errors %}
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.openTo.errors.0 }}</p>
+                    {% endif %}
+                    {% if form.openTo.help_text %}
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ form.openTo.help_text }}</p>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <label for="{{ form.admissionFee.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        {{ form.admissionFee.label }}
+                        {% if form.admissionFee.field.required %}<span class="text-red-600">*</span>{% endif %}
+                    </label>
+                    {{ form.admissionFee }}
+                    {% if form.admissionFee.errors %}
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.admissionFee.errors.0 }}</p>
+                    {% endif %}
+                    {% if form.admissionFee.help_text %}
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ form.admissionFee.help_text }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="border-b border-gray-200 dark:border-gray-700 pb-4 mb-6">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    {% trans "Status & Settings" %}
+                </h2>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{% trans "Location visibility and features" %}</p>
+            </div>
+            
+            <div class="flex items-start">
+                <div class="flex items-center h-5">
+                    {{ form.is_active_ads }}
+                </div>
+                <div class="ms-3 text-sm">
+                    <label for="{{ form.is_active_ads.id_for_label }}" class="font-medium text-gray-900 dark:text-gray-300">
+                        {{ form.is_active_ads.label }}
+                    </label>
+                    {% if form.is_active_ads.help_text %}
+                        <p class="text-xs font-normal text-gray-500 dark:text-gray-400">{{ form.is_active_ads.help_text }}</p>
+                    {% endif %}
+                    {% if form.is_active_ads.errors %}
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.is_active_ads.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex items-center justify-between gap-x-6 border-t border-gray-900/10 pt-6">
+        <a href="{% url 'guard:locationsList' %}" class="text-body bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading focus:ring-4 focus:ring-neutral-tertiary shadow-xs font-medium leading-5 rounded-full text-sm px-4 py-2.5 focus:outline-none">
+            {% trans "Cancel" %}
+        </a>
+        <div class="flex gap-x-3">
+            <button type="submit" class="inline-flex items-center px-5 py-2.5 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                </svg>
+                {% if object %}{% trans "Update Location" %}{% else %}{% trans "Save Location" %}{% endif %}
+            </button>
+        </div>
+    </div>
+</form>
+
 {% endblock body %}
+
+{% block extrascript %}
+<script>
+    function switchTab(event, tabId) {
+    event.preventDefault();
+    
+    const element = event.currentTarget;
+    const tabList = element.closest('ul');
+    const contentContainer = tabList.parentElement.parentElement;
+    
+    tabList.querySelectorAll('button, a').forEach(el => {
+        el.classList.remove('border-blue-600', 'text-blue-600', 'dark:text-blue-500', 'dark:border-blue-500', 'active');
+        el.classList.add('border-transparent');
+        el.setAttribute('aria-selected', 'false');
+        el.removeAttribute('aria-current');
+    });
+    
+    // Add active state to clicked tab
+    element.classList.add('border-blue-600', 'text-blue-600', 'dark:text-blue-500', 'dark:border-blue-500', 'active');
+    element.classList.remove('border-transparent');
+    element.setAttribute('aria-selected', 'true');
+    element.setAttribute('aria-current', 'page');
+    
+    // Hide all tab contents
+    contentContainer.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+    
+    // Show selected tab content
+    const selectedContent = document.getElementById(tabId);
+    if (selectedContent) {
+        selectedContent.classList.remove('hidden');
+    }
+}
+    
+    function isDarkMode() {
+        return document.documentElement.classList.contains('dark');
+    }
+    
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.attributeName === 'class') {
+                const darkMode = isDarkMode();
+                if (tinymce.activeEditor) {
+                }
+            }
+        });
+    });
+    
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class']
+    });
+    
+    const countrySelect = document.getElementById('{{ form.country.id_for_label }}');
+    const citySelect = document.getElementById('{{ form.city.id_for_label }}');
+    
+    if (countrySelect && citySelect) {
+        countrySelect.addEventListener('change', function() {
+            const countryId = this.value;
+            if (countryId) {
+                console.log('Country changed to:', countryId);
+            }
+        });
+    }
+</script>
+{% endblock extrascript %}
