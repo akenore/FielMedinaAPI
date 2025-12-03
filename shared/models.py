@@ -9,11 +9,6 @@ from django.utils.translation import gettext_lazy as _
 
 
 class OptimizedImageModel(models.Model):
-    """
-    Abstract base model that provides automatic image optimization.
-    Resizes images to 1920px max width for main image and 500px for mobile.
-    Converts all images to JPEG format with 80% quality.
-    """
     image = models.ImageField(upload_to='images/')
     image_mobile = models.ImageField(upload_to='images/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -26,11 +21,9 @@ class OptimizedImageModel(models.Model):
             try:
                 img = PilImage.open(self.image)
                 
-                # Convert to RGB if necessary
                 if img.mode != 'RGB':
                     img = img.convert('RGB')
                 
-                # Process main image (max width 1920px)
                 img_main = img.copy()
                 if img_main.width > 1920:
                     ratio = 1920 / float(img_main.width)
@@ -47,7 +40,6 @@ class OptimizedImageModel(models.Model):
                 
                 self.image = ContentFile(output_main.read(), name=filename)
 
-                # Process mobile image (max width 500px)
                 img_mobile = img.copy()
                 if img_mobile.width > 500:
                     ratio = 500 / float(img_mobile.width)
@@ -60,7 +52,6 @@ class OptimizedImageModel(models.Model):
                 
                 self.image_mobile = ContentFile(output_mobile.read(), name=f"mobile_{filename}")
                 
-                # Try to delete old file if it exists
                 try:
                     if self.image.storage.exists(self.image.name):
                         self.image.storage.delete(self.image.name)
@@ -76,8 +67,6 @@ class OptimizedImageModel(models.Model):
 
 @receiver(post_delete)
 def cleanup_optimized_image_files(sender, instance, **kwargs):
-    """Delete image files when an OptimizedImageModel instance is deleted."""
-    # Only process if the sender is a subclass of OptimizedImageModel
     if not issubclass(sender, OptimizedImageModel):
         return
     
