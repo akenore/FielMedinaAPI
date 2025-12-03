@@ -2404,6 +2404,9 @@
   .text-heading {
     color: var(--color-heading);
   }
+  .text-indigo-900 {
+    color: var(--color-indigo-900);
+  }
   .text-orange-500 {
     color: var(--color-orange-500);
   }
@@ -3199,6 +3202,11 @@
   .dark\:text-green-200 {
     &:where(.dark, .dark *) {
       color: var(--color-green-200);
+    }
+  }
+  .dark\:text-indigo-500 {
+    &:where(.dark, .dark *) {
+      color: var(--color-indigo-500);
     }
   }
   .dark\:text-orange-200 {

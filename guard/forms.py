@@ -180,7 +180,7 @@ class ProfileUpdateForm(FlowbiteFormMixin, forms.ModelForm):
         return email
 
 
-class LocationUpdateForm(FlowbiteFormMixin, forms.ModelForm):
+class LocationForm(FlowbiteFormMixin, forms.ModelForm):
     name_en = forms.CharField(
         label=_("Name (English)"),
         max_length=255,

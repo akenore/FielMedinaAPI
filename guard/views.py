@@ -6,6 +6,7 @@ from django.contrib.auth.views import (
     PasswordChangeView, PasswordChangeDoneView,
 )
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.decorators import login_required
 from django.views.generic import CreateView,UpdateView,DeleteView, ListView, DetailView, TemplateView
 from django.urls import reverse_lazy
@@ -18,7 +19,7 @@ from .forms import (
     FlowbiteSetPasswordForm,
     FlowbitePasswordChangeForm,
     ProfileUpdateForm,
-    LocationUpdateForm,
+    LocationForm,
 )
 
 from .models import LocationCategory, Location
@@ -156,19 +157,30 @@ class LocationsListView(ListView, LoginRequiredMixin):
     paginate_by = 10
 
 
-class LocationCreateView(CreateView, LoginRequiredMixin):
+class LocationCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Location
     template_name = "guard/views/locations/index.html"
-    form_class = LocationUpdateForm
+    form_class = LocationForm
     success_url = reverse_lazy("guard:locationsList")
+    success_message = _("Location created successfully.")
 
 
-class LocationUpdateView(UpdateView, LoginRequiredMixin):
+class LocationUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = Location
     template_name = "guard/views/locations/index.html"
-    form_class = LocationUpdateForm
+    form_class = LocationForm
     success_url = reverse_lazy("guard:locationsList")
-    
+    success_message = _("Location updated successfully.")
+
+class LocationDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+    model = Location
+    success_url = reverse_lazy("guard:locationsList")
+    success_message = _("Unfortunately, this location has been deleted")
+
+    def delete(self, request, *args, **kwargs):
+        messages.warning(self.request, self.success_message)
+        return super(LocationDeleteView, self).delete(request, *args, **kwargs)
+
 
 @login_required
 def subscribersList(request):

@@ -56,13 +56,12 @@
     {% csrf_token %}
     {{ form.media}}
     {% if form.non_field_errors %}
-    <div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
-        {% for error in form.non_field_errors %}
-            <div>{{ error }}</div>
-        {% endfor %}
-    </div>
-    {% endif %}
-    
+        <div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+            {% for error in form.non_field_errors %}
+                <div>{{ error }}</div>
+            {% endfor %}
+        </div>
+    {% endif %} 
     <div class="bg-white dark:bg-gray-800 shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl">
         <div class="px-4 py-5 sm:p-6">
             <div class="border-b border-gray-200 dark:border-gray-700 pb-4 mb-6">
@@ -77,7 +76,7 @@
             
             <div class="mb-4">
                 <div class="border-b border-gray-200 dark:border-gray-700">
-                    <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" role="tablist">
+                    <ul class="flex flex-wrap -mb-px text-sm font-medium text-center dark:text-white" role="tablist">
                         <li class="mr-2" role="presentation">
                             <button class="cursor-pointer inline-block p-4 border-b-2 rounded-t-lg border-blue-600 text-blue-600 dark:text-blue-500 dark:border-blue-500" type="button" role="tab" aria-selected="true" onclick="switchTab(event, 'name-en')">
                                 <span class="flex items-center">
@@ -236,7 +235,7 @@
             
             <div class="mb-4">
                 <div class="border-b border-gray-200 dark:border-gray-700">
-                    <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" role="tablist">
+                    <ul class="flex flex-wrap -mb-px text-sm font-medium text-center dark:text-white" role="tablist">
                         <li class="mr-2" role="presentation">
                             <button class="cursor-pointer inline-block p-4 border-b-2 rounded-t-lg border-blue-600 text-blue-600 dark:text-blue-500 dark:border-blue-500" type="button" role="tab" aria-selected="true" onclick="switchTab(event, 'story-en')">
                                 <span class="flex items-center">
@@ -400,36 +399,32 @@
 {% block extrascript %}
 <script>
     function switchTab(event, tabId) {
-    event.preventDefault();
-    
-    const element = event.currentTarget;
-    const tabList = element.closest('ul');
-    const contentContainer = tabList.parentElement.parentElement;
-    
-    tabList.querySelectorAll('button, a').forEach(el => {
-        el.classList.remove('border-blue-600', 'text-blue-600', 'dark:text-blue-500', 'dark:border-blue-500', 'active');
-        el.classList.add('border-transparent');
-        el.setAttribute('aria-selected', 'false');
-        el.removeAttribute('aria-current');
-    });
-    
-    // Add active state to clicked tab
-    element.classList.add('border-blue-600', 'text-blue-600', 'dark:text-blue-500', 'dark:border-blue-500', 'active');
-    element.classList.remove('border-transparent');
-    element.setAttribute('aria-selected', 'true');
-    element.setAttribute('aria-current', 'page');
-    
-    // Hide all tab contents
-    contentContainer.querySelectorAll('.tab-content').forEach(content => {
-        content.classList.add('hidden');
-    });
-    
-    // Show selected tab content
-    const selectedContent = document.getElementById(tabId);
-    if (selectedContent) {
-        selectedContent.classList.remove('hidden');
+        event.preventDefault();
+        
+        const element = event.currentTarget;
+        const tabList = element.closest('ul');
+        const contentContainer = tabList.parentElement.parentElement;
+        
+        tabList.querySelectorAll('button, a').forEach(el => {
+            el.classList.remove('border-blue-600', 'text-blue-600', 'dark:text-blue-500', 'dark:border-blue-500', 'active');
+            el.classList.add('border-transparent');
+            el.setAttribute('aria-selected', 'false');
+            el.removeAttribute('aria-current');
+        });
+        
+        element.classList.add('border-blue-600', 'text-blue-600', 'dark:text-blue-500', 'dark:border-blue-500', 'active');
+        element.classList.remove('border-transparent');
+        element.setAttribute('aria-selected', 'true');
+        element.setAttribute('aria-current', 'page');
+        contentContainer.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.add('hidden');
+        });
+        
+        const selectedContent = document.getElementById(tabId);
+        if (selectedContent) {
+            selectedContent.classList.remove('hidden');
+        }
     }
-}
     
     function isDarkMode() {
         return document.documentElement.classList.contains('dark');
