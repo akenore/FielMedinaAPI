@@ -6,10 +6,11 @@ from django.contrib.auth.forms import (
     SetPasswordForm,
 )
 from django.contrib.auth.models import User
+from django.forms import inlineformset_factory
 from django.utils.translation import gettext_lazy as _
 from tinymce.widgets import TinyMCE
 
-from .models import UserProfile, Location, LocationCategory
+from .models import UserProfile, Location, LocationCategory, ImageLocation
 
 
 class FlowbiteFormMixin:
@@ -283,6 +284,28 @@ class LocationForm(FlowbiteFormMixin, forms.ModelForm):
         open_to = cleaned_data.get('openTo')
         
         if open_from and open_to and open_from >= open_to:
-            self.add_error('openTo', _('Closing time must be after opening time.'))
+            self.add_error('openTo', _("Opening time must be before closing time."))
         
         return cleaned_data
+
+
+class ImageLocationForm(forms.ModelForm):
+    class Meta:
+        model = ImageLocation
+        fields = ['image']
+        widgets = {
+            'image': forms.FileInput(attrs={
+                'class': 'block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400',
+                'accept': 'image/*'
+            })
+        }
+
+
+ImageLocationFormSet = inlineformset_factory(
+    Location,
+    ImageLocation,
+    form=ImageLocationForm,
+    extra=1,
+    can_delete=True,
+    max_num=10,
+)

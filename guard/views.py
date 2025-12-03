@@ -20,6 +20,7 @@ from .forms import (
     FlowbitePasswordChangeForm,
     ProfileUpdateForm,
     LocationForm,
+    ImageLocationFormSet,
 )
 
 from .models import LocationCategory, Location, Event
@@ -147,10 +148,10 @@ class SettingView(LoginRequiredMixin, TemplateView):
 
 
 
-class DashboardView(TemplateView, LoginRequiredMixin):
+class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = "guard/views/dashboard.html"
 
-class LocationsListView(ListView, LoginRequiredMixin):
+class LocationsListView(LoginRequiredMixin, ListView):
     model = Location
     template_name = "guard/views/locations/list.html"
     context_object_name = "locations"
@@ -163,6 +164,26 @@ class LocationCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     form_class = LocationForm
     success_url = reverse_lazy("guard:locationsList")
     success_message = _("Location created successfully.")
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context['image_formset'] = ImageLocationFormSet(self.request.POST, self.request.FILES)
+        else:
+            context['image_formset'] = ImageLocationFormSet()
+        return context
+    
+    def form_valid(self, form):
+        context = self.get_context_data()
+        image_formset = context['image_formset']
+        
+        if image_formset.is_valid():
+            self.object = form.save()
+            image_formset.instance = self.object
+            image_formset.save()
+            return super().form_valid(form)
+        else:
+            return self.form_invalid(form)
 
 
 class LocationUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
@@ -171,6 +192,26 @@ class LocationUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     form_class = LocationForm
     success_url = reverse_lazy("guard:locationsList")
     success_message = _("Location updated successfully.")
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context['image_formset'] = ImageLocationFormSet(self.request.POST, self.request.FILES, instance=self.object)
+        else:
+            context['image_formset'] = ImageLocationFormSet(instance=self.object)
+        return context
+    
+    def form_valid(self, form):
+        context = self.get_context_data()
+        image_formset = context['image_formset']
+        
+        if image_formset.is_valid():
+            self.object = form.save()
+            image_formset.instance = self.object
+            image_formset.save()
+            return super().form_valid(form)
+        else:
+            return self.form_invalid(form)
 
 class LocationDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = Location
@@ -189,7 +230,7 @@ def subscribersList(request):
 def publicTransportsList(request):
     return render(request, 'guard/views/publicTransports/list.html')
 
-class EventListView(ListView):
+class EventListView(LoginRequiredMixin, ListView):
     model = Event
     template_name = "guard/views/events/list.html"
     context_object_name = "events"

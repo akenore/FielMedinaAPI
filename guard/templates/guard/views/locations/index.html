@@ -52,7 +52,7 @@
     </p>
 </div>
 
-<form action="" method="post" class="space-y-6" id="locationForm">
+<form action="" method="post" class="space-y-6" id="locationForm" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.media}}
     {% if form.non_field_errors %}
@@ -379,6 +379,56 @@
         </div>
     </div>
 
+    <!-- Images Section -->
+    <div class="bg-white dark:bg-gray-800 shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl mt-6">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="border-b border-gray-200 dark:border-gray-700 pb-4 mb-6">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{% trans "Images" %}</h2>
+                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{% trans "Upload images for this location (max 10). Images will be automatically optimized." %}</p>
+            </div>
+            
+            {{ image_formset.management_form }}
+            <div id="image-formset" class="space-y-4">
+                {% for form in image_formset %}
+                <div class="image-form-row p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <div class="flex items-start gap-4">
+                        {% if form.instance.pk and form.instance.image %}
+                        <div class="flex-shrink-0">
+                            <img src="{{ form.instance.image.url }}" alt="Location image" class="h-20 w-20 object-cover rounded">
+                        </div>
+                        {% endif %}
+                        <div class="flex-1">
+                            {{ form.id }}
+                            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                                {% if form.instance.pk %}{% trans "Replace Image" %}{% else %}{% trans "Upload Image" %}{% endif %}
+                            </label>
+                            {{ form.image }}
+                            {% if form.errors.image %}
+                            <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.errors.image }}</p>
+                            {% endif %}
+                        </div>
+                        {% if form.instance.pk %}
+                        <div class="flex-shrink-0">
+                            <label class="inline-flex items-center cursor-pointer">
+                                {{ form.DELETE }}
+                                <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">{% trans "Delete" %}</span>
+                            </label>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <button type="button" id="add-image-button" class="mt-4 text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
+                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                {% trans "Add Another Image" %}
+            </button>
+        </div>
+    </div>
+
     <div class="flex items-center justify-between gap-x-6 border-t border-gray-900/10 pt-6">
         <a href="{% url 'guard:locationsList' %}" class="text-body bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading focus:ring-4 focus:ring-neutral-tertiary shadow-xs font-medium leading-5 rounded-full text-sm px-4 py-2.5 focus:outline-none">
             {% trans "Cancel" %}
@@ -443,6 +493,51 @@
     observer.observe(document.documentElement, {
         attributes: true,
         attributeFilter: ['class']
+    });
+    
+    // Initial check in case the page loaded in dark mode but TinyMCE initialized in light mode
+    window.addEventListener('load', function() {
+        // Small delay to ensure TinyMCE is fully initialized first
+        setTimeout(updateTinyMCETheme, 100);
+    });
+
+    // Handle dynamic image formset
+    document.getElementById('add-image-button')?.addEventListener('click', function() {
+        const formset = document.getElementById('image-formset');
+        const totalForms = document.querySelector('#id_images-TOTAL_FORMS');
+        const formCount = parseInt(totalForms.value);
+        const maxForms = parseInt(document.querySelector('#id_images-MAX_NUM_FORMS').value);
+        
+        if (formCount >= maxForms) {
+            alert('Maximum number of images reached (10)');
+            return;
+        }
+        
+        // Clone the first empty form
+        const emptyForm = formset.querySelector('.image-form-row');
+        const newForm = emptyForm.cloneNode(true);
+        
+        // Update form index
+        const formRegex = RegExp(`images-(\\d+)-`, 'g');
+        newForm.innerHTML = newForm.innerHTML.replace(formRegex, `images-${formCount}-`);
+        
+        // Clear the file input
+        const fileInput = newForm.querySelector('input[type="file"]');
+        if (fileInput) fileInput.value = '';
+        
+        // Remove any existing image preview
+        const imgPreview = newForm.querySelector('img');
+        if (imgPreview) imgPreview.parentElement.remove();
+        
+        // Remove delete checkbox if present
+        const deleteSection = newForm.querySelector('.flex-shrink-0:has(label)');
+        if (deleteSection) deleteSection.remove();
+        
+        // Append to formset
+        formset.appendChild(newForm);
+        
+        // Update total forms count
+        totalForms.value = formCount + 1;
     });
     
     const countrySelect = document.getElementById('{{ form.country.id_for_label }}');
