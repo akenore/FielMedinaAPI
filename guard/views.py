@@ -22,7 +22,7 @@ from .forms import (
     LocationForm,
 )
 
-from .models import LocationCategory, Location
+from .models import LocationCategory, Location, Event
 
 class CustomLoginView(LoginView):
     template_name = "guard/auth/login.html"
@@ -188,6 +188,12 @@ def subscribersList(request):
 @login_required
 def publicTransportsList(request):
     return render(request, 'guard/views/publicTransports/list.html')
+
+class EventListView(ListView):
+    model = Event
+    template_name = "guard/views/events/list.html"
+    context_object_name = "events"
+    paginate_by = 10
 
 @login_required
 def eventsList(request):

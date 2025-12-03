@@ -19,27 +19,10 @@ class UserProfile(models.Model):
         STAFF = "staff", _("Staff")
         CLIENT_PARTNER = "client_partner", _("Client / Partenaire")
 
-    user = models.OneToOneField(
-        User,
-        on_delete=models.CASCADE,
-        related_name="profile",
-    )
-    user_type = models.CharField(
-        max_length=32,
-        choices=UserType.choices,
-        default=UserType.CLIENT_PARTNER,
-    )
-    subscription_plan = models.CharField(
-        max_length=100,
-        blank=True,
-        default="Trial",
-        help_text=_("Placeholder until Konnect subscription is attached."),
-    )
-    subscription_status = models.CharField(
-        max_length=32,
-        blank=True,
-        default="trial",
-    )
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile",)
+    user_type = models.CharField(max_length=32, choices=UserType.choices, default=UserType.CLIENT_PARTNER)
+    subscription_plan = models.CharField(max_length=100, blank=True, default="Trial", help_text=_("Placeholder until Konnect subscription is attached."))
+    subscription_status = models.CharField(max_length=32, blank=True, default="trial",)
     subscription_started_at = models.DateField(null=True, blank=True)
     subscription_renews_at = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -113,7 +96,11 @@ def location_image_path(instance, filename):
     name, ext = os.path.splitext(filename)
     return f'locations/{instance.location.id}/{name}.jpg'
 
-class Image(models.Model):
+def event_image_path(instance, filename):
+    name, ext = os.path.splitext(filename)
+    return f'events/{instance.event.id}/{name}.jpg'
+
+class ImageLocation(models.Model):
     location = models.ForeignKey("guard.Location", on_delete=models.CASCADE, related_name="images")
     created_at = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to=location_image_path)
@@ -171,7 +158,7 @@ class Image(models.Model):
 
         super().save(*args, **kwargs)
 
-@receiver(post_delete, sender=Image)
+@receiver(post_delete, sender=ImageLocation)
 def cleanup_image_files(sender, instance, **kwargs):
     """Delete image files when the Image record is deleted."""
     if instance.image and os.path.isfile(instance.image.path):
@@ -221,5 +208,25 @@ class Location(models.Model):
     def __str__(self):
         return self.name
     
+class Event(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    client = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True, blank=True, related_name='events', verbose_name=_("Client"))
+    name = models.CharField(max_length=255)
+    location = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True, blank=True, related_name='events', verbose_name=_("Location"))
+    startDate = models.DateField(verbose_name=_("Start Date"))
+    endDate = models.DateField(verbose_name=_("End Date"))
+    time = models.TimeField(verbose_name=_("Time"))
+    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_("Price"))
+    description = HTMLField(verbose_name=_("Description"))
+    image = models.ImageField(upload_to='location_image_path')
     
+    
+
+    class Meta:
+        verbose_name = _("Event")
+        verbose_name_plural = _("Events")
+
+    def __str__(self):
+        return self.name
+
     

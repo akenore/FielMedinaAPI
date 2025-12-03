@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
-from .models import UserProfile, Location, Image, LocationCategory
+from .models import UserProfile, Location, ImageLocation, LocationCategory
 from modeltranslation.admin import TranslationAdmin
 
 
@@ -23,7 +23,7 @@ class UserProfileAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
 class ImageInline(admin.TabularInline):
-    model = Image
+    model = ImageLocation
     extra = 1
 
 @admin.register(Location)
