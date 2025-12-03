@@ -28,7 +28,8 @@ INSTALLED_APPS = [
     'graphene_django',
     'tinymce',
     'api',
-    'guard'
+    'guard',
+    'shared',
 ]
 
 MIDDLEWARE = [

@@ -1,16 +1,14 @@
 from datetime import timedelta
 import os
-from io import BytesIO
-from PIL import Image as PilImage
-from django.core.files.base import ContentFile
 
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from tinymce.models import HTMLField
+from shared.models import OptimizedImageModel
 
 User = get_user_model()
 
@@ -100,80 +98,32 @@ def event_image_path(instance, filename):
     name, ext = os.path.splitext(filename)
     return f'events/{instance.event.id}/{name}.jpg'
 
-class ImageLocation(models.Model):
+class ImageLocation(OptimizedImageModel):
     location = models.ForeignKey("guard.Location", on_delete=models.CASCADE, related_name="images")
-    created_at = models.DateTimeField(auto_now_add=True)
-    image = models.ImageField(upload_to=location_image_path)
-    image_mobile = models.ImageField(upload_to=location_image_path, blank=True, null=True)
     
     class Meta:
-        verbose_name = _("Image")
-        verbose_name_plural = _("Images")
+        verbose_name = _("Location Image")
+        verbose_name_plural = _("Location Images")
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Override the upload_to for this specific model
+        self._meta.get_field('image').upload_to = location_image_path
+        self._meta.get_field('image_mobile').upload_to = location_image_path
 
-    def save(self, *args, **kwargs):
-        if self.image and (not self.pk or hasattr(self.image, 'file')):
-            try:
-                img = PilImage.open(self.image)
-                
-                if img.mode != 'RGB':
-                    img = img.convert('RGB')
-                
-                img_tablet = img.copy()
-                if img_tablet.width > 1920:
-                    ratio = 1920 / float(img_tablet.width)
-                    height = int((float(img_tablet.height) * float(ratio)))
-                    img_tablet = img_tablet.resize((1920, height), PilImage.Resampling.LANCZOS)
-                
-                output_tablet = BytesIO()
-                img_tablet.save(output_tablet, format='JPEG', quality=80)
-                output_tablet.seek(0)
-                
-                original_name = os.path.basename(self.image.name)
-                name_base, _ = os.path.splitext(original_name)
-                filename = f"{name_base}.jpg"
-                
-                self.image = ContentFile(output_tablet.read(), name=filename)
 
-                img_mobile = img.copy()
-                if img_mobile.width > 500:
-                    ratio = 500 / float(img_mobile.width)
-                    height = int((float(img_mobile.height) * float(ratio)))
-                    img_mobile = img_mobile.resize((500, height), PilImage.Resampling.LANCZOS)
-                
-                output_mobile = BytesIO()
-                img_mobile.save(output_mobile, format='JPEG', quality=80)
-                output_mobile.seek(0)
-                
-                self.image_mobile = ContentFile(output_mobile.read(), name=f"mobile_{filename}")
-                
-                try:
-                    if self.image.storage.exists(self.image.name):
-                        self.image.storage.delete(self.image.name)
-                except Exception:
-                    pass
-                
-            except Exception as e:
-                print(f"Error processing image: {e}")
-                pass
-
-        super().save(*args, **kwargs)
-
-@receiver(post_delete, sender=ImageLocation)
-def cleanup_image_files(sender, instance, **kwargs):
-    """Delete image files when the Image record is deleted."""
-    if instance.image and os.path.isfile(instance.image.path):
-        os.remove(instance.image.path)
-        
-    if instance.image_mobile and os.path.isfile(instance.image_mobile.path):
-        os.remove(instance.image_mobile.path)
-            
-    try:
-        if instance.image:
-            directory = os.path.dirname(instance.image.path)
-            if os.path.exists(directory) and not os.listdir(directory):
-                os.rmdir(directory)
-    except Exception:
-        pass
+class ImageEvent(OptimizedImageModel):
+    event = models.ForeignKey("guard.Event", on_delete=models.CASCADE, related_name="images")
+    
+    class Meta:
+        verbose_name = _("Event Image")
+        verbose_name_plural = _("Event Images")
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Override the upload_to for this specific model
+        self._meta.get_field('image').upload_to = event_image_path
+        self._meta.get_field('image_mobile').upload_to = event_image_path
 
 class LocationCategory(models.Model):
     name = models.CharField(max_length=255)
@@ -218,10 +168,7 @@ class Event(models.Model):
     time = models.TimeField(verbose_name=_("Time"))
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_("Price"))
     description = HTMLField(verbose_name=_("Description"))
-    image = models.ImageField(upload_to='location_image_path')
     
-    
-
     class Meta:
         verbose_name = _("Event")
         verbose_name_plural = _("Events")
@@ -229,4 +176,3 @@ class Event(models.Model):
     def __str__(self):
         return self.name
 
-    
