@@ -1,6 +1,14 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
-from .models import UserProfile, Location, ImageLocation, ImageEvent, LocationCategory, Event
+from .models import (
+    UserProfile,
+    Location,
+    ImageLocation,
+    ImageEvent,
+    LocationCategory,
+    Event,
+    EventCategory,
+)
 from modeltranslation.admin import TranslationAdmin
 
 
@@ -47,11 +55,9 @@ class LocationCategoryAdmin(TranslationAdmin):
     list_display = ['name', 'created_at']
     search_fields = ['name']
 
-
 class ImageEventInline(admin.TabularInline):
     model = ImageEvent
     extra = 1
-
 
 @admin.register(Event)
 class EventAdmin(TranslationAdmin):
@@ -62,7 +68,7 @@ class EventAdmin(TranslationAdmin):
     
     fieldsets = (
         (_('Basic Information'), {
-            'fields': ('name', 'client', 'location')
+            'fields': ('name', 'client', 'location', 'category')
         }),
         (_('Event Schedule'), {
             'fields': ('startDate', 'endDate', 'time')
@@ -71,3 +77,9 @@ class EventAdmin(TranslationAdmin):
             'fields': ('price', 'description')
         }),
     )
+
+@admin.register(EventCategory)
+class EventCategoryAdmin(TranslationAdmin):
+    list_display = ['name', 'created_at']
+    search_fields = ['name']
+

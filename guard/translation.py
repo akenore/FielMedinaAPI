@@ -1,5 +1,5 @@
 from modeltranslation.translator import register, TranslationOptions
-from .models import Location, LocationCategory, Event
+from .models import Location, LocationCategory, Event, EventCategory
 
 @register(Location)
 class LocationTranslationOptions(TranslationOptions):
@@ -12,3 +12,7 @@ class LocationCategoryTranslationOptions(TranslationOptions):
 @register(Event)
 class EventTranslationOptions(TranslationOptions):
     fields = ('name', 'description',)
+
+@register(EventCategory)
+class EventCategoryTranslationOptions(TranslationOptions):
+    fields = ('name',)

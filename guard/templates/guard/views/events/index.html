@@ -213,7 +213,7 @@
             </div>
             
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                <div class="sm:col-span-2">
+                <div>
                     <label for="{{ form.location.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                         {{ form.location.label }}
                         {% if form.location.field.required %}<span class="text-red-600">*</span>{% endif %}
@@ -223,6 +223,19 @@
                         <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.location.errors.0 }}</p>
                     {% endif %}
                     {% if form.location.help_text %}
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ form.location.help_text }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <label for="{{ form.category.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        {{ form.category.label }}
+                        {% if form.category.field.required %}<span class="text-red-600">*</span>{% endif %}
+                    </label>
+                    {{ form.category }}
+                    {% if form.category.errors %}
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.category.errors.0 }}</p>
+                    {% endif %}
+                    {% if form.category.help_text %}
                         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ form.location.help_text }}</p>
                     {% endif %}
                 </div>

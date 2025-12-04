@@ -315,15 +315,16 @@ class EventForm(FlowbiteFormMixin, forms.ModelForm):
     name_en = forms.CharField(
         label=_("Name (English)"),
         max_length=255,
-        required=False,
+        required=True,
         widget=forms.TextInput(attrs={
             "placeholder": _("Enter event name in English"),
-        })
+        }),
+        
     )
     name_fr = forms.CharField(
         label=_("Name (French)"),
         max_length=255,
-        required=False,
+        required=True,
         widget=forms.TextInput(attrs={
             "placeholder": _("Enter event name in French"),
         })
@@ -331,12 +332,12 @@ class EventForm(FlowbiteFormMixin, forms.ModelForm):
     
     description_en = forms.CharField(
         label=_("Description (English)"),
-        required=False,
+        required=True,
         widget=TinyMCE(attrs={'cols': 80, 'rows': 30})
     )
     description_fr = forms.CharField(
         label=_("Description (French)"),
-        required=False,
+        required=True,
         widget=TinyMCE(attrs={'cols': 80, 'rows': 30})
     )
     
@@ -346,6 +347,7 @@ class EventForm(FlowbiteFormMixin, forms.ModelForm):
             'name_en', 'name_fr',
             'description_en', 'description_fr',
             'location',
+            'category',
             'startDate',
             'endDate',
             'time',
@@ -354,6 +356,9 @@ class EventForm(FlowbiteFormMixin, forms.ModelForm):
         widgets = {
             'location': forms.Select(attrs={
                 'placeholder': _('Select event location'),
+            }),
+            'category': forms.Select(attrs={
+                'placeholder': _('Select event category'),
             }),
             'startDate': forms.DateInput(attrs={
                 'type': 'date',

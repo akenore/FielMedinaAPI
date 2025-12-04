@@ -89,7 +89,6 @@ def ensure_profile_exists(sender, instance, created, **kwargs):
     if updated_fields:
         profile.save(update_fields=updated_fields)
 
-
 def location_image_path(instance, filename):
     name, ext = os.path.splitext(filename)
     return f'locations/{instance.location.id}/{name}.jpg'
@@ -109,7 +108,6 @@ class ImageLocation(OptimizedImageModel):
         super().__init__(*args, **kwargs)
         self._meta.get_field('image').upload_to = location_image_path
         self._meta.get_field('image_mobile').upload_to = location_image_path
-
 
 class ImageEvent(OptimizedImageModel):
     event = models.ForeignKey("guard.Event", on_delete=models.CASCADE, related_name="images")
@@ -155,10 +153,26 @@ class Location(models.Model):
 
     def __str__(self):
         return self.name
+
+class EventCategory(models.Model):
+    name = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
+    class Meta:
+        verbose_name = _("Event Category")
+        verbose_name_plural = _("Event Categories")
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse("Event_detail", kwargs={"pk": self.pk})
+
 class Event(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     client = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True, blank=True, related_name='events', verbose_name=_("Client"))
+    category = models.ForeignKey(EventCategory, on_delete=models.CASCADE, related_name='events', verbose_name=_("Category"))
     name = models.CharField(max_length=255)
     location = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True, blank=True, related_name='events', verbose_name=_("Location"))
     startDate = models.DateField(verbose_name=_("Start Date"))
