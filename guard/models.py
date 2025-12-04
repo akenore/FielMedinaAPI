@@ -107,7 +107,6 @@ class ImageLocation(OptimizedImageModel):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Override the upload_to for this specific model
         self._meta.get_field('image').upload_to = location_image_path
         self._meta.get_field('image_mobile').upload_to = location_image_path
 
@@ -121,7 +120,6 @@ class ImageEvent(OptimizedImageModel):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Override the upload_to for this specific model
         self._meta.get_field('image').upload_to = event_image_path
         self._meta.get_field('image_mobile').upload_to = event_image_path
 

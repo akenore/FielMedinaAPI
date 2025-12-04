@@ -21,6 +21,8 @@ from .forms import (
     ProfileUpdateForm,
     LocationForm,
     ImageLocationFormSet,
+    EventForm,
+    ImageEventFormSet,
 )
 
 from .models import LocationCategory, Location, Event
@@ -236,9 +238,71 @@ class EventListView(LoginRequiredMixin, ListView):
     context_object_name = "events"
     paginate_by = 10
 
-@login_required
-def eventsList(request):
-    return render(request, 'guard/views/events/list.html')
+class EventCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+    model = Event
+    template_name = "guard/views/events/index.html"
+    form_class = EventForm
+    success_url = reverse_lazy("guard:eventsList")
+    success_message = _("Event created successfully.")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context['image_formset'] = ImageEventFormSet(self.request.POST, self.request.FILES)
+        else:
+            context['image_formset'] = ImageEventFormSet()
+        return context
+    
+    def form_valid(self, form):
+        context = self.get_context_data()
+        image_formset = context['image_formset']
+        
+        if image_formset.is_valid():
+            self.object = form.save()
+            image_formset.instance = self.object
+            image_formset.save()
+            return super().form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+
+class EventUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+    model = Event
+    template_name = "guard/views/events/index.html"
+    form_class = EventForm
+    success_url = reverse_lazy("guard:eventsList")
+    success_message = _("Event updated successfully.")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context['image_formset'] = ImageEventFormSet(self.request.POST, self.request.FILES, instance=self.object)
+        else:
+            context['image_formset'] = ImageEventFormSet(instance=self.object)
+        return context
+    
+    def form_valid(self, form):
+        context = self.get_context_data()
+        image_formset = context['image_formset']
+        
+        if image_formset.is_valid():
+            self.object = form.save()
+            image_formset.instance = self.object
+            image_formset.save()
+            return super().form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+
+class EventDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+    model = Event
+    success_url = reverse_lazy("guard:eventsList")
+    success_message = _("Unfortunately, this event has been deleted")
+
+    def delete(self, request, *args, **kwargs):
+        messages.warning(self.request, self.success_message)
+        return super(EventDeleteView, self).delete(request, *args, **kwargs)
+
 
 @login_required
 def adsList(request):

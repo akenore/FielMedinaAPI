@@ -54,7 +54,7 @@ class ImageEventInline(admin.TabularInline):
 
 
 @admin.register(Event)
-class EventAdmin(admin.ModelAdmin):
+class EventAdmin(TranslationAdmin):
     list_display = ['name', 'location', 'client', 'startDate', 'endDate', 'price', 'created_at']
     list_filter = ['startDate', 'endDate', 'location']
     search_fields = ['name', 'description', 'location__name', 'client__user__username']

@@ -10,7 +10,7 @@ from django.forms import inlineformset_factory
 from django.utils.translation import gettext_lazy as _
 from tinymce.widgets import TinyMCE
 
-from .models import UserProfile, Location, LocationCategory, ImageLocation
+from .models import UserProfile, Location, LocationCategory, ImageLocation, Event, ImageEvent
 
 
 class FlowbiteFormMixin:
@@ -305,6 +305,91 @@ ImageLocationFormSet = inlineformset_factory(
     Location,
     ImageLocation,
     form=ImageLocationForm,
+    extra=1,
+    can_delete=True,
+    max_num=10,
+)
+
+
+class EventForm(FlowbiteFormMixin, forms.ModelForm):
+    name_en = forms.CharField(
+        label=_("Name (English)"),
+        max_length=255,
+        required=False,
+        widget=forms.TextInput(attrs={
+            "placeholder": _("Enter event name in English"),
+        })
+    )
+    name_fr = forms.CharField(
+        label=_("Name (French)"),
+        max_length=255,
+        required=False,
+        widget=forms.TextInput(attrs={
+            "placeholder": _("Enter event name in French"),
+        })
+    )
+    
+    description_en = forms.CharField(
+        label=_("Description (English)"),
+        required=False,
+        widget=TinyMCE(attrs={'cols': 80, 'rows': 30})
+    )
+    description_fr = forms.CharField(
+        label=_("Description (French)"),
+        required=False,
+        widget=TinyMCE(attrs={'cols': 80, 'rows': 30})
+    )
+    
+    class Meta:
+        model = Event
+        fields = [
+            'name_en', 'name_fr',
+            'description_en', 'description_fr',
+            'location',
+            'startDate',
+            'endDate',
+            'time',
+            'price',
+        ]
+        widgets = {
+            'location': forms.Select(attrs={
+                'placeholder': _('Select event location'),
+            }),
+            'startDate': forms.DateInput(attrs={
+                'type': 'date',
+                'placeholder': _('Select event start date'),
+            }),
+            'endDate': forms.DateInput(attrs={
+                'type': 'date',
+                'placeholder': _('Select event end date'),
+            }),
+            'time': forms.TimeInput(attrs={
+                'type': 'time',
+                'placeholder': _('Select event time'),
+            }),
+            'price': forms.NumberInput(attrs={
+                'placeholder': _('Enter event price'),
+                'step': '0.01',
+                'min': '0',
+            }),
+        }
+
+
+class ImageEventForm(forms.ModelForm):
+    class Meta:
+        model = ImageEvent
+        fields = ['image']
+        widgets = {
+            'image': forms.FileInput(attrs={
+                'class': 'block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400',
+                'accept': 'image/*'
+            })
+        }
+
+ImageEventFormSet = inlineformset_factory(
+    Event,
+    ImageEvent,
+    form=ImageEventForm,
     extra=1,
     can_delete=True,
     max_num=10,
