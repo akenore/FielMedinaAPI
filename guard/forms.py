@@ -185,7 +185,7 @@ class LocationForm(FlowbiteFormMixin, forms.ModelForm):
     name_en = forms.CharField(
         label=_("Name (English)"),
         max_length=255,
-        required=False,
+        required=True,
         widget=forms.TextInput(attrs={
             "placeholder": _("Enter location name in English"),
         })
@@ -193,7 +193,7 @@ class LocationForm(FlowbiteFormMixin, forms.ModelForm):
     name_fr = forms.CharField(
         label=_("Name (French)"),
         max_length=255,
-        required=False,
+        required=True,
         widget=forms.TextInput(attrs={
             "placeholder": _("Enter location name in French"),
         })
@@ -201,12 +201,12 @@ class LocationForm(FlowbiteFormMixin, forms.ModelForm):
     
     story_en = forms.CharField(
         label=_("Story (English)"),
-        required=False,
+        required=True,
         widget=TinyMCE(attrs={'cols': 80, 'rows': 30})
     )
     story_fr = forms.CharField(
         label=_("Story (French)"),
-        required=False,
+        required=True,
         widget=TinyMCE(attrs={'cols': 80, 'rows': 30})
     )
     
