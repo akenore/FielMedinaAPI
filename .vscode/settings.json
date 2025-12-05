@@ -9,7 +9,7 @@
     "editor.defaultFormatter": "vscode.html-language-features"
   },
   "[python]": {
-    "editor.defaultFormatter": "ms-python.autopep8",
+    "editor.defaultFormatter": "charliermarsh.ruff",
     "editor.formatOnSave": true
   },
   "files.associations": {

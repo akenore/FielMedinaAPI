@@ -8,7 +8,7 @@ from django.contrib.auth.views import (
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.decorators import login_required
-from django.views.generic import CreateView,UpdateView,DeleteView, ListView, DetailView, TemplateView
+from django.views.generic import CreateView,UpdateView,DeleteView, ListView, TemplateView
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.utils.translation import gettext as _
@@ -29,8 +29,8 @@ from .forms import (
     ImageEventFormSet,
 )
 
-from .models import LocationCategory, Location, Event
-from .translator import get_translator
+from .models import Location, Event
+from shared.translator import get_translator
 
 class CustomLoginView(LoginView):
     template_name = "guard/auth/login.html"
@@ -163,6 +163,7 @@ class LocationsListView(LoginRequiredMixin, ListView):
     template_name = "guard/views/locations/list.html"
     context_object_name = "locations"
     paginate_by = 10
+    ordering = ["-created_at"]
 
 
 class LocationCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
@@ -265,6 +266,7 @@ class EventListView(LoginRequiredMixin, ListView):
     template_name = "guard/views/events/list.html"
     context_object_name = "events"
     paginate_by = 10
+    ordering = ["-created_at"]
 
 class EventCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Event
