@@ -1,14 +1,24 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.views import (
-    LoginView, LogoutView,
-    PasswordResetView, PasswordResetDoneView,
-    PasswordResetConfirmView, PasswordResetCompleteView,
-    PasswordChangeView, PasswordChangeDoneView,
+    LoginView,
+    LogoutView,
+    PasswordResetView,
+    PasswordResetDoneView,
+    PasswordResetConfirmView,
+    PasswordResetCompleteView,
+    PasswordChangeView,
+    PasswordChangeDoneView,
 )
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.decorators import login_required
-from django.views.generic import CreateView,UpdateView,DeleteView, ListView, TemplateView
+from django.views.generic import (
+    CreateView,
+    UpdateView,
+    DeleteView,
+    ListView,
+    TemplateView,
+)
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.utils.translation import gettext as _
@@ -32,6 +42,7 @@ from .forms import (
 from .models import Location, Event
 from shared.translator import get_translator
 
+
 class CustomLoginView(LoginView):
     template_name = "guard/auth/login.html"
     authentication_form = LoginForm
@@ -52,8 +63,9 @@ class RegisterView(CreateView):
 
     def form_valid(self, form):
         form.save()
-        messages.success(self.request, _(
-            "Account created successfully. Please log in."))
+        messages.success(
+            self.request, _("Account created successfully. Please log in.")
+        )
         return super().form_valid(form)
 
 
@@ -154,9 +166,9 @@ class SettingView(LoginRequiredMixin, TemplateView):
         }
 
 
-
 class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = "guard/views/dashboard.html"
+
 
 class LocationsListView(LoginRequiredMixin, ListView):
     model = Location
@@ -172,30 +184,33 @@ class LocationCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     form_class = LocationForm
     success_url = reverse_lazy("guard:locationsList")
     success_message = _("Location created successfully.")
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.POST:
-            context['image_formset'] = ImageLocationFormSet(self.request.POST, self.request.FILES)
+            context["image_formset"] = ImageLocationFormSet(
+                self.request.POST, self.request.FILES
+            )
         else:
-            context['image_formset'] = ImageLocationFormSet()
+            context["image_formset"] = ImageLocationFormSet()
         return context
-    
+
     def form_valid(self, form):
         context = self.get_context_data()
-        image_formset = context['image_formset']
-        
+        image_formset = context["image_formset"]
+
         if image_formset.is_valid():
             has_image = any(
-                formset_form.cleaned_data.get('image') and not formset_form.cleaned_data.get('DELETE', False)
+                formset_form.cleaned_data.get("image")
+                and not formset_form.cleaned_data.get("DELETE", False)
                 for formset_form in image_formset
                 if formset_form.cleaned_data
             )
-            
+
             if not has_image:
                 form.add_error(None, _("Please upload at least one image."))
                 return self.form_invalid(form)
-            
+
             self.object = form.save()
             image_formset.instance = self.object
             image_formset.save()
@@ -210,39 +225,48 @@ class LocationUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     form_class = LocationForm
     success_url = reverse_lazy("guard:locationsList")
     success_message = _("Location updated successfully.")
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.POST:
-            context['image_formset'] = ImageLocationFormSet(self.request.POST, self.request.FILES, instance=self.object)
+            context["image_formset"] = ImageLocationFormSet(
+                self.request.POST, self.request.FILES, instance=self.object
+            )
         else:
-            context['image_formset'] = ImageLocationFormSet(instance=self.object)
+            context["image_formset"] = ImageLocationFormSet(instance=self.object)
         return context
-    
+
     def form_valid(self, form):
         context = self.get_context_data()
-        image_formset = context['image_formset']
-        
+        image_formset = context["image_formset"]
+
         if image_formset.is_valid():
             existing_images = sum(
-                1 for formset_form in image_formset
-                if formset_form.instance.pk and not formset_form.cleaned_data.get('DELETE', False)
+                1
+                for formset_form in image_formset
+                if formset_form.instance.pk
+                and not formset_form.cleaned_data.get("DELETE", False)
             )
             new_images = sum(
-                1 for formset_form in image_formset
-                if formset_form.cleaned_data.get('image') and not formset_form.instance.pk
+                1
+                for formset_form in image_formset
+                if formset_form.cleaned_data.get("image")
+                and not formset_form.instance.pk
             )
-            
+
             if existing_images + new_images < 1:
-                form.add_error(None, _("Veuillez conserver ou télécharger au moins une image."))
+                form.add_error(
+                    None, _("Veuillez conserver ou télécharger au moins une image.")
+                )
                 return self.form_invalid(form)
-            
+
             self.object = form.save()
             image_formset.instance = self.object
             image_formset.save()
             return super().form_valid(form)
         else:
             return self.form_invalid(form)
+
 
 class LocationDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = Location
@@ -256,10 +280,13 @@ class LocationDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
 
 @login_required
 def subscribersList(request):
-    return render(request, 'guard/views/subscribers/list.html')
+    return render(request, "guard/views/subscribers/list.html")
+
+
 @login_required
 def publicTransportsList(request):
-    return render(request, 'guard/views/publicTransports/list.html')
+    return render(request, "guard/views/publicTransports/list.html")
+
 
 class EventListView(LoginRequiredMixin, ListView):
     model = Event
@@ -267,6 +294,7 @@ class EventListView(LoginRequiredMixin, ListView):
     context_object_name = "events"
     paginate_by = 10
     ordering = ["-created_at"]
+
 
 class EventCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Event
@@ -278,27 +306,30 @@ class EventCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.POST:
-            context['image_formset'] = ImageEventFormSet(self.request.POST, self.request.FILES)
+            context["image_formset"] = ImageEventFormSet(
+                self.request.POST, self.request.FILES
+            )
         else:
-            context['image_formset'] = ImageEventFormSet()
+            context["image_formset"] = ImageEventFormSet()
         return context
-    
+
     def form_valid(self, form):
         context = self.get_context_data()
-        image_formset = context['image_formset']
-        
+        image_formset = context["image_formset"]
+
         if image_formset.is_valid():
             # Check if at least one image is uploaded
             has_image = any(
-                formset_form.cleaned_data.get('image') and not formset_form.cleaned_data.get('DELETE', False)
+                formset_form.cleaned_data.get("image")
+                and not formset_form.cleaned_data.get("DELETE", False)
                 for formset_form in image_formset
                 if formset_form.cleaned_data
             )
-            
+
             if not has_image:
                 form.add_error(None, _("Veuillez télécharger au moins une image."))
                 return self.form_invalid(form)
-            
+
             self.object = form.save()
             image_formset.instance = self.object
             image_formset.save()
@@ -317,29 +348,37 @@ class EventUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.POST:
-            context['image_formset'] = ImageEventFormSet(self.request.POST, self.request.FILES, instance=self.object)
+            context["image_formset"] = ImageEventFormSet(
+                self.request.POST, self.request.FILES, instance=self.object
+            )
         else:
-            context['image_formset'] = ImageEventFormSet(instance=self.object)
+            context["image_formset"] = ImageEventFormSet(instance=self.object)
         return context
-    
+
     def form_valid(self, form):
         context = self.get_context_data()
-        image_formset = context['image_formset']
-        
+        image_formset = context["image_formset"]
+
         if image_formset.is_valid():
             existing_images = sum(
-                1 for formset_form in image_formset
-                if formset_form.instance.pk and not formset_form.cleaned_data.get('DELETE', False)
+                1
+                for formset_form in image_formset
+                if formset_form.instance.pk
+                and not formset_form.cleaned_data.get("DELETE", False)
             )
             new_images = sum(
-                1 for formset_form in image_formset
-                if formset_form.cleaned_data.get('image') and not formset_form.instance.pk
+                1
+                for formset_form in image_formset
+                if formset_form.cleaned_data.get("image")
+                and not formset_form.instance.pk
             )
-            
+
             if existing_images + new_images < 1:
-                form.add_error(None, _("Veuillez conserver ou télécharger au moins une image."))
+                form.add_error(
+                    None, _("Veuillez conserver ou télécharger au moins une image.")
+                )
                 return self.form_invalid(form)
-            
+
             self.object = form.save()
             image_formset.instance = self.object
             image_formset.save()
@@ -360,7 +399,18 @@ class EventDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
 
 @login_required
 def adsList(request):
-    return render(request, 'guard/views/ads/list.html')
+    return render(request, "guard/views/ads/list.html")
+
+
+@login_required
+def get_cities_by_country(request, country_id):
+    """API endpoint to get cities for a specific country."""
+    from cities_light.models import City
+
+    cities = City.objects.filter(country_id=country_id).values("id", "name")
+    cities_list = list(cities)
+
+    return JsonResponse({"success": True, "cities": cities_list})
 
 
 @login_required
@@ -368,7 +418,7 @@ def adsList(request):
 def translate_text(request):
     """
     API endpoint for translating text between English and French.
-    
+
     Expects JSON payload:
     {
         "text": "text to translate",
@@ -379,33 +429,26 @@ def translate_text(request):
     """
     try:
         data = json.loads(request.body)
-        text = data.get('text', '')
-        source_lang = data.get('source_lang', 'en')
-        target_lang = data.get('target_lang', 'fr')
-        preserve_html = data.get('preserve_html', False)
-        
+        text = data.get("text", "")
+        source_lang = data.get("source_lang", "en")
+        target_lang = data.get("target_lang", "fr")
+        preserve_html = data.get("preserve_html", False)
+
         if not text:
-            return JsonResponse({
-                'success': False,
-                'error': 'No text provided'
-            }, status=400)
-        
+            return JsonResponse(
+                {"success": False, "error": "No text provided"}, status=400
+            )
+
         # Get translator and perform translation
         translator = get_translator()
         translated_text = translator.translate(
             text=text,
             source_lang=source_lang,
             target_lang=target_lang,
-            preserve_html=preserve_html
+            preserve_html=preserve_html,
         )
-        
-        return JsonResponse({
-            'success': True,
-            'translated_text': translated_text
-        })
-        
+
+        return JsonResponse({"success": True, "translated_text": translated_text})
+
     except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        }, status=500)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)

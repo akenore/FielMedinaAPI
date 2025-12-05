@@ -671,10 +671,29 @@
     const citySelect = document.getElementById('{{ form.city.id_for_label }}');
     
     if (countrySelect && citySelect) {
-        countrySelect.addEventListener('change', function() {
+        countrySelect.addEventListener('change', async function() {
             const countryId = this.value;
+            
+            // Clear current city options
+            citySelect.innerHTML = '<option value="">---------</option>';
+            
             if (countryId) {
-                console.log('Country changed to:', countryId);
+                try {
+                    const response = await fetch(`/api/cities/${countryId}/`);
+                    const data = await response.json();
+                    
+                    if (data.success && data.cities) {
+                        // Populate cities dropdown
+                        data.cities.forEach(city => {
+                            const option = document.createElement('option');
+                            option.value = city.id;
+                            option.textContent = city.name;
+                            citySelect.appendChild(option);
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error fetching cities:', error);
+                }
             }
         });
     }
