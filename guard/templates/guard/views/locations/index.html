@@ -52,7 +52,7 @@
     </p>
 </div>
 
-<form action="" method="post" class="space-y-6" id="locationForm" enctype="multipart/form-data">
+<form action="" method="post" class="space-y-6" id="locationForm" enctype="multipart/form-data" novalidate>
     {% csrf_token %}
     {{ form.media}}
     {% if form.non_field_errors %}

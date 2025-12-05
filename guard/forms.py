@@ -188,7 +188,10 @@ class LocationForm(FlowbiteFormMixin, forms.ModelForm):
         required=True,
         widget=forms.TextInput(attrs={
             "placeholder": _("Enter location name in English"),
-        })
+        }),
+        error_messages={
+            "required": _("Please enter the name in English."),
+        }
     )
     name_fr = forms.CharField(
         label=_("Name (French)"),
@@ -196,18 +199,27 @@ class LocationForm(FlowbiteFormMixin, forms.ModelForm):
         required=True,
         widget=forms.TextInput(attrs={
             "placeholder": _("Enter location name in French"),
-        })
+        }),
+        error_messages={
+            "required": _("Please enter the name in French."),
+        }
     )
     
     story_en = forms.CharField(
         label=_("Story (English)"),
         required=True,
-        widget=TinyMCE(attrs={'cols': 80, 'rows': 30})
+        widget=TinyMCE(attrs={'cols': 80, 'rows': 30}),
+        error_messages={
+            "required": _("Please enter the story in English."),
+        }
     )
     story_fr = forms.CharField(
         label=_("Story (French)"),
         required=True,
-        widget=TinyMCE(attrs={'cols': 80, 'rows': 30})
+        widget=TinyMCE(attrs={'cols': 80, 'rows': 30}),
+        error_messages={
+            "required": _("Please enter the story in French."),
+        }
     )
     
     class Meta:
@@ -280,6 +292,36 @@ class LocationForm(FlowbiteFormMixin, forms.ModelForm):
         
     def clean(self):
         cleaned_data = super().clean()
+        
+        # Check required multilingual fields and add non-field errors so they appear at top
+        errors = []
+        
+        if not cleaned_data.get('name_en'):
+            errors.append(_("Please enter the name in English."))
+            # Remove field-specific error to avoid duplication
+            if 'name_en' in self.errors:
+                del self.errors['name_en']
+        
+        if not cleaned_data.get('name_fr'):
+            errors.append(_("Please enter the name in French."))
+            if 'name_fr' in self.errors:
+                del self.errors['name_fr']
+        
+        if not cleaned_data.get('story_en'):
+            errors.append(_("Please enter the story in English."))
+            if 'story_en' in self.errors:
+                del self.errors['story_en']
+        
+        if not cleaned_data.get('story_fr'):
+            errors.append(_("Please enter the story in French."))
+            if 'story_fr' in self.errors:
+                del self.errors['story_fr']
+        
+        # Add all errors as non-field errors
+        for error in errors:
+            self.add_error(None, error)
+        
+        # Existing validation
         open_from = cleaned_data.get('openFrom')
         open_to = cleaned_data.get('openTo')
         
@@ -319,7 +361,9 @@ class EventForm(FlowbiteFormMixin, forms.ModelForm):
         widget=forms.TextInput(attrs={
             "placeholder": _("Enter event name in English"),
         }),
-        
+        error_messages={
+            "required": _("Please enter the name in English."),
+        }
     )
     name_fr = forms.CharField(
         label=_("Name (French)"),
@@ -327,18 +371,27 @@ class EventForm(FlowbiteFormMixin, forms.ModelForm):
         required=True,
         widget=forms.TextInput(attrs={
             "placeholder": _("Enter event name in French"),
-        })
+        }),
+        error_messages={
+            "required": _("Please enter the name in French."),
+        }
     )
     
     description_en = forms.CharField(
         label=_("Description (English)"),
         required=True,
-        widget=TinyMCE(attrs={'cols': 80, 'rows': 30})
+        widget=TinyMCE(attrs={'cols': 80, 'rows': 30}),
+        error_messages={
+            "required": _("Please enter the description in English."),
+        }
     )
     description_fr = forms.CharField(
         label=_("Description (French)"),
         required=True,
-        widget=TinyMCE(attrs={'cols': 80, 'rows': 30})
+        widget=TinyMCE(attrs={'cols': 80, 'rows': 30}),
+        error_messages={
+            "required": _("Please enter the description in French."),
+        }
     )
     
     class Meta:
@@ -378,6 +431,39 @@ class EventForm(FlowbiteFormMixin, forms.ModelForm):
                 'min': '0',
             }),
         }
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        
+        # Check required multilingual fields and add non-field errors so they appear at top
+        errors = []
+        
+        if not cleaned_data.get('name_en'):
+            errors.append(_("Please enter the name in English."))
+            # Remove field-specific error to avoid duplication
+            if 'name_en' in self.errors:
+                del self.errors['name_en']
+        
+        if not cleaned_data.get('name_fr'):
+            errors.append(_("Please enter the name in French."))
+            if 'name_fr' in self.errors:
+                del self.errors['name_fr']
+        
+        if not cleaned_data.get('description_en'):
+            errors.append(_("Please enter the description in English."))
+            if 'description_en' in self.errors:
+                del self.errors['description_en']
+        
+        if not cleaned_data.get('description_fr'):
+            errors.append(_("Please enter the description in French."))
+            if 'description_fr' in self.errors:
+                del self.errors['description_fr']
+        
+        # Add all errors as non-field errors
+        for error in errors:
+            self.add_error(None, error)
+        
+        return cleaned_data
 
 
 class ImageEventForm(forms.ModelForm):

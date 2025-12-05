@@ -180,6 +180,16 @@ class LocationCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         image_formset = context['image_formset']
         
         if image_formset.is_valid():
+            has_image = any(
+                formset_form.cleaned_data.get('image') and not formset_form.cleaned_data.get('DELETE', False)
+                for formset_form in image_formset
+                if formset_form.cleaned_data
+            )
+            
+            if not has_image:
+                form.add_error(None, _("Please upload at least one image."))
+                return self.form_invalid(form)
+            
             self.object = form.save()
             image_formset.instance = self.object
             image_formset.save()
@@ -208,6 +218,19 @@ class LocationUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
         image_formset = context['image_formset']
         
         if image_formset.is_valid():
+            existing_images = sum(
+                1 for formset_form in image_formset
+                if formset_form.instance.pk and not formset_form.cleaned_data.get('DELETE', False)
+            )
+            new_images = sum(
+                1 for formset_form in image_formset
+                if formset_form.cleaned_data.get('image') and not formset_form.instance.pk
+            )
+            
+            if existing_images + new_images < 1:
+                form.add_error(None, _("Veuillez conserver ou télécharger au moins une image."))
+                return self.form_invalid(form)
+            
             self.object = form.save()
             image_formset.instance = self.object
             image_formset.save()
@@ -258,6 +281,17 @@ class EventCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         image_formset = context['image_formset']
         
         if image_formset.is_valid():
+            # Check if at least one image is uploaded
+            has_image = any(
+                formset_form.cleaned_data.get('image') and not formset_form.cleaned_data.get('DELETE', False)
+                for formset_form in image_formset
+                if formset_form.cleaned_data
+            )
+            
+            if not has_image:
+                form.add_error(None, _("Veuillez télécharger au moins une image."))
+                return self.form_invalid(form)
+            
             self.object = form.save()
             image_formset.instance = self.object
             image_formset.save()
@@ -286,6 +320,19 @@ class EventUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
         image_formset = context['image_formset']
         
         if image_formset.is_valid():
+            existing_images = sum(
+                1 for formset_form in image_formset
+                if formset_form.instance.pk and not formset_form.cleaned_data.get('DELETE', False)
+            )
+            new_images = sum(
+                1 for formset_form in image_formset
+                if formset_form.cleaned_data.get('image') and not formset_form.instance.pk
+            )
+            
+            if existing_images + new_images < 1:
+                form.add_error(None, _("Veuillez conserver ou télécharger au moins une image."))
+                return self.form_invalid(form)
+            
             self.object = form.save()
             image_formset.instance = self.object
             image_formset.save()
