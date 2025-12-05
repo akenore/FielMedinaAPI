@@ -107,7 +107,6 @@ urlpatterns = [
         ),
     ),
     path("adsList/", adsList, name="adsList"),
-    # API endpoints
     path(
         "api/cities/<int:country_id>/",
         get_cities_by_country,

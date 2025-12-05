@@ -343,6 +343,13 @@ class LocationForm(FlowbiteFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        if "category" in self.fields:
+            self.fields["category"].required = True
+        if "country" in self.fields:
+            self.fields["country"].required = True
+        if "city" in self.fields:
+            self.fields["city"].required = True
+
         if "city" in self.fields:
             from cities_light.models import City
 
