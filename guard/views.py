@@ -12,6 +12,10 @@ from django.views.generic import CreateView,UpdateView,DeleteView, ListView, Det
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.utils.translation import gettext as _
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+import json
+
 from .forms import (
     LoginForm,
     RegisterForm,
@@ -26,6 +30,7 @@ from .forms import (
 )
 
 from .models import LocationCategory, Location, Event
+from .translator import get_translator
 
 class CustomLoginView(LoginView):
     template_name = "guard/auth/login.html"
@@ -355,3 +360,50 @@ class EventDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
 def adsList(request):
     return render(request, 'guard/views/ads/list.html')
 
+
+@login_required
+@require_POST
+def translate_text(request):
+    """
+    API endpoint for translating text between English and French.
+    
+    Expects JSON payload:
+    {
+        "text": "text to translate",
+        "source_lang": "en" or "fr",
+        "target_lang": "fr" or "en",
+        "preserve_html": true/false
+    }
+    """
+    try:
+        data = json.loads(request.body)
+        text = data.get('text', '')
+        source_lang = data.get('source_lang', 'en')
+        target_lang = data.get('target_lang', 'fr')
+        preserve_html = data.get('preserve_html', False)
+        
+        if not text:
+            return JsonResponse({
+                'success': False,
+                'error': 'No text provided'
+            }, status=400)
+        
+        # Get translator and perform translation
+        translator = get_translator()
+        translated_text = translator.translate(
+            text=text,
+            source_lang=source_lang,
+            target_lang=target_lang,
+            preserve_html=preserve_html
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'translated_text': translated_text
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)

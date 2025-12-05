@@ -23,6 +23,7 @@ from .views import (
     EventDeleteView,
     adsList,
     publicTransportsList,
+    translate_text,
 )
 
 app_name = "guard"
@@ -58,4 +59,6 @@ urlpatterns = [
      path('publicTransportsList/', publicTransportsList, name='publicTransportsList'),
     ] )),
     path('adsList/', adsList, name='adsList'),
+    # API endpoints
+    path('api/translate/', translate_text, name='translate_text'),
 ]

@@ -103,6 +103,19 @@
                             {% if form.name_en.field.required %}<span class="text-red-600">*</span>{% endif %}
                         </label>
                         {{ form.name_en }}
+                        <button type="button" onclick="translateField('name_en', 'name_fr', 'en', 'fr', false)" 
+                                class="mt-2 inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg hover:from-purple-600 hover:to-pink-600 focus:ring-4 focus:ring-purple-300 dark:focus:ring-purple-900">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path>
+                            </svg>
+                            <span class="translate-btn-text">Translate to French</span>
+                            <span class="translate-btn-loader hidden">
+                                <svg class="animate-spin h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </span>
+                        </button>
                         {% if form.name_en.errors %}
                             <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.name_en.errors.0 }}</p>
                         {% endif %}
@@ -119,6 +132,19 @@
                             {% if form.name_fr.field.required %}<span class="text-red-600">*</span>{% endif %}
                         </label>
                         {{ form.name_fr }}
+                        <button type="button" onclick="translateField('name_fr', 'name_en', 'fr', 'en', false)" 
+                                class="mt-2 inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg hover:from-blue-600 hover:to-cyan-600 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path>
+                            </svg>
+                            <span class="translate-btn-text">Translate to English</span>
+                            <span class="translate-btn-loader hidden">
+                                <svg class="animate-spin h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </span>
+                        </button>
                         {% if form.name_fr.errors %}
                             <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.name_fr.errors.0 }}</p>
                         {% endif %}
@@ -172,6 +198,19 @@
                             {% if form.description_en.field.required %}<span class="text-red-600">*</span>{% endif %}
                         </label>
                         {{ form.description_en }}
+                        <button type="button" onclick="translateField('description_en', 'description_fr', 'en', 'fr', true)" 
+                                class="mt-2 inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg hover:from-purple-600 hover:to-pink-600 focus:ring-4 focus:ring-purple-300 dark:focus:ring-purple-900">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path>
+                            </svg>
+                            <span class="translate-btn-text">Translate to French</span>
+                            <span class="translate-btn-loader hidden">
+                                <svg class="animate-spin h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </span>
+                        </button>
                         {% if form.description_en.errors %}
                             <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.description_en.errors.0 }}</p>
                         {% endif %}
@@ -188,6 +227,19 @@
                             {% if form.description_fr.field.required %}<span class="text-red-600">*</span>{% endif %}
                         </label>
                         {{ form.description_fr }}
+                        <button type="button" onclick="translateField('description_fr', 'description_en', 'fr', 'en', true)" 
+                                class="mt-2 inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg hover:from-blue-600 hover:to-cyan-600 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path>
+                            </svg>
+                            <span class="translate-btn-text">Translate to English</span>
+                            <span class="translate-btn-loader hidden">
+                                <svg class="animate-spin h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </span>
+                        </button>
                         {% if form.description_fr.errors %}
                             <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.description_fr.errors.0 }}</p>
                         {% endif %}
@@ -434,5 +486,81 @@
         // Update total forms count
         totalForms.value = formCount + 1;
     });
+
+    // AI Translation Function
+    async function translateField(sourceFieldId, targetFieldId, sourceLang, targetLang, preserveHtml) {
+        const sourceField = document.getElementById('id_' + sourceFieldId);
+        const targetField = document.getElementById('id_' + targetFieldId);
+        const button = event.currentTarget;
+        const btnText = button.querySelector('.translate-btn-text');
+        const btnLoader = button.querySelector('.translate-btn-loader');
+        
+        // Get source text
+        let sourceText = '';
+        if (preserveHtml) {
+            // For TinyMCE fields
+            const editorId = 'id_' + sourceFieldId;
+            const editor = tinymce.get(editorId);
+            if (editor) {
+                sourceText = editor.getContent();
+            }
+        } else {
+            // For regular text fields
+            sourceText = sourceField.value;
+        }
+        
+        if (!sourceText || !sourceText.trim()) {
+            alert('Please enter some text to translate');
+            return;
+        }
+        
+        // Show loading state
+        btnText.classList.add('hidden');
+        btnLoader.classList.remove('hidden');
+        button.disabled = true;
+        
+        try {
+            const response = await fetch('/api/translate/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({
+                    text: sourceText,
+                    source_lang: sourceLang,
+                    target_lang: targetLang,
+                    preserve_html: preserveHtml
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Set translated text
+                if (preserveHtml) {
+                    // For TinyMCE fields
+                    const editorId = 'id_' + targetFieldId;
+                    const editor = tinymce.get(editorId);
+                    if (editor) {
+                        editor.setContent(data.translated_text);
+                    }
+                } else {
+                    // For regular text fields
+                    targetField.value = data.translated_text;
+                }
+            } else {
+                alert('Translation failed: ' + (data.error || 'Unknown error'));
+            }
+        } catch (error) {
+            alert('Translation failed: ' + error.message);
+        } finally {
+            // Hide loading state
+            btnText.classList.remove('hidden');
+            btnLoader.classList.add('hidden');
+            button.disabled = false;
+        }
+    }
+
 </script>
 {% endblock extrascript %}

@@ -181,3 +181,6 @@ else:
     EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
     EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
     EMAIL_USE_SSL = env.bool("EMAIL_USE_SSL", default=False)
+
+
+PUBLIC_GROQ_API_KEI = env('PUBLIC_GROQ_API_KEI')
