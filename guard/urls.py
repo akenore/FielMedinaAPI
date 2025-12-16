@@ -12,7 +12,7 @@ from .views import (
     CustomPasswordChangeDoneView,
     SettingView,
     DashboardView,
-    subscribersList,
+    SubscribersListView,
     LocationsListView,
     LocationCreateView,
     LocationUpdateView,
@@ -21,6 +21,14 @@ from .views import (
     EventCreateView,
     EventUpdateView,
     EventDeleteView,
+    TipsListView,
+    TipCreateView,
+    TipUpdateView,
+    TipDeleteView,
+    HikingListView,
+    HikingCreateView,
+    HikingUpdateView,
+    HikingDeleteView,
     adsList,
     publicTransportsList,
     get_cities_by_country,
@@ -67,7 +75,11 @@ urlpatterns = [
         "staff/",
         include(
             [
-                path("subscribersList/", subscribersList, name="subscribersList"),
+                path(
+                    "subscribersList/",
+                    SubscribersListView.as_view(),
+                    name="subscribersList",
+                ),
                 path(
                     "locationsList/", LocationsListView.as_view(), name="locationsList"
                 ),
@@ -97,6 +109,28 @@ urlpatterns = [
                     "events/delete/<int:pk>/",
                     EventDeleteView.as_view(),
                     name="event_delete",
+                ),
+                path("tips/", TipsListView.as_view(), name="tipsList"),
+                path("tips/create/", TipCreateView.as_view(), name="tip_create"),
+                path(
+                    "tips/update/<int:pk>/", TipUpdateView.as_view(), name="tip_update"
+                ),
+                path(
+                    "tips/delete/<int:pk>/", TipDeleteView.as_view(), name="tip_delete"
+                ),
+                path("hikings/", HikingListView.as_view(), name="hikingsList"),
+                path(
+                    "hikings/create/", HikingCreateView.as_view(), name="hiking_create"
+                ),
+                path(
+                    "hikings/update/<int:pk>/",
+                    HikingUpdateView.as_view(),
+                    name="hiking_update",
+                ),
+                path(
+                    "hikings/delete/<int:pk>/",
+                    HikingDeleteView.as_view(),
+                    name="hiking_delete",
                 ),
                 path(
                     "publicTransportsList/",

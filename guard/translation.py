@@ -1,18 +1,41 @@
 from modeltranslation.translator import register, TranslationOptions
-from .models import Location, LocationCategory, Event, EventCategory
+from .models import Location, LocationCategory, Event, EventCategory, Tip, Hiking
+
 
 @register(Location)
 class LocationTranslationOptions(TranslationOptions):
-    fields = ('name', 'story',)
+    fields = (
+        "name",
+        "story",
+    )
+
 
 @register(LocationCategory)
 class LocationCategoryTranslationOptions(TranslationOptions):
-    fields = ('name',)
+    fields = ("name",)
+
 
 @register(Event)
 class EventTranslationOptions(TranslationOptions):
-    fields = ('name', 'description',)
+    fields = (
+        "name",
+        "description",
+    )
+
 
 @register(EventCategory)
 class EventCategoryTranslationOptions(TranslationOptions):
-    fields = ('name',)
+    fields = ("name",)
+
+
+@register(Tip)
+class TipTranslationOptions(TranslationOptions):
+    fields = ("description",)
+
+
+@register(Hiking)
+class HikingTranslationOptions(TranslationOptions):
+    fields = (
+        "name",
+        "description",
+    )

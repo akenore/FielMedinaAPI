@@ -12,15 +12,31 @@ from shared.models import OptimizedImageModel
 
 User = get_user_model()
 
+
 class UserProfile(models.Model):
     class UserType(models.TextChoices):
         STAFF = "staff", _("Staff")
         CLIENT_PARTNER = "client_partner", _("Client / Partenaire")
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile",)
-    user_type = models.CharField(max_length=32, choices=UserType.choices, default=UserType.CLIENT_PARTNER)
-    subscription_plan = models.CharField(max_length=100, blank=True, default="Trial", help_text=_("Placeholder until Konnect subscription is attached."))
-    subscription_status = models.CharField(max_length=32, blank=True, default="trial",)
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name="profile",
+    )
+    user_type = models.CharField(
+        max_length=32, choices=UserType.choices, default=UserType.CLIENT_PARTNER
+    )
+    subscription_plan = models.CharField(
+        max_length=100,
+        blank=True,
+        default="Trial",
+        help_text=_("Placeholder until Konnect subscription is attached."),
+    )
+    subscription_status = models.CharField(
+        max_length=32,
+        blank=True,
+        default="trial",
+    )
     subscription_started_at = models.DateField(null=True, blank=True)
     subscription_renews_at = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -59,9 +75,9 @@ class UserProfile(models.Model):
         key = (self.subscription_status or "").lower()
         return mapping.get(key, key.capitalize() or _("Pending"))
 
+
 @receiver(post_save, sender=User)
 def ensure_profile_exists(sender, instance, created, **kwargs):
-    """Create or sync the related profile whenever a user is saved."""
     today = timezone.now().date()
     default_type = (
         UserProfile.UserType.STAFF
@@ -89,64 +105,150 @@ def ensure_profile_exists(sender, instance, created, **kwargs):
     if updated_fields:
         profile.save(update_fields=updated_fields)
 
+
 def location_image_path(instance, filename):
     name, ext = os.path.splitext(filename)
-    return f'locations/{instance.location.id}/{name}.jpg'
+    return f"locations/{instance.location.id}/{name}.jpg"
+
 
 def event_image_path(instance, filename):
     name, ext = os.path.splitext(filename)
-    return f'events/{instance.event.id}/{name}.jpg'
+    return f"events/{instance.event.id}/{name}.jpg"
+
+
+def hiking_image_path(instance, filename):
+    name, ext = os.path.splitext(filename)
+    return f"hikings/{instance.hiking.id}/{name}.jpg"
+
+
+def ad_image_path(instance, filename):
+    name, ext = os.path.splitext(filename)
+    return f"ads/{instance.ad.id}/{name}.jpg"
+
+
+class ImageAd(OptimizedImageModel):
+    ad = models.ForeignKey("guard.Ad", on_delete=models.CASCADE, related_name="images")
+
+    class Meta:
+        verbose_name = _("Ad Image")
+        verbose_name_plural = _("Ad Images")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._meta.get_field("image").upload_to = ad_image_path
+        self._meta.get_field("image_mobile").upload_to = ad_image_path
+
+
+class ImageHiking(OptimizedImageModel):
+    hiking = models.ForeignKey(
+        "guard.Hiking", on_delete=models.CASCADE, related_name="images"
+    )
+
+    class Meta:
+        verbose_name = _("Hiking Image")
+        verbose_name_plural = _("Hiking Images")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._meta.get_field("image").upload_to = hiking_image_path
+        self._meta.get_field("image_mobile").upload_to = hiking_image_path
+
 
 class ImageLocation(OptimizedImageModel):
-    location = models.ForeignKey("guard.Location", on_delete=models.CASCADE, related_name="images")
-    
+    location = models.ForeignKey(
+        "guard.Location", on_delete=models.CASCADE, related_name="images"
+    )
+
     class Meta:
         verbose_name = _("Location Image")
         verbose_name_plural = _("Location Images")
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._meta.get_field('image').upload_to = location_image_path
-        self._meta.get_field('image_mobile').upload_to = location_image_path
+        self._meta.get_field("image").upload_to = location_image_path
+        self._meta.get_field("image_mobile").upload_to = location_image_path
+
 
 class ImageEvent(OptimizedImageModel):
-    event = models.ForeignKey("guard.Event", on_delete=models.CASCADE, related_name="images")
-    
+    event = models.ForeignKey(
+        "guard.Event", on_delete=models.CASCADE, related_name="images"
+    )
+
     class Meta:
         verbose_name = _("Event Image")
         verbose_name_plural = _("Event Images")
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._meta.get_field('image').upload_to = event_image_path
-        self._meta.get_field('image_mobile').upload_to = event_image_path
+        self._meta.get_field("image").upload_to = event_image_path
+        self._meta.get_field("image_mobile").upload_to = event_image_path
+
 
 class LocationCategory(models.Model):
     name = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     class Meta:
         verbose_name = _("Location Category")
         verbose_name_plural = _("Location Categories")
-        
+
     def __str__(self):
-        return self.name  
+        return self.name
+
 
 class Location(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
-    category = models.ForeignKey(LocationCategory, on_delete=models.SET_NULL, null=True, blank=True, related_name='locations', verbose_name=_("Category"))
+    category = models.ForeignKey(
+        LocationCategory,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="locations",
+        verbose_name=_("Category"),
+    )
     name = models.CharField(max_length=255)
-    country = models.ForeignKey('cities_light.Country', on_delete=models.SET_NULL, null=True, blank=True, related_name='locations', verbose_name=_("Country"))
-    city = models.ForeignKey('cities_light.City', on_delete=models.SET_NULL, null=True, blank=True, related_name='locations', verbose_name=_("City"))
+    country = models.ForeignKey(
+        "cities_light.Country",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="locations",
+        verbose_name=_("Country"),
+    )
+    city = models.ForeignKey(
+        "cities_light.City",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="locations",
+        verbose_name=_("City"),
+    )
     longitude = models.DecimalField(max_digits=9, decimal_places=6)
     latitude = models.DecimalField(max_digits=9, decimal_places=6)
     is_active_ads = models.BooleanField(default=False, verbose_name=_("Active Ads"))
     story = HTMLField(verbose_name=_("Story"))
-    openFrom = models.TimeField(verbose_name=_("Open From"),blank=True,null=True, help_text=_("Add opening hours if the location is open from a specific time"))
-    openTo = models.TimeField(verbose_name=_("Open To"),blank=True,null=True, help_text=_("Add opening hours if the location is open to a specific time"))
-    admissionFee = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_("Admission Fee"),blank=True,null=True, help_text=_("Add admission fee if the location has a specific admission fee"))
-    
+    openFrom = models.TimeField(
+        verbose_name=_("Open From"),
+        blank=True,
+        null=True,
+        help_text=_("Add opening hours if the location is open from a specific time"),
+    )
+    openTo = models.TimeField(
+        verbose_name=_("Open To"),
+        blank=True,
+        null=True,
+        help_text=_("Add opening hours if the location is open to a specific time"),
+    )
+    admissionFee = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name=_("Admission Fee"),
+        blank=True,
+        null=True,
+        help_text=_("Add admission fee if the location has a specific admission fee"),
+    )
+
     class Meta:
         verbose_name = _("Location")
         verbose_name_plural = _("Locations")
@@ -154,11 +256,35 @@ class Location(models.Model):
     def __str__(self):
         return self.name
 
+
+class Hiking(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    city = models.ForeignKey(
+        "cities_light.City",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="hikings",
+        verbose_name=_("Cities"),
+    )
+    name = models.CharField(_("Name"), max_length=255)
+    description = models.TextField(_("Description"))
+    location = models.ManyToManyField("Location", verbose_name=_("Location"))
+
+    class Meta:
+        verbose_name = _("Hiking")
+        verbose_name_plural = _("Hikings")
+
+    def __str__(self):
+        return self.name
+
+
 class EventCategory(models.Model):
     name = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     class Meta:
         verbose_name = _("Event Category")
         verbose_name_plural = _("Event Categories")
@@ -166,21 +292,40 @@ class EventCategory(models.Model):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse("Event_detail", kwargs={"pk": self.pk})
 
 class Event(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
-    client = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True, blank=True, related_name='events', verbose_name=_("Client"))
-    category = models.ForeignKey(EventCategory, on_delete=models.CASCADE, related_name='events', verbose_name=_("Category"))
+    client = models.ForeignKey(
+        UserProfile,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="events",
+        verbose_name=_("Client"),
+    )
+    category = models.ForeignKey(
+        EventCategory,
+        on_delete=models.CASCADE,
+        related_name="events",
+        verbose_name=_("Category"),
+    )
     name = models.CharField(max_length=255)
-    location = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True, blank=True, related_name='events', verbose_name=_("Location"))
+    location = models.ForeignKey(
+        Location,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="events",
+        verbose_name=_("Location"),
+    )
     startDate = models.DateField(verbose_name=_("Start Date"))
     endDate = models.DateField(verbose_name=_("End Date"))
     time = models.TimeField(verbose_name=_("Time"))
-    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_("Price"))
+    price = models.DecimalField(
+        max_digits=10, decimal_places=2, verbose_name=_("Price")
+    )
     description = HTMLField(verbose_name=_("Description"))
-    
+
     class Meta:
         verbose_name = _("Event")
         verbose_name_plural = _("Events")
@@ -188,3 +333,39 @@ class Event(models.Model):
     def __str__(self):
         return self.name
 
+
+class Tip(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    city = models.ForeignKey(
+        "cities_light.City",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="tips",
+        verbose_name=_("Cities"),
+    )
+    description = models.TextField()
+    location = models.ManyToManyField("Location", verbose_name=_("Location"))
+
+    class Meta:
+        verbose_name = _("Tip")
+        verbose_name_plural = _("Tips")
+
+    def __str__(self):
+        return self.description[:50]
+
+
+class Ad(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    image = models.ImageField(upload_to="ads/")
+    link = models.URLField()
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = _("Ad")
+        verbose_name_plural = _("Ads")
+
+    def __str__(self):
+        return self.link

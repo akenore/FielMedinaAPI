@@ -37,9 +37,12 @@ from .forms import (
     ImageLocationFormSet,
     EventForm,
     ImageEventFormSet,
+    TipForm,
+    HikingForm,
+    ImageHikingFormSet,
 )
 
-from .models import Location, Event
+from .models import LocationCategory, Location, Event, UserProfile, Tip, Hiking
 from shared.translator import get_translator
 
 
@@ -177,6 +180,11 @@ class LocationsListView(LoginRequiredMixin, ListView):
     paginate_by = 10
     ordering = ["-created_at"]
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["location_categories"] = LocationCategory.objects.all()
+        return context
+
 
 class LocationCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Location
@@ -278,9 +286,12 @@ class LocationDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
         return super(LocationDeleteView, self).delete(request, *args, **kwargs)
 
 
-@login_required
-def subscribersList(request):
-    return render(request, "guard/views/subscribers/list.html")
+class SubscribersListView(LoginRequiredMixin, ListView):
+    model = UserProfile
+    template_name = "guard/views/subscribers/list.html"
+    context_object_name = "subscribers"
+    paginate_by = 10
+    ordering = ["-created_at"]
 
 
 @login_required
@@ -397,6 +408,168 @@ class EventDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
         return super(EventDeleteView, self).delete(request, *args, **kwargs)
 
 
+class TipsListView(LoginRequiredMixin, ListView):
+    model = Tip
+    template_name = "guard/views/tips/list.html"
+    context_object_name = "tips"
+    paginate_by = 10
+    ordering = ["-created_at"]
+
+
+class TipCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+    model = Tip
+    form_class = TipForm
+    template_name = "guard/views/tips/index.html"
+    success_url = reverse_lazy("guard:tipsList")
+    success_message = _("Tip created successfully")
+
+    success_message = _("Tip created successfully")
+
+    def form_invalid(self, form):
+        messages.error(self.request, _("Error creating tip. Please check the form."))
+        return super().form_invalid(form)
+
+
+class TipUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+    model = Tip
+    form_class = TipForm
+    template_name = "guard/views/tips/index.html"
+    success_url = reverse_lazy("guard:tipsList")
+    success_message = _("Tip updated successfully")
+
+    success_message = _("Tip updated successfully")
+
+    def form_invalid(self, form):
+        messages.error(self.request, _("Error updating tip. Please check the form."))
+        return super().form_invalid(form)
+
+
+class TipDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+    model = Tip
+    success_url = reverse_lazy("guard:tipsList")
+    success_message = _("Tip deleted successfully")
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+class HikingListView(LoginRequiredMixin, ListView):
+    model = Hiking
+    template_name = "guard/views/hiking/list.html"
+    context_object_name = "hikings"
+    paginate_by = 10
+    ordering = ["-created_at"]
+
+
+class HikingCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+    model = Hiking
+    form_class = HikingForm
+    template_name = "guard/views/hiking/index.html"
+    success_url = reverse_lazy("guard:hikingsList")
+    success_message = _("Hiking created successfully")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context["image_formset"] = ImageHikingFormSet(
+                self.request.POST, self.request.FILES
+            )
+        else:
+            context["image_formset"] = ImageHikingFormSet()
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        image_formset = context["image_formset"]
+
+        if image_formset.is_valid():
+            has_image = any(
+                formset_form.cleaned_data.get("image")
+                and not formset_form.cleaned_data.get("DELETE", False)
+                for formset_form in image_formset
+                if formset_form.cleaned_data
+            )
+
+            if not has_image:
+                form.add_error(None, _("Please upload at least one image."))
+                return self.form_invalid(form)
+
+            self.object = form.save()
+            image_formset.instance = self.object
+            image_formset.save()
+            return super().form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, _("Error creating hiking. Please check the form."))
+        return super().form_invalid(form)
+
+
+class HikingUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+    model = Hiking
+    form_class = HikingForm
+    template_name = "guard/views/hiking/index.html"
+    success_url = reverse_lazy("guard:hikingsList")
+    success_message = _("Hiking updated successfully")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context["image_formset"] = ImageHikingFormSet(
+                self.request.POST, self.request.FILES, instance=self.object
+            )
+        else:
+            context["image_formset"] = ImageHikingFormSet(instance=self.object)
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        image_formset = context["image_formset"]
+
+        if image_formset.is_valid():
+            existing_images = sum(
+                1
+                for formset_form in image_formset
+                if formset_form.instance.pk
+                and not formset_form.cleaned_data.get("DELETE", False)
+            )
+            new_images = sum(
+                1
+                for formset_form in image_formset
+                if formset_form.cleaned_data.get("image")
+                and not formset_form.instance.pk
+            )
+
+            if existing_images + new_images < 1:
+                form.add_error(
+                    None, _("Veuillez conserver ou télécharger au moins une image.")
+                )
+                return self.form_invalid(form)
+
+            self.object = form.save()
+            image_formset.instance = self.object
+            image_formset.save()
+            return super().form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, _("Error updating hiking. Please check the form."))
+        return super().form_invalid(form)
+
+
+class HikingDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+    model = Hiking
+    success_url = reverse_lazy("guard:hikingsList")
+    success_message = _("Hiking deleted successfully")
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
 @login_required
 def adsList(request):
     return render(request, "guard/views/ads/list.html")
@@ -404,7 +577,6 @@ def adsList(request):
 
 @login_required
 def get_cities_by_country(request, country_id):
-    """API endpoint to get cities for a specific country."""
     from cities_light.models import City
 
     cities = City.objects.filter(country_id=country_id).values("id", "name")
@@ -439,7 +611,6 @@ def translate_text(request):
                 {"success": False, "error": "No text provided"}, status=400
             )
 
-        # Get translator and perform translation
         translator = get_translator()
         translated_text = translator.translate(
             text=text,

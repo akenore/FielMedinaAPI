@@ -16,6 +16,9 @@ from .models import (
     ImageLocation,
     Event,
     ImageEvent,
+    Tip,
+    Hiking,
+    ImageHiking,
 )
 
 
@@ -574,6 +577,175 @@ ImageEventFormSet = inlineformset_factory(
     Event,
     ImageEvent,
     form=ImageEventForm,
+    extra=1,
+    can_delete=True,
+    max_num=10,
+)
+
+
+class TipForm(FlowbiteFormMixin, forms.ModelForm):
+    description_en = forms.CharField(
+        label=_("Description (English)"),
+        required=True,
+        widget=TinyMCE(attrs={"cols": 80, "rows": 30}),
+    )
+    description_fr = forms.CharField(
+        label=_("Description (French)"),
+        required=True,
+        widget=TinyMCE(attrs={"cols": 80, "rows": 30}),
+    )
+
+    class Meta:
+        model = Tip
+        fields = ["city", "description_en", "description_fr"]
+        widgets = {
+            "city": forms.Select(
+                attrs={
+                    "placeholder": _("Select city"),
+                    "required": True,
+                }
+            ),
+        }
+        error_messages = {
+            "city": {
+                "required": _("Please select a city."),
+            },
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if "city" in self.fields:
+            self.fields["city"].required = True
+
+    def clean(self):
+        cleaned_data = super().clean()
+        required_fields = {
+            "description_en": _("Description (English) is required."),
+            "description_fr": _("Description (French) is required."),
+        }
+
+        for field, error in required_fields.items():
+            if not cleaned_data.get(field):
+                self.add_error(None, error)
+                if field in self._errors:
+                    del self._errors[field]
+
+        return cleaned_data
+
+
+class HikingForm(FlowbiteFormMixin, forms.ModelForm):
+    name_en = forms.CharField(
+        label=_("Name (English)"),
+        required=True,
+        error_messages={
+            "required": _("Please enter the name in English."),
+        },
+    )
+    name_fr = forms.CharField(
+        label=_("Name (French)"),
+        required=True,
+        error_messages={
+            "required": _("Please enter the name in French."),
+        },
+    )
+    description_en = forms.CharField(
+        label=_("Description (English)"),
+        required=True,
+        widget=TinyMCE(attrs={"cols": 80, "rows": 30}),
+        error_messages={
+            "required": _("Please enter the description in English."),
+        },
+    )
+    description_fr = forms.CharField(
+        label=_("Description (French)"),
+        required=True,
+        widget=TinyMCE(attrs={"cols": 80, "rows": 30}),
+        error_messages={
+            "required": _("Please enter the description in French."),
+        },
+    )
+
+    class Meta:
+        model = Hiking
+        fields = [
+            "city",
+            "location",
+            "name_en",
+            "name_fr",
+            "description_en",
+            "description_fr",
+        ]
+        widgets = {
+            "city": forms.Select(
+                attrs={
+                    "placeholder": _("Select city"),
+                    "class": "block w-full px-3 py-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body",
+                    "required": True,
+                }
+            ),
+            "location": forms.SelectMultiple(
+                attrs={
+                    "class": "block w-full px-3 py-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body",
+                    "placeholder": _("Select locations"),
+                }
+            ),
+        }
+        error_messages = {
+            "city": {
+                "required": _("Please select a city."),
+            },
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if "city" in self.fields:
+            self.fields["city"].required = True
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        errors = []
+        if not cleaned_data.get("name_en"):
+            errors.append(_("Please enter the name in English."))
+            if "name_en" in self.errors:
+                del self.errors["name_en"]
+        if not cleaned_data.get("name_fr"):
+            errors.append(_("Please enter the name in French."))
+            if "name_fr" in self.errors:
+                del self.errors["name_fr"]
+        if not cleaned_data.get("description_en"):
+            errors.append(_("Please enter the description in English."))
+            if "description_en" in self.errors:
+                del self.errors["description_en"]
+        if not cleaned_data.get("description_fr"):
+            errors.append(_("Please enter the description in French."))
+            if "description_fr" in self.errors:
+                del self.errors["description_fr"]
+
+        for error in errors:
+            self.add_error(None, error)
+
+        return cleaned_data
+
+
+class ImageHikingForm(forms.ModelForm):
+    class Meta:
+        model = ImageHiking
+        fields = ["image"]
+        widgets = {
+            "image": forms.FileInput(
+                attrs={
+                    "class": "block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400",
+                    "accept": "image/*",
+                }
+            )
+        }
+
+
+ImageHikingFormSet = inlineformset_factory(
+    Hiking,
+    ImageHiking,
+    form=ImageHikingForm,
     extra=1,
     can_delete=True,
     max_num=10,

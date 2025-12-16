@@ -10,11 +10,13 @@
             </tr>
         </thead>
         <tbody>
+            {% for data in location_categories %}
             <tr class="bg-neutral-primary border-b border-default">
                 <th scope="row" class="px-6 py-4 font-medium text-heading whitespace-nowrap">
-                    Apple MacBook Pro 17"
+                    {{ data.name }}
                 </th>
             </tr>
+            {% endfor %}
         </tbody>
     </table>
 </div>
