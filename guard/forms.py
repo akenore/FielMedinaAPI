@@ -778,9 +778,10 @@ class AdForm(FlowbiteFormMixin, forms.ModelForm):
 
     class Meta:
         model = Ad
-        fields = ["image", "link", "is_active"]
+        fields = ["image_mobile", "image_tablet", "link", "is_active"]
         widgets = {
-            "image": forms.FileInput(attrs={"accept": "image/*"}),
+            "image_mobile": forms.FileInput(attrs={"accept": "image/*"}),
+            "image_tablet": forms.FileInput(attrs={"accept": "image/*"}),
             "is_active": forms.CheckboxInput(),
         }
 
@@ -788,7 +789,48 @@ class AdForm(FlowbiteFormMixin, forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["is_active"].label = _("Active")
         if self.instance and self.instance.pk:
-            self.fields["image"].required = False
+            self.fields["image_mobile"].required = False
+            self.fields["image_tablet"].required = False
+
+    def clean_image_mobile(self):
+        image = self.cleaned_data.get("image_mobile")
+        if image:
+            # Check if it's a new upload (InMemoryUploadedFile)
+            if hasattr(image, "image"):
+                w, h = image.image.width, image.image.height
+            else:
+                # Fallback for some upload handlers or if Pillow not directly accessible
+                from django.core.files.images import get_image_dimensions
+
+                w, h = get_image_dimensions(image)
+
+            if w != 320 or h != 50:
+                raise forms.ValidationError(
+                    _(
+                        "Mobile image must be exactly 320x50 pixels. Uploaded: %(w)sx%(h)s"
+                    )
+                    % {"w": w, "h": h}
+                )
+        return image
+
+    def clean_image_tablet(self):
+        image = self.cleaned_data.get("image_tablet")
+        if image:
+            if hasattr(image, "image"):
+                w, h = image.image.width, image.image.height
+            else:
+                from django.core.files.images import get_image_dimensions
+
+                w, h = get_image_dimensions(image)
+
+            if w != 728 or h != 90:
+                raise forms.ValidationError(
+                    _(
+                        "Tablet image must be exactly 728x90 pixels. Uploaded: %(w)sx%(h)s"
+                    )
+                    % {"w": w, "h": h}
+                )
+        return image
 
 
 ImageAdFormSet = inlineformset_factory(

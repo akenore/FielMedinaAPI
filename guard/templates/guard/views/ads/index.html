@@ -77,21 +77,39 @@
             </div>
             
             <div class="grid grid-cols-1 gap-6">
-                <!-- Image Upload -->
+                <!-- Mobile Image Upload -->
                 <div>
-                    <label for="{{ form.image.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                        {{ form.image.label }}
-                        {% if form.image.field.required %}<span class="text-red-600">*</span>{% endif %}
+                    <label for="{{ form.image_mobile.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        {{ form.image_mobile.label }}
+                        {% if form.image_mobile.field.required %}<span class="text-red-600">*</span>{% endif %}
                     </label>
-                    {% if object and object.image %}
+                    <p class="text-xs text-gray-500 mb-2">{% trans "Required size: 320x50 pixels" %}</p>
+                    {% if object and object.image_mobile %}
                     <div class="mb-3">
-                        <img src="{{ object.image.url }}" alt="Current ad image" class="h-32 w-auto rounded-lg shadow">
-                        <p class="mt-1 text-xs text-gray-500">{% trans "Current image. Upload a new one to replace." %}</p>
+                        <img src="{{ object.image_mobile.url }}" alt="Mobile ad" class="h-auto w-40 rounded-lg shadow border border-gray-200">
                     </div>
                     {% endif %}
-                    {{ form.image }}
-                    {% if form.image.errors %}
-                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.image.errors.0 }}</p>
+                    {{ form.image_mobile }}
+                    {% if form.image_mobile.errors %}
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.image_mobile.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Tablet Image Upload -->
+                <div>
+                    <label for="{{ form.image_tablet.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        {{ form.image_tablet.label }}
+                        {% if form.image_tablet.field.required %}<span class="text-red-600">*</span>{% endif %}
+                    </label>
+                    <p class="text-xs text-gray-500 mb-2">{% trans "Required size: 728x90 pixels" %}</p>
+                    {% if object and object.image_tablet %}
+                    <div class="mb-3">
+                        <img src="{{ object.image_tablet.url }}" alt="Tablet ad" class="h-auto w-64 rounded-lg shadow border border-gray-200">
+                    </div>
+                    {% endif %}
+                    {{ form.image_tablet }}
+                    {% if form.image_tablet.errors %}
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.image_tablet.errors.0 }}</p>
                     {% endif %}
                 </div>
 

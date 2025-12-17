@@ -359,7 +359,20 @@ class Tip(models.Model):
 class Ad(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    image = models.ImageField(upload_to="ads/")
+    image_mobile = models.ImageField(
+        upload_to="ads/mobile/",
+        help_text=_("Size: 320x50 pixels"),
+        verbose_name=_("Mobile Image (320x50)"),
+        null=True,
+        blank=True,
+    )
+    image_tablet = models.ImageField(
+        upload_to="ads/tablet/",
+        help_text=_("Size: 728x90 pixels"),
+        verbose_name=_("Tablet Image (728x90)"),
+        null=True,
+        blank=True,
+    )
     link = models.URLField()
     short_link = models.URLField(blank=True, null=True)
     short_id = models.CharField(max_length=50, blank=True, null=True)
