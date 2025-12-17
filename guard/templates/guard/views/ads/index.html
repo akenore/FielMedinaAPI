@@ -187,4 +187,42 @@
     </div>
 </form>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var _URL = window.URL || window.webkitURL;
+
+    function validateImage(input, requiredWidth, requiredHeight) {
+        if (input.files && input.files[0]) {
+            var file = input.files[0];
+            var img = new Image();
+            var objectUrl = _URL.createObjectURL(file);
+            
+            img.onload = function() {
+                if (this.width !== requiredWidth || this.height !== requiredHeight) {
+                    alert("{% trans 'Invalid dimension' %}: " + this.width + "x" + this.height + "px. {% trans 'Required' %}: " + requiredWidth + "x" + requiredHeight + "px.");
+                    input.value = ""; // Clear input
+                }
+                _URL.revokeObjectURL(objectUrl);
+            };
+            img.src = objectUrl;
+        }
+    }
+
+    var mobileInput = document.getElementById('{{ form.image_mobile.id_for_label }}');
+    var tabletInput = document.getElementById('{{ form.image_tablet.id_for_label }}');
+
+    if (mobileInput) {
+        mobileInput.addEventListener('change', function() {
+            validateImage(this, 320, 50);
+        });
+    }
+
+    if (tabletInput) {
+        tabletInput.addEventListener('change', function() {
+            validateImage(this, 728, 90);
+        });
+    }
+});
+</script>
+
 {% endblock body %}

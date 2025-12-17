@@ -1,14 +1,16 @@
 from datetime import timedelta
 import os
+import uuid
 
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models.signals import post_save
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from tinymce.models import HTMLField
 from shared.models import OptimizedImageModel
+from shared.utils import optimize_image
 
 User = get_user_model()
 
@@ -359,6 +361,14 @@ class Tip(models.Model):
 class Ad(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    client = models.ForeignKey(
+        UserProfile,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="ads",
+        verbose_name=_("Client"),
+    )
     image_mobile = models.ImageField(
         upload_to="ads/mobile/",
         help_text=_("Size: 320x50 pixels"),
@@ -383,5 +393,43 @@ class Ad(models.Model):
         verbose_name = _("Ad")
         verbose_name_plural = _("Ads")
 
+    def save(self, *args, **kwargs):
+        # Optimize images on save
+        for field_name in ["image_mobile", "image_tablet"]:
+            field = getattr(self, field_name)
+
+            # Use shared utility to optimize image
+            # Only process if we have a file and it's likely a new upload (not just pk check)
+            if field and (not self.pk or hasattr(field, "file")):
+                optimized = optimize_image(field)
+                if optimized:
+                    _, content = optimized
+
+                    # Generate a unique filename using UUID to prevent duplication and collisions
+                    # This ensures "identical id" code behavior (uniqueness) and avoids caching issues.
+                    ext = ".jpg"
+                    unique_filename = f"{uuid.uuid4()}{ext}"
+
+                    # Assign the new ContentFile to the field explicitly.
+                    content.name = unique_filename
+                    setattr(self, field_name, content)
+
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.link
+
+
+@receiver(post_delete, sender=Ad)
+def cleanup_ad_images(sender, instance, **kwargs):
+    """
+    Delete image files from filesystem when Ad object is deleted.
+    """
+    for field_name in ["image_mobile", "image_tablet"]:
+        field = getattr(instance, field_name)
+        if field and field.name:
+            try:
+                if os.path.isfile(field.path):
+                    os.remove(field.path)
+            except Exception:
+                pass

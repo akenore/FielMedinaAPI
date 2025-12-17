@@ -788,6 +788,11 @@ class AdForm(FlowbiteFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["is_active"].label = _("Active")
+
+        # Enforce strict requirement for creation, overruling model's blank=True
+        self.fields["image_mobile"].required = True
+        self.fields["image_tablet"].required = True
+
         if self.instance and self.instance.pk:
             self.fields["image_mobile"].required = False
             self.fields["image_tablet"].required = False

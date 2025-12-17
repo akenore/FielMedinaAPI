@@ -1,4 +1,6 @@
 from django.shortcuts import render, redirect
+from django.http import HttpResponseRedirect
+from django.contrib import messages
 from django.contrib.auth.views import (
     LoginView,
     LogoutView,
@@ -20,7 +22,8 @@ from django.views.generic import (
     TemplateView,
 )
 from django.urls import reverse_lazy
-from django.contrib import messages
+
+# from django.contrib import messages
 from django.utils.translation import gettext as _
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
@@ -41,7 +44,7 @@ from .forms import (
     HikingForm,
     ImageHikingFormSet,
     AdForm,
-    ImageAdFormSet,
+    # ImageAdFormSet,
 )
 
 from .models import (
@@ -52,7 +55,7 @@ from .models import (
     Tip,
     Hiking,
     Ad,
-    ImageAd,
+    # ImageAd,
 )
 from shared.translator import get_translator
 from shared.short_io import ShortIOService
@@ -632,7 +635,9 @@ class AdCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
             logging.getLogger(__name__).error(f"Short.io error: {e}")
 
         self.object.save()
-        return super().form_valid(form)
+
+        messages.success(self.request, self.success_message)
+        return HttpResponseRedirect(self.get_success_url())
 
     def form_invalid(self, form):
         messages.error(self.request, _("Error creating ad. Please check the form."))
@@ -666,7 +671,8 @@ class AdUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
                 logging.getLogger(__name__).error(f"Short.io error: {e}")
 
         self.object.save()
-        return super().form_valid(form)
+        messages.success(self.request, self.success_message)
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class AdDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
