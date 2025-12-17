@@ -40,10 +40,22 @@ from .forms import (
     TipForm,
     HikingForm,
     ImageHikingFormSet,
+    AdForm,
+    ImageAdFormSet,
 )
 
-from .models import LocationCategory, Location, Event, UserProfile, Tip, Hiking
+from .models import (
+    LocationCategory,
+    Location,
+    Event,
+    UserProfile,
+    Tip,
+    Hiking,
+    Ad,
+    ImageAd,
+)
 from shared.translator import get_translator
+from shared.short_io import ShortIOService
 
 
 class CustomLoginView(LoginView):
@@ -570,9 +582,101 @@ class HikingDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-@login_required
-def adsList(request):
-    return render(request, "guard/views/ads/list.html")
+class AdListView(LoginRequiredMixin, ListView):
+    model = Ad
+    template_name = "guard/views/ads/list.html"
+    context_object_name = "ads"
+    paginate_by = 10
+    ordering = ["-created_at"]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Update clicks for displayed ads (simple implementation)
+        # In a real scenario, this should be done asynchronously or on demand
+        service = ShortIOService()
+        for ad in context["ads"]:
+            if ad.short_id:
+                try:
+                    clicks = service.get_clicks(ad.short_id)
+                    if clicks != ad.clicks:
+                        ad.clicks = clicks
+                        ad.save(update_fields=["clicks"])
+                except Exception:
+                    pass  # Ignore errors during stats fetch
+        return context
+
+
+class AdCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+    model = Ad
+    form_class = AdForm
+    template_name = "guard/views/ads/index.html"
+    success_url = reverse_lazy("guard:adsList")
+    success_message = _("Ad created successfully")
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+
+        # Shorten URL via Short.io
+        try:
+            service = ShortIOService()
+            short_data = service.shorten_url(self.object.link, title="Ad Campaign")
+            if short_data:
+                self.object.short_link = short_data.get(
+                    "secureShortURL"
+                ) or short_data.get("shortURL")
+                self.object.short_id = short_data.get("idString")
+        except Exception as e:
+            # Log error but continue saving - Short.io is optional
+            import logging
+
+            logging.getLogger(__name__).error(f"Short.io error: {e}")
+
+        self.object.save()
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, _("Error creating ad. Please check the form."))
+        return super().form_invalid(form)
+
+
+class AdUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+    model = Ad
+    form_class = AdForm
+    template_name = "guard/views/ads/index.html"
+    success_url = reverse_lazy("guard:adsList")
+    success_message = _("Ad updated successfully")
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+
+        # Re-shorten URL if link changed
+        if "link" in form.changed_data:
+            try:
+                service = ShortIOService()
+                short_data = service.shorten_url(self.object.link, title="Ad Campaign")
+                if short_data:
+                    self.object.short_link = short_data.get(
+                        "secureShortURL"
+                    ) or short_data.get("shortURL")
+                    self.object.short_id = short_data.get("idString")
+                    self.object.clicks = 0  # Reset clicks for new link
+            except Exception as e:
+                import logging
+
+                logging.getLogger(__name__).error(f"Short.io error: {e}")
+
+        self.object.save()
+        return super().form_valid(form)
+
+
+class AdDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+    model = Ad
+    success_url = reverse_lazy("guard:adsList")
+    success_message = _("Ad deleted successfully")
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
 
 
 @login_required

@@ -361,6 +361,9 @@ class Ad(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     image = models.ImageField(upload_to="ads/")
     link = models.URLField()
+    short_link = models.URLField(blank=True, null=True)
+    short_id = models.CharField(max_length=50, blank=True, null=True)
+    clicks = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
 
     class Meta:

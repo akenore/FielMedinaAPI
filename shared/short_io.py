@@ -1,0 +1,110 @@
+import requests
+from django.conf import settings
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+class ShortIOService:
+    """Service to interact with Short.io API"""
+
+    BASE_URL = "https://api.short.io"
+
+    def __init__(self):
+        self.api_key = getattr(settings, "PUBLIC_SHORT_API", None) or getattr(
+            settings, "SHORT_IO_API_KEY", None
+        )
+        import os
+
+        if not self.api_key:
+            self.api_key = os.getenv("PUBLIC_SHORT_API")
+
+        self.domain = getattr(settings, "SHORT_IO_DOMAIN", None) or os.getenv(
+            "SHORT_IO_DOMAIN"
+        )
+
+        self.folder_id = getattr(settings, "SHORT_IO_FOLDER_ID", None) or os.getenv(
+            "SHORT_IO_FOLDER_ID"
+        )
+
+    def shorten_url(self, original_url, title=None, folder_id=None):
+        """
+        Create a short URL for the given original URL.
+
+        Args:
+            original_url: The destination URL to shorten
+            title: Optional title for the link
+            folder_id: Optional folder ID to organize links. If not provided, uses default from settings.
+        """
+        if not self.api_key:
+            logger.error("Short.io API key is missing.")
+            return None
+
+        endpoint = f"{self.BASE_URL}/links"
+
+        headers = {
+            "Authorization": self.api_key,
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        }
+
+        payload = {
+            "originalURL": original_url,
+            "domain": self.domain,
+        }
+
+        if title:
+            payload["title"] = title
+
+        effective_folder_id = folder_id or self.folder_id
+        if effective_folder_id:
+            payload["folderId"] = effective_folder_id
+
+        logger.info(
+            f"Short.io API request - Domain: {self.domain}, Folder ID: {effective_folder_id}"
+        )
+        logger.info(f"Short.io payload: {payload}")
+
+        try:
+            response = requests.post(endpoint, json=payload, headers=headers)
+            logger.info(f"Short.io response status: {response.status_code}")
+            logger.info(f"Short.io response body: {response.text}")
+            response.raise_for_status()
+            data = response.json()
+
+            return {
+                "shortURL": data.get("shortURL"),
+                "idString": data.get("idString"),
+                "secureShortURL": data.get("secureShortURL"),
+            }
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error shortening URL: {e}")
+            if response:
+                logger.error(f"Response: {response.text}")
+            return None
+
+    def get_clicks(self, link_id):
+        """
+        Get click statistics for a specific link ID.
+        """
+        if not self.api_key or not link_id:
+            return 0
+
+        endpoint = f"{self.BASE_URL}/statistics/link/{link_id}"
+
+        headers = {
+            "Authorization": self.api_key,
+            "Accept": "application/json",
+        }
+
+        params = {"period": "total", "tzOffset": 0}
+
+        try:
+            response = requests.get(endpoint, headers=headers, params=params)
+            response.raise_for_status()
+            data = response.json()
+            return data.get("humanClicks", 0)
+
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error fetching stats for link {link_id}: {e}")
+            return 0

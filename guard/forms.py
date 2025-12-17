@@ -19,6 +19,8 @@ from .models import (
     Tip,
     Hiking,
     ImageHiking,
+    Ad,
+    ImageAd,
 )
 
 
@@ -28,6 +30,12 @@ class FlowbiteFormMixin:
         "focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 "
         "dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 "
         "dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+    )
+
+    file_input_class = (
+        "block w-full text-sm text-gray-900 border border-gray-300 rounded-lg "
+        "cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none "
+        "dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
     )
 
     checkbox_class = "w-5 h-5 border border-default-medium rounded bg-neutral-secondary-medium focus:ring-2 focus:ring-brand-soft"
@@ -44,6 +52,8 @@ class FlowbiteFormMixin:
                 widget.attrs["class"] = f"{classes} {self.checkbox_class}".strip()
             elif isinstance(widget, (forms.RadioSelect,)):
                 widget.attrs["class"] = f"{classes} {self.radio_class}".strip()
+            elif isinstance(widget, (forms.FileInput,)):
+                widget.attrs["class"] = f"{classes} {self.file_input_class}".strip()
             else:
                 widget.attrs["class"] = f"{classes} {self.input_class}".strip()
 
@@ -749,4 +759,43 @@ ImageHikingFormSet = inlineformset_factory(
     extra=1,
     can_delete=True,
     max_num=10,
+)
+
+
+class AdForm(FlowbiteFormMixin, forms.ModelForm):
+    link = forms.URLField(
+        label=_("Destination Link"),
+        required=True,
+        widget=forms.URLInput(
+            attrs={
+                "placeholder": "https://example.com",
+            }
+        ),
+        help_text=_(
+            "The destination URL for this ad. This will be tracked via Short.io."
+        ),
+    )
+
+    class Meta:
+        model = Ad
+        fields = ["image", "link", "is_active"]
+        widgets = {
+            "image": forms.FileInput(attrs={"accept": "image/*"}),
+            "is_active": forms.CheckboxInput(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["is_active"].label = _("Active")
+        if self.instance and self.instance.pk:
+            self.fields["image"].required = False
+
+
+ImageAdFormSet = inlineformset_factory(
+    Ad,
+    ImageAd,
+    fields=["image"],
+    extra=1,
+    can_delete=True,
+    max_num=5,
 )

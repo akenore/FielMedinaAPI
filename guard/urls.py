@@ -29,7 +29,10 @@ from .views import (
     HikingCreateView,
     HikingUpdateView,
     HikingDeleteView,
-    adsList,
+    AdListView,
+    AdCreateView,
+    AdUpdateView,
+    AdDeleteView,
     publicTransportsList,
     get_cities_by_country,
     translate_text,
@@ -140,7 +143,10 @@ urlpatterns = [
             ]
         ),
     ),
-    path("adsList/", adsList, name="adsList"),
+    path("adsList/", AdListView.as_view(), name="adsList"),
+    path("ads/create/", AdCreateView.as_view(), name="ad_create"),
+    path("ads/update/<int:pk>/", AdUpdateView.as_view(), name="ad_update"),
+    path("ads/delete/<int:pk>/", AdDeleteView.as_view(), name="ad_delete"),
     path(
         "api/cities/<int:country_id>/",
         get_cities_by_country,
