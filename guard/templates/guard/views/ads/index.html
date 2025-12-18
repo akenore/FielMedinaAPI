@@ -139,38 +139,7 @@
         </div>
     </div>
 
-    {% if object and object.short_link %}
-    <!-- Tracking Info Section -->
-    <div class="bg-white dark:bg-gray-800 shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl">
-        <div class="px-4 py-5 sm:p-6">
-            <div class="border-b border-gray-200 dark:border-gray-700 pb-4 mb-6">
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
-                    <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                    </svg>
-                    {% trans "Tracking Information" %}
-                </h2>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{% trans "Short Link" %}</p>
-                    <a href="{{ object.short_link }}" target="_blank" class="text-green-600 hover:underline dark:text-green-400 break-all">
-                        {{ object.short_link }}
-                    </a>
-                </div>
-                <div>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{% trans "Short ID" %}</p>
-                    <p class="text-gray-900 dark:text-white font-mono">{{ object.short_id }}</p>
-                </div>
-                <div>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{% trans "Total Clicks" %}</p>
-                    <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ object.clicks }}</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
+
 
     <div class="flex items-center justify-between gap-x-6 border-t border-gray-900/10 pt-6">
         <a href="{% url 'guard:adsList' %}" class="text-body bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading focus:ring-4 focus:ring-neutral-tertiary shadow-xs font-medium leading-5 rounded-full text-sm px-4 py-2.5 focus:outline-none">
