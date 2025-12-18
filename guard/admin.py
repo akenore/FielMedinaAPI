@@ -99,7 +99,19 @@ class EventAdmin(TranslationAdmin):
             _("Basic Information"),
             {"fields": ("name", "client", "location", "category")},
         ),
-        (_("Event Schedule"), {"fields": ("startDate", "endDate", "time")}),
+        (
+            _("Event Schedule"),
+            {
+                "fields": (
+                    "startDate",
+                    "endDate",
+                    "time",
+                    "link",
+                    "short_link",
+                    "short_id",
+                )
+            },
+        ),
         (_("Details"), {"fields": ("price", "description")}),
     )
 

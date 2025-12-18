@@ -326,6 +326,9 @@ class Event(models.Model):
     price = models.DecimalField(
         max_digits=10, decimal_places=2, verbose_name=_("Price")
     )
+    link = models.URLField(verbose_name=_("The link to subscribe"))
+    short_link = models.URLField(blank=True, null=True)
+    short_id = models.CharField(max_length=50, blank=True, null=True)
     description = HTMLField(verbose_name=_("Description"))
 
     class Meta:

@@ -483,6 +483,17 @@ class EventForm(FlowbiteFormMixin, forms.ModelForm):
         },
     )
 
+    link = forms.URLField(
+        label=_("Destination Link"),
+        required=True,
+        widget=forms.URLInput(
+            attrs={
+                "placeholder": "https://example.com",
+            }
+        ),
+        help_text=_("The destination URL for this event."),
+    )
+
     class Meta:
         model = Event
         fields = [
@@ -496,6 +507,7 @@ class EventForm(FlowbiteFormMixin, forms.ModelForm):
             "endDate",
             "time",
             "price",
+            "link",
         ]
         widgets = {
             "location": forms.Select(
@@ -533,6 +545,11 @@ class EventForm(FlowbiteFormMixin, forms.ModelForm):
                     "min": "0",
                 }
             ),
+            "link": forms.URLInput(
+                attrs={
+                    "placeholder": "https://example.com",
+                }
+            ),
         }
 
     def clean(self):
@@ -567,6 +584,11 @@ class EventForm(FlowbiteFormMixin, forms.ModelForm):
             self.add_error(None, error)
 
         return cleaned_data
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            pass
 
 
 class ImageEventForm(forms.ModelForm):
@@ -796,6 +818,7 @@ class AdForm(FlowbiteFormMixin, forms.ModelForm):
         if self.instance and self.instance.pk:
             self.fields["image_mobile"].required = False
             self.fields["image_tablet"].required = False
+            pass
 
     def clean_image_mobile(self):
         image = self.cleaned_data.get("image_mobile")

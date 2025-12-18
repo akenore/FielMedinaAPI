@@ -108,3 +108,43 @@ class ShortIOService:
         except requests.exceptions.RequestException as e:
             logger.error(f"Error fetching stats for link {link_id}: {e}")
             return 0
+
+    def update_link(self, link_id, original_url, title=None):
+        """
+        Update the destination URL of an existing short link.
+        """
+        if not self.api_key or not link_id:
+            return None
+
+        endpoint = f"{self.BASE_URL}/links/{link_id}"
+
+        headers = {
+            "Authorization": self.api_key,
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        }
+
+        payload = {
+            "originalURL": original_url,
+        }
+
+        if title:
+            payload["title"] = title
+
+        try:
+            # According to Short.io API, updating a link uses POST to /links/{id}
+            # Reference: https://developers.short.io/reference/post_links-linkid
+            response = requests.post(endpoint, json=payload, headers=headers)
+            response.raise_for_status()
+            data = response.json()
+
+            return {
+                "shortURL": data.get("shortURL"),
+                "idString": data.get("idString"),
+                "secureShortURL": data.get("secureShortURL"),
+            }
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error updating link {link_id}: {e}")
+            if response:
+                logger.error(f"Response: {response.text}")
+            return None

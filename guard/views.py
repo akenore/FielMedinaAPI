@@ -356,10 +356,29 @@ class EventCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
                 form.add_error(None, _("Veuillez télécharger au moins une image."))
                 return self.form_invalid(form)
 
-            self.object = form.save()
+            self.object = form.save(commit=False)
+
+            # Shorten URL via Short.io
+            try:
+                service = ShortIOService()
+                short_data = service.shorten_url(
+                    self.object.link, title="Event Campaign"
+                )
+                if short_data:
+                    self.object.short_link = short_data.get(
+                        "secureShortURL"
+                    ) or short_data.get("shortURL")
+                    self.object.short_id = short_data.get("idString")
+            except Exception as e:
+                import logging
+
+                logging.getLogger(__name__).error(f"Short.io error: {e}")
+
+            self.object.save()
             image_formset.instance = self.object
             image_formset.save()
-            return super().form_valid(form)
+            messages.success(self.request, self.success_message)
+            return HttpResponseRedirect(self.get_success_url())
         else:
             return self.form_invalid(form)
 
@@ -405,10 +424,48 @@ class EventUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
                 )
                 return self.form_invalid(form)
 
-            self.object = form.save()
+            self.object = form.save(commit=False)
+
+            # Update URL via Short.io if changed
+            if "link" in form.changed_data:
+                try:
+                    service = ShortIOService()
+                    # Try to update existing link if we have a short_id
+                    updated = False
+                    if self.object.short_id:
+                        result = service.update_link(
+                            self.object.short_id,
+                            self.object.link,
+                            title="Event Campaign",
+                        )
+                        if result:
+                            # Update fields just in case, though they likely remain same/similar
+                            self.object.short_link = result.get(
+                                "secureShortURL"
+                            ) or result.get("shortURL")
+                            updated = True
+
+                    # Fallback to create new if update failed or no short_id
+                    if not updated:
+                        short_data = service.shorten_url(
+                            self.object.link, title="Event Campaign"
+                        )
+                        if short_data:
+                            self.object.short_link = short_data.get(
+                                "secureShortURL"
+                            ) or short_data.get("shortURL")
+                            self.object.short_id = short_data.get("idString")
+
+                except Exception as e:
+                    import logging
+
+                    logging.getLogger(__name__).error(f"Short.io error: {e}")
+
+            self.object.save()
             image_formset.instance = self.object
             image_formset.save()
-            return super().form_valid(form)
+            messages.success(self.request, self.success_message)
+            return HttpResponseRedirect(self.get_success_url())
         else:
             return self.form_invalid(form)
 
@@ -654,17 +711,34 @@ class AdUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
 
-        # Re-shorten URL if link changed
+        # Update URL via Short.io if changed
         if "link" in form.changed_data:
             try:
                 service = ShortIOService()
-                short_data = service.shorten_url(self.object.link, title="Ad Campaign")
-                if short_data:
-                    self.object.short_link = short_data.get(
-                        "secureShortURL"
-                    ) or short_data.get("shortURL")
-                    self.object.short_id = short_data.get("idString")
-                    self.object.clicks = 0  # Reset clicks for new link
+                # Try to update existing link if we have a short_id
+                updated = False
+                if self.object.short_id:
+                    result = service.update_link(
+                        self.object.short_id, self.object.link, title="Ad Campaign"
+                    )
+                    if result:
+                        self.object.short_link = result.get(
+                            "secureShortURL"
+                        ) or result.get("shortURL")
+                        updated = True
+
+                # Fallback to create new if update failed or no short_id
+                if not updated:
+                    short_data = service.shorten_url(
+                        self.object.link, title="Ad Campaign"
+                    )
+                    if short_data:
+                        self.object.short_link = short_data.get(
+                            "secureShortURL"
+                        ) or short_data.get("shortURL")
+                        self.object.short_id = short_data.get("idString")
+                        self.object.clicks = 0  # Reset clicks for new link
+
             except Exception as e:
                 import logging
 
