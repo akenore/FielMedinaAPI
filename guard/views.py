@@ -20,6 +20,7 @@ from django.views.generic import (
     DeleteView,
     ListView,
     TemplateView,
+    DetailView,
 )
 from django.urls import reverse_lazy
 
@@ -470,6 +471,24 @@ class EventUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
             return self.form_invalid(form)
 
 
+class EventTrackingView(LoginRequiredMixin, DetailView):
+    model = Event
+    template_name = "guard/partials/tracking.html"
+    context_object_name = "object"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        period = self.request.GET.get("period", "total")
+        context["period"] = period
+        context["page_title"] = self.object.name
+
+        if self.object.short_id:
+            service = ShortIOService()
+            context["stats"] = service.get_link_statistics(self.object.short_id, period)
+
+        return context
+
+
 class EventDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = Event
     success_url = reverse_lazy("guard:eventsList")
@@ -747,6 +766,24 @@ class AdUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
         self.object.save()
         messages.success(self.request, self.success_message)
         return HttpResponseRedirect(self.get_success_url())
+
+
+class AdTrackingView(LoginRequiredMixin, DetailView):
+    model = Ad
+    template_name = "guard/partials/tracking.html"
+    context_object_name = "object"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        period = self.request.GET.get("period", "total")
+        context["period"] = period
+        context["page_title"] = self.object.link
+
+        if self.object.short_id:
+            service = ShortIOService()
+            context["stats"] = service.get_link_statistics(self.object.short_id, period)
+
+        return context
 
 
 class AdDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):

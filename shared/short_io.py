@@ -148,3 +148,31 @@ class ShortIOService:
             if response:
                 logger.error(f"Response: {response.text}")
             return None
+
+    def get_link_statistics(self, link_id, period="total"):
+        """
+        Get detailed statistics for a link.
+        """
+        if not self.api_key or not link_id:
+            return None
+
+        # Statistics endpoint uses a different subdomain
+        endpoint = f"https://statistics.short.io/statistics/link/{link_id}"
+
+        headers = {
+            "Authorization": self.api_key,
+            "Accept": "application/json",
+        }
+
+        # Determine date range based on period
+        # Short.io might accept 'period' directly or date ranges.
+        # Checking docs commonly: period=today, yesterday, week, month, total.
+        params = {"period": period, "tzOffset": 0}
+
+        try:
+            response = requests.get(endpoint, headers=headers, params=params)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error fetching statistics for link {link_id}: {e}")
+            return None

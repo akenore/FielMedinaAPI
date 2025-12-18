@@ -1,0 +1,187 @@
+{% extends 'guard/base/index.html' %}
+{% load static i18n %}
+
+{% block title %}{% trans "Tracking Dashboard" %}{% endblock title %}
+
+{% block body %}
+<!-- Header & Filter -->
+<div class="container py-6">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                {% trans "Analytics for:" %} {{ page_title|default:"Item" }}
+            </h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+                <a href="{{ object.short_link }}" target="_blank" class="text-brand hover:underline">{{ object.short_link }}</a>
+                &rarr;
+                <a href="{{ object.link }}" target="_blank" class="text-gray-600 dark:text-gray-300 hover:underline">{{ object.link|truncatechars:40 }}</a>
+            </p>
+        </div>
+        
+        <div class="flex items-center">
+            <label for="period-select" class="mr-2 text-sm font-medium text-gray-900 dark:text-white">{% trans "Period:" %}</label>
+            <select id="period-select" onchange="updatePeriod(this.value)" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                <option value="today" {% if period == 'today' %}selected{% endif %}>{% trans "Today" %}</option>
+                <option value="yesterday" {% if period == 'yesterday' %}selected{% endif %}>{% trans "Yesterday" %}</option>
+                <option value="week" {% if period == 'week' %}selected{% endif %}>{% trans "Last 7 Days" %}</option>
+                <option value="month" {% if period == 'month' %}selected{% endif %}>{% trans "Last 30 Days" %}</option>
+                <option value="lastmonth" {% if period == 'lastmonth' %}selected{% endif %}>{% trans "Last Month" %}</option>
+                <option value="total" {% if period == 'total' %}selected{% endif %}>{% trans "All Time" %}</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+            <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{% trans "Total Clicks" %}</h5>
+            <p class="font-normal text-4xl text-brand">{{ stats.totalClicks|default:0 }}</p>
+        </div>
+        <div class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+            <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{% trans "Human Clicks" %}</h5>
+            <p class="font-normal text-4xl text-green-600">{{ stats.humanClicks|default:0 }}</p>
+        </div>
+    </div>
+
+    <!-- Charts Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Clicks Over Time -->
+        <div class="p-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 lg:col-span-2">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{% trans "Metric's Evolution Over Time" %}</h3>
+            <div id="clicksChart" class="w-full"></div>
+        </div>
+
+        <!-- Top Countries -->
+        <div class="p-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{% trans "Top Countries" %}</h3>
+            <div id="countriesChart" class="w-full"></div>
+        </div>
+
+        <!-- Top Cities -->
+        <div class="p-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{% trans "Top Cities" %}</h3>
+            <div id="citiesChart" class="w-full"></div>
+        </div>
+
+         <!-- Top Browsers -->
+         <div class="p-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{% trans "Top Browsers" %}</h3>
+            <div id="browsersChart" class="w-full"></div>
+        </div>
+
+        <!-- Top OS -->
+        <div class="p-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{% trans "Top Operating Systems" %}</h3>
+            <div id="osChart" class="w-full"></div>
+        </div>
+        
+        <!-- Top Referrers -->
+        <div class="p-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{% trans "Top Referrers" %}</h3>
+            <div id="referrersChart" class="w-full"></div>
+        </div>
+
+         <!-- Top Social Referrers -->
+         <div class="p-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{% trans "Top Social Referrers" %}</h3>
+            <div id="socialChart" class="w-full"></div>
+        </div>
+    </div>
+    
+    <div class="mt-6">
+        <a href="javascript:history.back()" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+            {% trans "Back" %}
+        </a>
+    </div>
+
+</div>
+{% endblock body %}
+
+{% block extrascript %}
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@3.46.0/dist/apexcharts.min.js"></script>
+<script>
+    function updatePeriod(period) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('period', period);
+        window.location.href = url.toString();
+    }
+
+    // Helper to safely parse JSON or return empty array/obj
+    const statsData = {{ stats|safe|default:"{}" }};
+    
+    console.log("Stats Data:", statsData);
+
+    const chartOptionsBase = {
+        chart: {
+            fontFamily: 'Inter, sans-serif',
+            toolbar: { show: false },
+        },
+        dataLabels: { enabled: false },
+        tooltip: { shared: true, intersect: false },
+    };
+
+    // 1. Clicks Over Time (Line Chart)
+    if (document.getElementById("clicksChart") && statsData.clickStatistics && statsData.clickStatistics.datasets) {
+        const datasets = statsData.clickStatistics.datasets[0]; // Assuming first dataset is clicks
+        if (datasets && datasets.data) {
+             const labels = datasets.data.map(item => item.x);
+             const values = datasets.data.map(item => item.y);
+             
+             const options = {
+                 ...chartOptionsBase,
+                chart: { ...chartOptionsBase.chart, type: 'area', height: 300 },
+                series: [{ name: 'Clicks', data: values }],
+                xaxis: { categories: labels, labels: { show: false } }, // Hide x labels if too many
+                stroke: { curve: 'smooth' },
+                fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.7, opacityTo: 0.9, stops: [0, 90, 100] } },
+                colors: ['#1A56DB'],
+             };
+             new ApexCharts(document.getElementById("clicksChart"), options).render();
+        }
+    } else {
+        document.getElementById("clicksChart").innerHTML = "<p class='text-gray-500'>No data available</p>";
+    }
+
+    // Helper for pie/bar charts
+    function renderBarChart(elementId, dataObj, label) {
+        if (!document.getElementById(elementId) || !dataObj || Object.keys(dataObj).length === 0) {
+             if(document.getElementById(elementId)) document.getElementById(elementId).innerHTML = "<p class='text-gray-500 text-sm'>No data available</p>";
+             return;
+        }
+        
+        // Sort and take top 10
+        const sortedEntries = Object.entries(dataObj).sort((a,b) => b[1] - a[1]).slice(0, 10);
+        const labels = sortedEntries.map(e => e[0] || 'Unknown');
+        const values = sortedEntries.map(e => e[1]);
+
+        const options = {
+            ...chartOptionsBase,
+            chart: { ...chartOptionsBase.chart, type: 'bar', height: 300 },
+            series: [{ name: label, data: values }],
+            xaxis: { categories: labels },
+            plotOptions: { bar: { borderRadius: 4, horizontal: true, } },
+            colors: ['#3e82f7'],
+        };
+        new ApexCharts(document.getElementById(elementId), options).render();
+    }
+
+    // 2. Top Countries
+    renderBarChart("countriesChart", statsData.country, "Clicks");
+
+    // 3. Top Cities
+    renderBarChart("citiesChart", statsData.city, "Clicks");
+
+    // 4. Top Browsers
+    renderBarChart("browsersChart", statsData.browser, "Clicks");
+
+    // 5. Top OS
+    renderBarChart("osChart", statsData.os, "Clicks");
+    
+    // 6. Top Referrers
+    renderBarChart("referrersChart", statsData.referrer, "Clicks");
+    
+    // 7. Top Social
+    renderBarChart("socialChart", statsData.social, "Clicks");
+
+</script>
+{% endblock extrascript %}

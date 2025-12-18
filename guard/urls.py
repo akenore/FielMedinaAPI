@@ -33,6 +33,8 @@ from .views import (
     AdCreateView,
     AdUpdateView,
     AdDeleteView,
+    EventTrackingView,
+    AdTrackingView,
     publicTransportsList,
     get_cities_by_country,
     translate_text,
@@ -113,6 +115,11 @@ urlpatterns = [
                     EventDeleteView.as_view(),
                     name="event_delete",
                 ),
+                path(
+                    "events/track/<int:pk>/",
+                    EventTrackingView.as_view(),
+                    name="event_track",
+                ),
                 path("tips/", TipsListView.as_view(), name="tipsList"),
                 path("tips/create/", TipCreateView.as_view(), name="tip_create"),
                 path(
@@ -147,6 +154,7 @@ urlpatterns = [
     path("ads/create/", AdCreateView.as_view(), name="ad_create"),
     path("ads/update/<int:pk>/", AdUpdateView.as_view(), name="ad_update"),
     path("ads/delete/<int:pk>/", AdDeleteView.as_view(), name="ad_delete"),
+    path("ads/track/<int:pk>/", AdTrackingView.as_view(), name="ad_track"),
     path(
         "api/cities/<int:country_id>/",
         get_cities_by_country,
