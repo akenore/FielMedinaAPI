@@ -473,7 +473,7 @@ class EventUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
 
 class EventTrackingView(LoginRequiredMixin, DetailView):
     model = Event
-    template_name = "guard/partials/tracking.html"
+    template_name = "guard/views/events/partials/tracking.html"
     context_object_name = "object"
 
     def get_context_data(self, **kwargs):
@@ -485,6 +485,10 @@ class EventTrackingView(LoginRequiredMixin, DetailView):
         if self.object.short_id:
             service = ShortIOService()
             context["stats"] = service.get_link_statistics(self.object.short_id, period)
+            print(
+                f"DEBUG: Event ID: {self.object.id}, Short ID: {self.object.short_id}"
+            )
+            print(f"DEBUG: Stats Data: {context['stats']}")
 
         return context
 
@@ -770,7 +774,7 @@ class AdUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
 
 class AdTrackingView(LoginRequiredMixin, DetailView):
     model = Ad
-    template_name = "guard/partials/tracking.html"
+    template_name = "guard/views/ads/partials/tracking.html"
     context_object_name = "object"
 
     def get_context_data(self, **kwargs):
@@ -782,6 +786,8 @@ class AdTrackingView(LoginRequiredMixin, DetailView):
         if self.object.short_id:
             service = ShortIOService()
             context["stats"] = service.get_link_statistics(self.object.short_id, period)
+            print(f"DEBUG: Ad ID: {self.object.id}, Short ID: {self.object.short_id}")
+            print(f"DEBUG: Stats Data: {context['stats']}")
 
         return context
 

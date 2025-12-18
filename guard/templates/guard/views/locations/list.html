@@ -18,7 +18,7 @@
          {% trans "Categories" %}
       </button>
    </div>
-   {% include 'guard/views/locations/partial/cat_model.html' %}
+   {% include 'guard/views/locations/partials/cat_model.html' %}
 
    <div class="container py-6">
       
@@ -84,7 +84,7 @@
                         </div>
                      </td>
                </tr>
-               {% include "guard/views/locations/partial/confirm_model.html" with data=data %}
+               {% include "guard/views/locations/partials/confirm_model.html" with data=data %}
             {% endfor %}
          </tbody>
       </table>
