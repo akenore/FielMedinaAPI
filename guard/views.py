@@ -478,7 +478,7 @@ class EventTrackingView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        period = self.request.GET.get("period", "total")
+        period = self.request.GET.get("period", "today")
         context["period"] = period
         context["page_title"] = self.object.name
 
@@ -775,7 +775,7 @@ class AdTrackingView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        period = self.request.GET.get("period", "total")
+        period = self.request.GET.get("period", "today")
         context["period"] = period
         context["page_title"] = self.object.link
 

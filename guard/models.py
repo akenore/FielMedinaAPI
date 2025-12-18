@@ -364,6 +364,9 @@ class Tip(models.Model):
 class Ad(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    name = models.CharField(
+        max_length=255, verbose_name=_("Add a name"), blank=True, null=True
+    )
     client = models.ForeignKey(
         UserProfile,
         on_delete=models.SET_NULL,

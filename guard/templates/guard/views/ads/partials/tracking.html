@@ -4,18 +4,17 @@
 {% block title %}{% trans "Tracking Dashboard" %}{% endblock title %}
 
 {% block body %}
-<!-- Header & Filter -->
 <div class="container py-6">
     <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
         <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
                 {% trans "Analytics for:" %} {{ page_title|default:"Item" }}
             </h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400">
+            {% comment %} <p class="text-sm text-gray-500 dark:text-gray-400">
                 <a href="{{ object.short_link }}" target="_blank" class="text-brand hover:underline">{{ object.short_link }}</a>
                 &rarr;
                 <a href="{{ object.link }}" target="_blank" class="text-gray-600 dark:text-gray-300 hover:underline">{{ object.link|truncatechars:40 }}</a>
-            </p>
+            </p> {% endcomment %}
         </div>
         
         <div class="flex items-center">
@@ -31,7 +30,7 @@
         </div>
     </div>
 
-    <!-- Tracking Info Section -->
+    
     <div class="bg-white border border-gray-200 shadow-sm rounded-xl mb-6 dark:bg-gray-800 dark:border-gray-700">
         <div class="px-4 py-5 sm:p-6">
             <div class="border-b border-gray-200 dark:border-gray-700 pb-4 mb-6">
@@ -44,27 +43,25 @@
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
+                {% comment %} <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{% trans "Short Link" %}</p>
                     <a href="{{ object.short_link }}" target="_blank" class="text-green-600 dark:text-green-400 hover:underline break-all">
                         {{ object.short_link }}
                     </a>
-                </div>
+                </div> {% endcomment %}
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{% trans "Short ID" %}</p>
                     <p class="text-gray-900 dark:text-white font-mono">{{ object.short_id }}</p>
                 </div>
-                <div>
+                {% comment %} <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{% trans "Total Clicks" %}</p>
                     <p id="headerTotalClicks" class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ stats.totalClicks|default:0 }}</p>
-                </div>
+                </div> {% endcomment %}
             </div>
         </div>
     </div>
 
-    <!-- Summary Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <!-- Total Clicks Card -->
         <div class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-900 dark:border-gray-800">
             <h5 class="mb-2 text-sm font-medium text-gray-500 dark:text-gray-400">{% trans "Total clicks" %}</h5>
             <div class="flex items-baseline gap-3">
@@ -83,7 +80,6 @@
             {% endif %}
         </div>
         
-        <!-- Human Clicks Card -->
         <div class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-900 dark:border-gray-800">
             <h5 class="mb-2 text-sm font-medium text-gray-500 dark:text-gray-400">{% trans "Human clicks" %}</h5>
             <div class="flex items-baseline gap-3">
@@ -103,46 +99,33 @@
         </div>
     </div>
 
-    <!-- Charts Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <!-- Clicks Over Time -->
         <div class="p-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 lg:col-span-2">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{% trans "Metric's Evolution Over Time" %}</h3>
             <div id="clicksChart" class="w-full"></div>
         </div>
 
-        <!-- Top Countries -->
         <div class="p-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{% trans "Top Countries" %}</h3>
             <div id="countriesChart" class="w-full"></div>
         </div>
 
-        <!-- Top Cities -->
         <div class="p-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{% trans "Top Cities" %}</h3>
             <div id="citiesChart" class="w-full"></div>
         </div>
 
-         <!-- Top Browsers -->
-         <div class="p-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+        <div class="p-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{% trans "Top Browsers" %}</h3>
             <div id="browsersChart" class="w-full"></div>
         </div>
-
-        <!-- Top OS -->
+        
         <div class="p-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{% trans "Top Operating Systems" %}</h3>
             <div id="osChart" class="w-full"></div>
         </div>
         
-        <!-- Top Referrers -->
         <div class="p-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{% trans "Top Referrers" %}</h3>
-            <div id="referrersChart" class="w-full"></div>
-        </div>
-
-         <!-- Top Social Referrers -->
-         <div class="p-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{% trans "Top Social Referrers" %}</h3>
             <div id="socialChart" class="w-full"></div>
         </div>
@@ -172,9 +155,8 @@
         console.log("Stats Data:", statsData);
 
         const isDarkMode = document.documentElement.classList.contains('dark');
-        const chartColor = isDarkMode ? '#FFFFFF' : '#374151'; // White or Gray-700
+        const chartColor = isDarkMode ? '#FFFFFF' : '#374151';
         
-        // Calculate accurate totals from chart data (Short.io API totalClicks can be inconsistent)
         let calculatedTotalClicks = statsData.totalClicks || 0;
         let calculatedHumanClicks = statsData.humanClicks || 0;
         
@@ -182,15 +164,13 @@
             const dataset = statsData.clickStatistics.datasets[0];
             if (dataset.data && dataset.data.length > 0) {
                 const sumFromChart = dataset.data.reduce((sum, item) => sum + Number(item.y || 0), 0);
-                // Use sum from chart if it's greater than API's totalClicks (API seems to underreport)
                 if (sumFromChart > calculatedTotalClicks) {
                     calculatedTotalClicks = sumFromChart;
-                    calculatedHumanClicks = sumFromChart; // Assume human clicks = total for chart-derived data
+                    calculatedHumanClicks = sumFromChart;
                 }
             }
         }
         
-        // Update summary cards with calculated values
         if (statsData) {
             const totalEl = document.getElementById('totalClicksValue');
             if(totalEl) totalEl.textContent = calculatedTotalClicks;
@@ -214,7 +194,6 @@
             tooltip: { theme: isDarkMode ? 'dark' : 'light' }
         };
 
-        // 1. Clicks Over Time (Line Chart)
         if (document.getElementById("clicksChart")) {
             if (statsData.clickStatistics && statsData.clickStatistics.datasets && statsData.clickStatistics.datasets[0]) {
                 const dataset = statsData.clickStatistics.datasets[0];
@@ -246,7 +225,6 @@
             }
         }
 
-        // Generic function to render bar charts from Array data
         function renderBarChart(elementId, dataArray, labelKey, valueKey = 'score') {
             const element = document.getElementById(elementId);
             if (!element) return;
@@ -256,12 +234,10 @@
                 return;
             }
 
-            // Sort by score descending and take top 10
             const sortedData = [...dataArray].sort((a, b) => Number(b[valueKey]) - Number(a[valueKey])).slice(0, 10);
             
-            // Extract labels and values
             const labels = sortedData.map(item => {
-                // Handle various key names for transparency
+                if (labelKey === 'country') return item.countryName || item.country || 'Unknown';
                 if (labelKey === 'country') return item.countryName || item.country || 'Unknown';
                 if (labelKey === 'city') return item.name || item.city || 'Unknown';
                 if (labelKey === 'browser') return item.browser || 'Unknown';
@@ -294,13 +270,11 @@
             if (el) el.innerHTML = "<div class='flex items-center justify-center h-full text-gray-500 text-sm'>No data available</div>";
         }
 
-        // Render Categorical Charts
-        // Note: API returns 'referer' (one r), we handle both just in case
         renderBarChart("countriesChart", statsData.country, "country");
         renderBarChart("citiesChart", statsData.city, "city");
         renderBarChart("browsersChart", statsData.browser, "browser");
         renderBarChart("osChart", statsData.os, "os");
-        renderBarChart("referrersChart", statsData.referer || statsData.referrer, "referer");
+
         renderBarChart("socialChart", statsData.social, "social");
 
     } catch (e) {
