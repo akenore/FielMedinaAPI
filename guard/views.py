@@ -485,10 +485,6 @@ class EventTrackingView(LoginRequiredMixin, DetailView):
         if self.object.short_id:
             service = ShortIOService()
             context["stats"] = service.get_link_statistics(self.object.short_id, period)
-            print(
-                f"DEBUG: Event ID: {self.object.id}, Short ID: {self.object.short_id}"
-            )
-            print(f"DEBUG: Stats Data: {context['stats']}")
 
         return context
 
@@ -786,8 +782,6 @@ class AdTrackingView(LoginRequiredMixin, DetailView):
         if self.object.short_id:
             service = ShortIOService()
             context["stats"] = service.get_link_statistics(self.object.short_id, period)
-            print(f"DEBUG: Ad ID: {self.object.id}, Short ID: {self.object.short_id}")
-            print(f"DEBUG: Stats Data: {context['stats']}")
 
         return context
 

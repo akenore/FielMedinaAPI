@@ -174,19 +174,32 @@
         const isDarkMode = document.documentElement.classList.contains('dark');
         const chartColor = isDarkMode ? '#FFFFFF' : '#374151'; // White or Gray-700
         
-        // Update summary cards if data exists in JSON to ensure accuracy
+        // Calculate accurate totals from chart data (Short.io API totalClicks can be inconsistent)
+        let calculatedTotalClicks = statsData.totalClicks || 0;
+        let calculatedHumanClicks = statsData.humanClicks || 0;
+        
+        if (statsData.clickStatistics && statsData.clickStatistics.datasets && statsData.clickStatistics.datasets[0]) {
+            const dataset = statsData.clickStatistics.datasets[0];
+            if (dataset.data && dataset.data.length > 0) {
+                const sumFromChart = dataset.data.reduce((sum, item) => sum + Number(item.y || 0), 0);
+                // Use sum from chart if it's greater than API's totalClicks (API seems to underreport)
+                if (sumFromChart > calculatedTotalClicks) {
+                    calculatedTotalClicks = sumFromChart;
+                    calculatedHumanClicks = sumFromChart; // Assume human clicks = total for chart-derived data
+                }
+            }
+        }
+        
+        // Update summary cards with calculated values
         if (statsData) {
-            if (statsData.totalClicks !== undefined) {
-                 const el = document.getElementById('totalClicksValue');
-                 if(el) el.textContent = statsData.totalClicks;
-                 // Also update header value
-                 const headerEl = document.getElementById('headerTotalClicks');
-                 if(headerEl) headerEl.textContent = statsData.totalClicks;
-            }
-            if (statsData.humanClicks !== undefined) {
-                 const el = document.getElementById('humanClicksValue');
-                 if(el) el.textContent = statsData.humanClicks;
-            }
+            const totalEl = document.getElementById('totalClicksValue');
+            if(totalEl) totalEl.textContent = calculatedTotalClicks;
+            
+            const headerEl = document.getElementById('headerTotalClicks');
+            if(headerEl) headerEl.textContent = calculatedTotalClicks;
+            
+            const humanEl = document.getElementById('humanClicksValue');
+            if(humanEl) humanEl.textContent = calculatedHumanClicks;
         }
 
         const chartOptionsBase = {
