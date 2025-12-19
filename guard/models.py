@@ -210,6 +210,14 @@ class Event(models.Model):
         related_name="events",
         verbose_name=_("Client"),
     )
+    city = models.ForeignKey(
+        "cities_light.City",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="events",
+        verbose_name=_("City"),
+    )
     category = models.ForeignKey(
         EventCategory,
         on_delete=models.CASCADE,
@@ -272,6 +280,14 @@ class Ad(models.Model):
     name = models.CharField(
         max_length=255, verbose_name=_("Add a name"), blank=True, null=True
     )
+    city = models.ForeignKey(
+        "cities_light.City",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="ads",
+        verbose_name=_("City"),
+    )
     client = models.ForeignKey(
         UserProfile,
         on_delete=models.SET_NULL,
@@ -305,29 +321,18 @@ class Ad(models.Model):
         verbose_name_plural = _("Ads")
 
     def save(self, *args, **kwargs):
-        # Auto-generate name if empty
         if not self.name:
-            # Generate a 6-character unique reference
             ref = uuid.uuid4().hex[:6].upper()
             self.name = f"ADS-{ref}"
 
-        # Optimize images on save
         for field_name in ["image_mobile", "image_tablet"]:
             field = getattr(self, field_name)
-
-            # Use shared utility to optimize image
-            # Only process if it's a new upload (isinstance UploadedFile)
             if field and isinstance(field.file, UploadedFile):
                 optimized = optimize_image(field)
                 if optimized:
                     _, content = optimized
-
-                    # Generate a unique filename using UUID to prevent duplication and collisions
-                    # This ensures "identical id" code behavior (uniqueness) and avoids caching issues.
                     ext = ".jpg"
                     unique_filename = f"{uuid.uuid4()}{ext}"
-
-                    # Assign the new ContentFile to the field explicitly.
                     content.name = unique_filename
                     setattr(self, field_name, content)
 

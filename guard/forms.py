@@ -337,6 +337,7 @@ class EventForm(FlowbiteFormMixin, forms.ModelForm):
             "description_en",
             "description_fr",
             "location",
+            "city",
             "category",
             "startDate",
             "endDate",
@@ -348,6 +349,11 @@ class EventForm(FlowbiteFormMixin, forms.ModelForm):
             "location": forms.Select(
                 attrs={
                     "placeholder": _("Select event location"),
+                }
+            ),
+            "city": forms.Select(
+                attrs={
+                    "placeholder": _("Select city"),
                 }
             ),
             "category": forms.Select(
@@ -422,6 +428,9 @@ class EventForm(FlowbiteFormMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        if "city" in self.fields:
+            self.fields["city"].required = True
+
         if self.instance and self.instance.pk:
             pass
 
@@ -645,8 +654,13 @@ class AdForm(FlowbiteFormMixin, forms.ModelForm):
 
     class Meta:
         model = Ad
-        fields = ["name", "image_mobile", "image_tablet", "link", "is_active"]
+        fields = ["name", "city", "image_mobile", "image_tablet", "link", "is_active"]
         widgets = {
+            "city": forms.Select(
+                attrs={
+                    "placeholder": _("Select city"),
+                }
+            ),
             "image_mobile": forms.FileInput(attrs={"accept": "image/*"}),
             "image_tablet": forms.FileInput(attrs={"accept": "image/*"}),
             "is_active": forms.CheckboxInput(),
@@ -655,6 +669,9 @@ class AdForm(FlowbiteFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["is_active"].label = _("Active")
+
+        if "city" in self.fields:
+            self.fields["city"].required = True
 
         # Enforce strict requirement for creation, overruling model's blank=True
         self.fields["image_mobile"].required = True
