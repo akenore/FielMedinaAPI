@@ -28,6 +28,7 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.core.cache import cache
 import json
 
 from .forms import (
@@ -187,6 +188,42 @@ class SettingView(LoginRequiredMixin, TemplateView):
 
 class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = "guard/views/dashboard.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        service = ShortIOService()
+
+        # Try to get stats from cache
+        cache_key = "dashboard_analytics_stats"
+        stats = cache.get(cache_key)
+
+        if not stats:
+            # Fetch active Ads and Events with short_id
+            ad_ids = list(
+                Ad.objects.filter(is_active=True, short_id__isnull=False).values_list(
+                    "short_id", flat=True
+                )
+            )
+            event_ids = list(
+                Event.objects.filter(short_id__isnull=False).values_list(
+                    "short_id", flat=True
+                )
+            )
+
+            # Aggregate stats for the last 7 days (week)
+            period = "week"
+            ads_stats = service.get_aggregated_link_statistics(ad_ids, period)
+            events_stats = service.get_aggregated_link_statistics(event_ids, period)
+
+            stats = {
+                "ads": ads_stats,
+                "events": events_stats,
+            }
+            # Cache for 15 minutes
+            cache.set(cache_key, stats, 60 * 15)
+
+        context["stats"] = stats
+        return context
 
 
 class LocationsListView(LoginRequiredMixin, ListView):

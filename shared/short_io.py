@@ -165,8 +165,6 @@ class ShortIOService:
         }
 
         # Determine date range based on period
-        # Short.io might accept 'period' directly or date ranges.
-        # Checking docs commonly: period=today, yesterday, week, month, total.
         params = {"period": period, "tzOffset": 0}
 
         try:
@@ -176,3 +174,59 @@ class ShortIOService:
         except requests.exceptions.RequestException as e:
             logger.error(f"Error fetching statistics for link {link_id}: {e}")
             return None
+
+    def get_aggregated_link_statistics(self, link_ids, period="total"):
+        """
+        Aggregate statistics across multiple links.
+        """
+        if not link_ids:
+            return {
+                "totalClicks": 0,
+                "humanClicks": 0,
+                "clickStatistics": {"timeline": []},
+            }
+
+        aggregated = {
+            "totalClicks": 0,
+            "humanClicks": 0,
+            "clickStatistics": {"timeline": []},
+        }
+
+        timeline_map = {}  # date -> clicks
+
+        for lid in link_ids:
+            stats = self.get_link_statistics(lid, period)
+            if not stats:
+                continue
+
+            aggregated["totalClicks"] += stats.get("totalClicks", 0)
+            aggregated["humanClicks"] += stats.get("humanClicks", 0)
+
+            # Aggregate timeline (handle both Short.io response formats)
+            click_stats = stats.get("clickStatistics", {})
+            timeline = []
+
+            if "datasets" in click_stats and click_stats["datasets"]:
+                data = click_stats["datasets"][0].get("data", [])
+                # Convert {x: date, y: value} to {moment: date, clicks: value}
+                timeline = [
+                    {"moment": p["x"], "clicks": int(p["y"])}
+                    for p in data
+                    if "x" in p and "y" in p
+                ]
+            elif "timeline" in click_stats:
+                timeline = click_stats.get("timeline", [])
+
+            for point in timeline:
+                moment = point.get("moment")
+                clicks = point.get("clicks", 0)
+                if moment:
+                    timeline_map[moment] = timeline_map.get(moment, 0) + clicks
+
+        # Convert map back to sorted list of points
+        sorted_moments = sorted(timeline_map.keys())
+        aggregated["clickStatistics"]["timeline"] = [
+            {"moment": m, "clicks": timeline_map[m]} for m in sorted_moments
+        ]
+
+        return aggregated
