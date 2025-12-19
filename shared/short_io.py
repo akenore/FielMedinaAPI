@@ -194,7 +194,10 @@ class ShortIOService:
 
         timeline_map = {}  # date -> clicks
 
-        for lid in link_ids:
+        # Ensure we only count each Short.io link once
+        unique_link_ids = set(link_ids)
+
+        for lid in unique_link_ids:
             stats = self.get_link_statistics(lid, period)
             if not stats:
                 continue
