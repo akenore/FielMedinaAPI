@@ -249,27 +249,40 @@
 
     {% include 'shared/js/translation_utils.html' %}
 
-    // Auto-generate slug from title
-    document.getElementById('id_title_en')?.addEventListener('blur', function() {
-        const title = this.value;
-        const slugField = document.getElementById('id_slug_en');
-        if (slugField && !slugField.value) {
-            slugField.value = title.toLowerCase()
-                .replace(/[^\w\s-]/g, '')
-                .replace(/[\s-]+/g, '-')
-                .replace(/^-+|-+$/g, '');
-        }
-    });
+    function generateSlug(text) {
+        return text.toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^\w\s-]/g, '')
+            .replace(/[\s-]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+    }
 
-    document.getElementById('id_title_fr')?.addEventListener('blur', function() {
-        const title = this.value;
-        const slugField = document.getElementById('id_slug_fr');
-        if (slugField && !slugField.value) {
-            slugField.value = title.toLowerCase()
-                .replace(/[^\w\s-]/g, '')
-                .replace(/[\s-]+/g, '-')
-                .replace(/^-+|-+$/g, '');
+    function setupSlugSync(titleId, slugId) {
+        const titleField = document.getElementById(titleId);
+        const slugField = document.getElementById(slugId);
+        
+        if (titleField && slugField) {
+            titleField.addEventListener('input', function() {
+                // Only auto-fill if the slug is empty
+                if (!slugField.value) {
+                    slugField.value = generateSlug(this.value);
+                }
+            });
         }
-    });
+    }
+
+    setupSlugSync('id_title_en', 'id_slug_en');
+    setupSlugSync('id_title_fr', 'id_slug_fr');
+
+    // Override translateField to dispatch input event
+    const originalTranslateField = translateField;
+    translateField = async function(sourceFieldId, targetFieldId, sourceLang, targetLang, preserveHtml) {
+        await originalTranslateField(sourceFieldId, targetFieldId, sourceLang, targetLang, preserveHtml);
+        const targetField = document.getElementById('id_' + targetFieldId);
+        if (targetField) {
+            targetField.dispatchEvent(new Event('input'));
+        }
+    };
 </script>
 {% endblock extrascript %}
