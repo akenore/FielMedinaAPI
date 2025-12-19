@@ -198,16 +198,17 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         stats = cache.get(cache_key)
 
         if not stats:
-            # Fetch active Ads and Events with short_id
+            # Fetch active Ads and Events with short_id, filtered by user profile
+            profile = self.request.user.profile
             ad_ids = list(
-                Ad.objects.filter(is_active=True, short_id__isnull=False).values_list(
-                    "short_id", flat=True
-                )
+                Ad.objects.filter(
+                    client=profile, is_active=True, short_id__isnull=False
+                ).values_list("short_id", flat=True)
             )
             event_ids = list(
-                Event.objects.filter(short_id__isnull=False).values_list(
-                    "short_id", flat=True
-                )
+                Event.objects.filter(
+                    client=profile, short_id__isnull=False
+                ).values_list("short_id", flat=True)
             )
 
             # Aggregate stats for the last 7 days (week)
@@ -219,8 +220,8 @@ class DashboardView(LoginRequiredMixin, TemplateView):
                 "ads": ads_stats,
                 "events": events_stats,
             }
-            # Cache for 15 minutes
-            cache.set(cache_key, stats, 60 * 15)
+            # Cache for 15 minutes - include user ID in cache key for isolation
+            cache.set(f"{cache_key}_{self.request.user.id}", stats, 60 * 15)
 
         context["stats"] = stats
         return context
@@ -359,6 +360,9 @@ class EventListView(LoginRequiredMixin, ListView):
     paginate_by = 10
     ordering = ["-created_at"]
 
+    def get_queryset(self):
+        return super().get_queryset().filter(client=self.request.user.profile)
+
 
 class EventCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Event
@@ -395,6 +399,7 @@ class EventCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
                 return self.form_invalid(form)
 
             self.object = form.save(commit=False)
+            self.object.client = self.request.user.profile
 
             # Shorten URL via Short.io
             try:
@@ -427,6 +432,9 @@ class EventUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     form_class = EventForm
     success_url = reverse_lazy("guard:eventsList")
     success_message = _("Event updated successfully.")
+
+    def get_queryset(self):
+        return super().get_queryset().filter(client=self.request.user.profile)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -513,6 +521,9 @@ class EventTrackingView(LoginRequiredMixin, DetailView):
     template_name = "guard/views/events/partials/tracking.html"
     context_object_name = "object"
 
+    def get_queryset(self):
+        return super().get_queryset().filter(client=self.request.user.profile)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         period = self.request.GET.get("period", "today")
@@ -530,6 +541,9 @@ class EventDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = Event
     success_url = reverse_lazy("guard:eventsList")
     success_message = _("Unfortunately, this event has been deleted")
+
+    def get_queryset(self):
+        return super().get_queryset().filter(client=self.request.user.profile)
 
     def delete(self, request, *args, **kwargs):
         messages.warning(self.request, self.success_message)
@@ -705,6 +719,9 @@ class AdListView(LoginRequiredMixin, ListView):
     paginate_by = 10
     ordering = ["-created_at"]
 
+    def get_queryset(self):
+        return super().get_queryset().filter(client=self.request.user.profile)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Update clicks for displayed ads (simple implementation)
@@ -731,6 +748,7 @@ class AdCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
+        self.object.client = self.request.user.profile
 
         # Shorten URL via Short.io
         try:
@@ -763,6 +781,9 @@ class AdUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     template_name = "guard/views/ads/index.html"
     success_url = reverse_lazy("guard:adsList")
     success_message = _("Ad updated successfully")
+
+    def get_queryset(self):
+        return super().get_queryset().filter(client=self.request.user.profile)
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
@@ -810,6 +831,9 @@ class AdTrackingView(LoginRequiredMixin, DetailView):
     template_name = "guard/views/ads/partials/tracking.html"
     context_object_name = "object"
 
+    def get_queryset(self):
+        return super().get_queryset().filter(client=self.request.user.profile)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         period = self.request.GET.get("period", "today")
@@ -827,6 +851,9 @@ class AdDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = Ad
     success_url = reverse_lazy("guard:adsList")
     success_message = _("Ad deleted successfully")
+
+    def get_queryset(self):
+        return super().get_queryset().filter(client=self.request.user.profile)
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)

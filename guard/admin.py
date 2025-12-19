@@ -11,6 +11,7 @@ from .models import (
     Tip,
     Hiking,
     ImageHiking,
+    Ad,
 )
 from modeltranslation.admin import TranslationAdmin
 
@@ -151,4 +152,39 @@ class HikingAdmin(TranslationAdmin):
             _("Basic Information"),
             {"fields": ("name", "city", "description", "location")},
         ),
+    )
+
+
+@admin.register(Ad)
+class AdAdmin(admin.ModelAdmin):
+    list_display = [
+        "name",
+        "client",
+        "clicks",
+        "is_active",
+        "created_at",
+    ]
+    list_filter = ["is_active", "client"]
+    search_fields = ["name", "link", "client__user__username"]
+
+    fieldsets = (
+        (
+            _("Basic Information"),
+            {"fields": ("name", "client", "is_active")},
+        ),
+        (
+            _("Ad Images"),
+            {"fields": ("image_mobile", "image_tablet")},
+        ),
+        (
+            _("Link Information"),
+            {
+                "fields": (
+                    "link",
+                    "short_link",
+                    "short_id",
+                )
+            },
+        ),
+        (_("Statistics"), {"fields": ("clicks",)}),
     )
