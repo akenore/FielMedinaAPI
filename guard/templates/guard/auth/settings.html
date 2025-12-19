@@ -84,7 +84,7 @@
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
                     {% trans "Update your password frequently to keep your workspace safe." %}
                 </p>
-                <a href="{% url 'guard:password_change' %}" class="mt-4 inline-flex w-full items-center justify-center rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:border-gray-600 dark:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-800">
+                <a href="{% url 'shared:password_change' %}" class="mt-4 inline-flex w-full items-center justify-center rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:border-gray-600 dark:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-800">
                     {% trans "Change password" %}
                 </a>
             </div>
@@ -93,7 +93,7 @@
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
                     {% trans "Need a fresh start? You can sign out of this device safely." %}
                 </p>
-                <form action="{% url 'guard:logout' %}" method="post" class="mt-4">
+                <form action="{% url 'shared:logout' %}" method="post" class="mt-4">
                     {% csrf_token %}
                     <button type="submit" class="inline-flex w-full items-center justify-center rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-200 dark:focus:ring-red-800">
                         {% trans "Logout" %}

@@ -41,7 +41,7 @@
                     {% endfor %}
                     <div class="flex items-center justify-between">
                         <div class="text-sm">
-                            <a href="{% url 'guard:password_reset' %}" class="font-medium text-primary-600 hover:underline dark:text-primary-400">
+                            <a href="{% url 'shared:password_reset' %}" class="font-medium text-primary-600 hover:underline dark:text-primary-400">
                                 {% trans "Forgot password?" %}
                             </a>
                         </div>
@@ -50,7 +50,7 @@
                         {% trans "Sign in" %}
                     </button>
                     <p class="text-sm font-light text-gray-500 dark:text-gray-400 text-center">
-                        {% trans "Don’t have an account yet?" %} <a href="{% url 'guard:register' %}" class="font-medium text-primary-600 hover:underline dark:text-primary-400">{% trans "Sign up" %}</a>
+                        {% trans "Don’t have an account yet?" %} <a href="{% url 'shared:register' %}" class="font-medium text-primary-600 hover:underline dark:text-primary-400">{% trans "Sign up" %}</a>
                     </p>
                 </form>
             </div>
