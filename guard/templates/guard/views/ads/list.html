@@ -33,14 +33,14 @@
                         </svg>
                      </span>
                   </th>
-                  <th>
+                  {% comment %} <th>
                      <span class="flex items-center">
                         {% trans "Short Link" %}
                         <svg class="w-4 h-4 ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m8 15 4 4 4-4m0-6-4-4-4 4"/>
                         </svg>
                      </span>
-                  </th>
+                  </th> {% endcomment %}
                   {% comment %} <th>
                      <span class="flex items-center">
                         {% trans "Clicks" %}
@@ -70,7 +70,7 @@
                            {{ ad.link|truncatechars:30 }}
                         </a>
                      </td>
-                     <td>
+                     {% comment %} <td>
                         {% if ad.short_link %}
                         <a href="{{ ad.short_link }}" target="_blank" class="text-green-600 hover:underline dark:text-green-400">
                            {{ ad.short_link|truncatechars:30 }}
@@ -78,7 +78,7 @@
                         {% else %}
                         <span class="text-gray-400">-</span>
                         {% endif %}
-                     </td>
+                     </td> {% endcomment %}
                      {% comment %} <td>
                         <span class="inline-flex items-center bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
                            {{ ad.clicks }}

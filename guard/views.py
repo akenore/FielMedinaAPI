@@ -18,9 +18,8 @@ from django.urls import reverse_lazy
 # from django.contrib import messages
 from django.utils.translation import gettext as _
 from django.http import JsonResponse
-from django.views.decorators.http import require_POST
 from django.core.cache import cache
-import json
+
 
 from .forms import (
     LocationForm,
@@ -44,7 +43,8 @@ from .models import (
     Ad,
     # ImageAd,
 )
-from shared.translator import get_translator
+
+# from shared.translator import get_translator
 from shared.short_io import ShortIOService
 
 
@@ -723,43 +723,3 @@ def get_cities_by_country(request, country_id):
     cities_list = list(cities)
 
     return JsonResponse({"success": True, "cities": cities_list})
-
-
-@login_required
-@require_POST
-def translate_text(request):
-    """
-    API endpoint for translating text between English and French.
-
-    Expects JSON payload:
-    {
-        "text": "text to translate",
-        "source_lang": "en" or "fr",
-        "target_lang": "fr" or "en",
-        "preserve_html": true/false
-    }
-    """
-    try:
-        data = json.loads(request.body)
-        text = data.get("text", "")
-        source_lang = data.get("source_lang", "en")
-        target_lang = data.get("target_lang", "fr")
-        preserve_html = data.get("preserve_html", False)
-
-        if not text:
-            return JsonResponse(
-                {"success": False, "error": "No text provided"}, status=400
-            )
-
-        translator = get_translator()
-        translated_text = translator.translate(
-            text=text,
-            source_lang=source_lang,
-            target_lang=target_lang,
-            preserve_html=preserve_html,
-        )
-
-        return JsonResponse({"success": True, "translated_text": translated_text})
-
-    except Exception as e:
-        return JsonResponse({"success": False, "error": str(e)}, status=500)

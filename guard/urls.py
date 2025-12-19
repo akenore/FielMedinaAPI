@@ -27,7 +27,6 @@ from .views import (
     AdTrackingView,
     publicTransportsList,
     get_cities_by_country,
-    translate_text,
 )
 
 app_name = "guard"
@@ -118,5 +117,4 @@ urlpatterns = [
         get_cities_by_country,
         name="get_cities_by_country",
     ),
-    path("api/translate/", translate_text, name="translate_text"),
 ]

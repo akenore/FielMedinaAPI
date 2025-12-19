@@ -8,7 +8,8 @@ from django.contrib.auth.forms import (
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
-from .models import UserProfile
+from tinymce.widgets import TinyMCE
+from .models import UserProfile, Page
 
 
 class FlowbiteFormMixin:
@@ -202,3 +203,54 @@ class ProfileUpdateForm(FlowbiteFormMixin, forms.ModelForm):
         if qs.exists():
             raise forms.ValidationError(_("This email is already in use."))
         return email
+
+
+class PageForm(FlowbiteFormMixin, forms.ModelForm):
+    title_en = forms.CharField(
+        label=_("Title (English)"),
+        max_length=255,
+        required=True,
+    )
+    title_fr = forms.CharField(
+        label=_("Title (French)"),
+        max_length=255,
+        required=True,
+    )
+    content_en = forms.CharField(
+        label=_("Content (English)"),
+        required=True,
+        widget=TinyMCE(attrs={"cols": 80, "rows": 30}),
+    )
+    content_fr = forms.CharField(
+        label=_("Content (French)"),
+        required=True,
+        widget=TinyMCE(attrs={"cols": 80, "rows": 30}),
+    )
+    slug_en = forms.SlugField(
+        label=_("Slug (English)"),
+        required=True,
+    )
+    slug_fr = forms.SlugField(
+        label=_("Slug (French)"),
+        required=True,
+    )
+
+    class Meta:
+        model = Page
+        fields = [
+            "title_en",
+            "title_fr",
+            "slug_en",
+            "slug_fr",
+            "content_en",
+            "content_fr",
+            "is_active",
+        ]
+        widgets = {
+            "is_active": forms.CheckboxInput(),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        # Basic required fields validation is handled by field-level required=True
+        return cleaned_data

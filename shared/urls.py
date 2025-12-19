@@ -11,11 +11,19 @@ from .views import (
     CustomPasswordChangeView,
     CustomPasswordChangeDoneView,
     SettingView,
+    PageCreateView,
+    PageUpdateView,
+    PageDeleteView,
+    translate_text,
 )
 
 app_name = "shared"
 urlpatterns = [
     path("pages/", PageListView.as_view(), name="pageList"),
+    path("pages/create/", PageCreateView.as_view(), name="page_create"),
+    path("pages/<int:pk>/update/", PageUpdateView.as_view(), name="page_update"),
+    path("pages/<int:pk>/delete/", PageDeleteView.as_view(), name="page_delete"),
+    path("api/translate/", translate_text, name="translate_text"),
     path("auth/login/", CustomLoginView.as_view(), name="login"),
     path("auth/logout/", CustomLogoutView.as_view(), name="logout"),
     path("auth/register/", RegisterView.as_view(), name="register"),

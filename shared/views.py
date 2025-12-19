@@ -1,16 +1,18 @@
 from django.shortcuts import redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
-
-# from django.contrib.messages.views import SuccessMessageMixin
-# from django.contrib.auth.decorators import login_required
+from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.auth.decorators import login_required
 from django.views.generic import (
     CreateView,
-    # UpdateView,
-    # DeleteView,
+    UpdateView,
+    DeleteView,
     ListView,
     TemplateView,
-    # DetailView,
 )
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+import json
+from .translator import get_translator
 from django.contrib.auth.views import (
     LoginView,
     LogoutView,
@@ -34,6 +36,7 @@ from .forms import (
     FlowbiteSetPasswordForm,
     FlowbitePasswordChangeForm,
     ProfileUpdateForm,
+    PageForm,
 )
 
 
@@ -160,6 +163,67 @@ class SettingView(LoginRequiredMixin, TemplateView):
         }
 
 
-class PageListView(ListView):
+class PageListView(LoginRequiredMixin, ListView):
     model = Page
     template_name = "guard/views/pages/list.html"
+    context_object_name = "pages"
+    paginate_by = 10
+    ordering = ["slug"]
+
+
+class PageCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+    model = Page
+    form_class = PageForm
+    template_name = "guard/views/pages/index.html"
+    success_url = reverse_lazy("shared:pageList")
+    success_message = _("Page created successfully.")
+
+
+class PageUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+    model = Page
+    form_class = PageForm
+    template_name = "guard/views/pages/index.html"
+    success_url = reverse_lazy("shared:pageList")
+    success_message = _("Page updated successfully.")
+
+
+class PageDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+    model = Page
+    success_url = reverse_lazy("shared:pageList")
+    success_message = _("Page deleted successfully.")
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+@login_required
+@require_POST
+def translate_text(request):
+    """
+    API endpoint for translating text between English and French.
+    """
+    try:
+        data = json.loads(request.body)
+        text = data.get("text", "")
+        source_lang = data.get("source_lang", "en")
+        target_lang = data.get("target_lang", "fr")
+        preserve_html = data.get("preserve_html", False)
+
+        if not text:
+            return JsonResponse(
+                {"success": False, "error": "No text provided"}, status=400
+            )
+
+        translator = get_translator()
+        translated_text = translator.translate(
+            text=text,
+            source_lang=source_lang,
+            target_lang=target_lang,
+            preserve_html=preserve_html,
+        )
+
+        return JsonResponse({"success": True, "translated_text": translated_text})
+
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=500)

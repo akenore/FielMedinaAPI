@@ -1,0 +1,85 @@
+{% load i18n %}
+/**
+ * AI Translation Function
+ * Centralized in shared app to avoid duplication.
+ */
+async function translateField(sourceFieldId, targetFieldId, sourceLang, targetLang, preserveHtml) {
+    const sourceField = document.getElementById('id_' + sourceFieldId);
+    const targetField = document.getElementById('id_' + targetFieldId);
+    
+    // Get the button element that triggered the click
+    // Uses event.currentTarget if called via onclick="translateField(...)"
+    const button = event.currentTarget;
+    const btnText = button.querySelector('.translate-btn-text');
+    const btnLoader = button.querySelector('.translate-btn-loader');
+    
+    // Get source text
+    let sourceText = '';
+    if (preserveHtml) {
+        // For TinyMCE fields
+        const editorId = 'id_' + sourceFieldId;
+        const editor = typeof tinymce !== 'undefined' ? tinymce.get(editorId) : null;
+        if (editor) {
+            sourceText = editor.getContent();
+        } else {
+            sourceText = sourceField ? sourceField.value : '';
+        }
+    } else {
+        // For regular text fields
+        sourceText = sourceField ? sourceField.value : '';
+    }
+    
+    if (!sourceText || !sourceText.trim()) {
+        alert('{% trans "Please enter some text to translate" %}');
+        return;
+    }
+    
+    // Show loading state
+    if (btnText) btnText.classList.add('hidden');
+    if (btnLoader) btnLoader.classList.remove('hidden');
+    button.disabled = true;
+    
+    try {
+        const response = await fetch('{% url "shared:translate_text" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({
+                text: sourceText,
+                source_lang: sourceLang,
+                target_lang: targetLang,
+                preserve_html: preserveHtml
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Set translated text
+            if (preserveHtml) {
+                // For TinyMCE fields
+                const editorId = 'id_' + targetFieldId;
+                const editor = typeof tinymce !== 'undefined' ? tinymce.get(editorId) : null;
+                if (editor) {
+                    editor.setContent(data.translated_text);
+                } else if (targetField) {
+                    targetField.value = data.translated_text;
+                }
+            } else if (targetField) {
+                // For regular text fields
+                targetField.value = data.translated_text;
+            }
+        } else {
+            alert('{% trans "Translation failed" %}: ' + (data.error || '{% trans "Unknown error" %}'));
+        }
+    } catch (error) {
+        alert('{% trans "Translation failed" %}: ' + error.message);
+    } finally {
+        // Hide loading state
+        if (btnText) btnText.classList.remove('hidden');
+        if (btnLoader) btnLoader.classList.add('hidden');
+        button.disabled = false;
+    }
+}
