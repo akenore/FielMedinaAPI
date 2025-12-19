@@ -785,6 +785,16 @@ ImageHikingFormSet = inlineformset_factory(
 
 
 class AdForm(FlowbiteFormMixin, forms.ModelForm):
+    name = forms.CharField(
+        label=_("Ad Name"),
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "placeholder": _("e.g., Summer Campaign 2024"),
+            }
+        ),
+        help_text=_("If empty, a name like 'ADS-XXXXXX' will be auto-generated."),
+    )
     link = forms.URLField(
         label=_("Destination Link"),
         required=True,
@@ -800,7 +810,7 @@ class AdForm(FlowbiteFormMixin, forms.ModelForm):
 
     class Meta:
         model = Ad
-        fields = ["image_mobile", "image_tablet", "link", "is_active"]
+        fields = ["name", "image_mobile", "image_tablet", "link", "is_active"]
         widgets = {
             "image_mobile": forms.FileInput(attrs={"accept": "image/*"}),
             "image_tablet": forms.FileInput(attrs={"accept": "image/*"}),

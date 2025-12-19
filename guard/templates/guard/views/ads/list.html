@@ -27,6 +27,11 @@
                   </th>
                   <th>
                      <span class="flex items-center">
+                        {% trans "Name" %}
+                     </span>
+                  </th>
+                  <th>
+                     <span class="flex items-center">
                         {% trans "Link" %}
                         <svg class="w-4 h-4 ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m8 15 4 4 4-4m0-6-4-4-4 4"/>
@@ -76,9 +81,14 @@
                             {% endif %}
                         </div>
                      </td>
+                     <td class="font-medium text-heading">
+                        <a href="{% url 'guard:ad_update' ad.id %}" class="text-blue-600 hover:underline dark:text-blue-500">
+                           {{ ad.name }}
+                        </a>
+                     </td>
                      <td class="font-medium text-heading whitespace-nowrap">
-                        <a href="{{ ad.link }}" target="_blank" class="text-blue-600 hover:underline dark:text-blue-500">
-                           {{ ad.link|truncatechars:40 }}
+                        <a href="{{ ad.link }}" target="_blank" class="text-gray-600 hover:underline dark:text-gray-400">
+                           {{ ad.link|truncatechars:30 }}
                         </a>
                      </td>
                      <td>

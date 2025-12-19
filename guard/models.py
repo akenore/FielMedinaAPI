@@ -9,6 +9,7 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from tinymce.models import HTMLField
+from django.core.files.uploadedfile import UploadedFile
 from shared.models import OptimizedImageModel
 from shared.utils import optimize_image
 
@@ -400,13 +401,19 @@ class Ad(models.Model):
         verbose_name_plural = _("Ads")
 
     def save(self, *args, **kwargs):
+        # Auto-generate name if empty
+        if not self.name:
+            # Generate a 6-character unique reference
+            ref = uuid.uuid4().hex[:6].upper()
+            self.name = f"ADS-{ref}"
+
         # Optimize images on save
         for field_name in ["image_mobile", "image_tablet"]:
             field = getattr(self, field_name)
 
             # Use shared utility to optimize image
-            # Only process if we have a file and it's likely a new upload (not just pk check)
-            if field and (not self.pk or hasattr(field, "file")):
+            # Only process if it's a new upload (isinstance UploadedFile)
+            if field and isinstance(field.file, UploadedFile):
                 optimized = optimize_image(field)
                 if optimized:
                     _, content = optimized
@@ -423,7 +430,7 @@ class Ad(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.link
+        return self.name or self.link
 
 
 @receiver(post_delete, sender=Ad)
