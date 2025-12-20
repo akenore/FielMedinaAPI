@@ -11,6 +11,8 @@ from .models import (
     Hiking,
     ImageHiking,
     Ad,
+    PublicTransport,
+    PublicTransportTime,
 )
 from modeltranslation.admin import TranslationAdmin
 
@@ -167,4 +169,28 @@ class AdAdmin(admin.ModelAdmin):
             },
         ),
         (_("Statistics"), {"fields": ("clicks",)}),
+    )
+
+
+class PublicTransportTimeInline(admin.TabularInline):
+    model = PublicTransportTime
+    extra = 1
+
+
+@admin.register(PublicTransport)
+class PublicTransportAdmin(admin.ModelAdmin):
+    list_display = [
+        "city",
+        "fromRegion",
+        "toRegion",
+    ]
+    list_filter = ["city", "fromRegion", "toRegion"]
+    search_fields = ["city__name", "fromRegion__name", "toRegion__name"]
+    inlines = [PublicTransportTimeInline]
+
+    fieldsets = (
+        (
+            _("Basic Information"),
+            {"fields": ("city", "fromRegion", "toRegion")},
+        ),
     )

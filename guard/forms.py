@@ -13,6 +13,8 @@ from .models import (
     ImageHiking,
     Ad,
     ImageAd,
+    PublicTransport,
+    PublicTransportTime,
 )
 
 
@@ -727,6 +729,30 @@ ImageAdFormSet = inlineformset_factory(
     Ad,
     ImageAd,
     fields=["image"],
+    extra=1,
+    can_delete=True,
+    max_num=5,
+)
+
+
+class PublicTransportForm(FlowbiteFormMixin, forms.ModelForm):
+    class Meta:
+        model = PublicTransport
+        fields = ("city", "fromRegion", "toRegion")
+
+
+class PublicTransportTimeForm(FlowbiteFormMixin, forms.ModelForm):
+    class Meta:
+        model = PublicTransportTime
+        fields = [
+            "time",
+        ]
+
+
+PublicTransportFormSet = inlineformset_factory(
+    PublicTransport,
+    PublicTransportTime,
+    form=PublicTransportTimeForm,
     extra=1,
     can_delete=True,
     max_num=5,

@@ -56,7 +56,7 @@ class CustomLoginView(LoginView):
 class RegisterView(CreateView):
     form_class = RegisterForm
     template_name = "guard/auth/register.html"
-    success_url = reverse_lazy("guard:login")
+    success_url = reverse_lazy("shared:login")
 
     def form_valid(self, form):
         form.save()
@@ -75,7 +75,7 @@ class CustomPasswordResetView(PasswordResetView):
     form_class = FlowbitePasswordResetForm
     email_template_name = "guard/auth/password_reset_email.txt"
     subject_template_name = "guard/auth/password_reset_subject.txt"
-    success_url = reverse_lazy("guard:password_reset_done")
+    success_url = reverse_lazy("shared:password_reset_done")
 
 
 class CustomPasswordResetDoneView(PasswordResetDoneView):
@@ -85,7 +85,7 @@ class CustomPasswordResetDoneView(PasswordResetDoneView):
 class CustomPasswordResetConfirmView(PasswordResetConfirmView):
     template_name = "guard/auth/password_reset_confirm.html"
     form_class = FlowbiteSetPasswordForm
-    success_url = reverse_lazy("guard:password_reset_complete")
+    success_url = reverse_lazy("shared:password_reset_complete")
 
 
 class CustomPasswordResetCompleteView(PasswordResetCompleteView):
@@ -95,7 +95,7 @@ class CustomPasswordResetCompleteView(PasswordResetCompleteView):
 class CustomPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
     template_name = "guard/auth/password_change.html"
     form_class = FlowbitePasswordChangeForm
-    success_url = reverse_lazy("guard:password_change_done")
+    success_url = reverse_lazy("shared:password_change_done")
 
     def form_valid(self, form):
         messages.success(self.request, _("Password updated successfully."))
@@ -117,7 +117,7 @@ class SettingView(LoginRequiredMixin, TemplateView):
         if form.is_valid():
             form.save()
             messages.success(request, _("Profile updated successfully."))
-            return redirect("guard:settings")
+            return redirect("shared:settings")
         return self.render_to_response(self.get_context_data(form=form))
 
     def get_context_data(self, **kwargs):

@@ -355,3 +355,73 @@ def cleanup_ad_images(sender, instance, **kwargs):
                     os.remove(field.path)
             except Exception:
                 pass
+
+
+class PublicTransport(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class TransportType(models.TextChoices):
+        BUS = "BUS", _("Bus")
+        METRO = "METRO", _("Metro")
+        SUBWAY = "SUBWAY", _("Subway")
+        TRAIN = "TRAIN", _("Train")
+        TRAM = "TRAM", _("Tram")
+
+    transportType = models.CharField(
+        max_length=10,
+        choices=TransportType.choices,
+        default=TransportType.BUS,
+    )
+
+    city = models.ForeignKey(
+        "cities_light.City",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="publicTransports",
+        verbose_name=_("City"),
+    )
+
+    fromRegion = models.ForeignKey(
+        "cities_light.SubRegion",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="publicTransportsFromRegion",
+        verbose_name=_("From region"),
+    )
+    toRegion = models.ForeignKey(
+        "cities_light.SubRegion",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="publicTransportsToRegion",
+        verbose_name=_("To region"),
+    )
+
+    class Meta:
+        verbose_name = _("Public Transport")
+        verbose_name_plural = _("Public Transports")
+
+    def __str__(self):
+        return self.city.name
+
+
+class PublicTransportTime(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    publicTransport = models.ForeignKey(
+        PublicTransport,
+        on_delete=models.CASCADE,
+        related_name="publicTransportTimes",
+        verbose_name=_("Public Transport"),
+    )
+    time = models.TimeField(verbose_name=_("Time"))
+
+    class Meta:
+        verbose_name = _("Public Transport Time")
+        verbose_name_plural = _("Public Transport Times")
+
+    def __str__(self):
+        return self.publicTransport.city.name

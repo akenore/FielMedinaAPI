@@ -163,9 +163,9 @@ CITIES_LIGHT_TRANSLATION_LANGUAGES = ["en", "fr", "ar"]
 CITIES_LIGHT_INCLUDE_COUNTRIES = ["TN", "MA", "DZ", "LY", "EG", "LB", "YE", "SY"]
 CITIES_LIGHT_INCLUDE_CITY_TYPES = ["PPL", "PPLA", "PPLA2", "PPLA3", "PPLA4", "PPLC"]
 
-LOGIN_URL = "guard:login"
+LOGIN_URL = "shared:login"
 LOGIN_REDIRECT_URL = "guard:dashboard"
-LOGOUT_REDIRECT_URL = "guard:login"
+LOGOUT_REDIRECT_URL = "shared:login"
 
 DEFAULT_FROM_EMAIL = env(
     "DEFAULT_FROM_EMAIL", default="FielMedina <noreply@fielmedina.com>"
