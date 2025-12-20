@@ -6,7 +6,7 @@ from .models import (
     EventCategory,
     Tip,
     Hiking,
-    TransportType,
+    PublicTransportType,
 )
 
 
@@ -49,6 +49,6 @@ class HikingTranslationOptions(TranslationOptions):
     )
 
 
-@register(TransportType)
-class TransportTypeTranslationOptions(TranslationOptions):
+@register(PublicTransportType)
+class PublicTransportTypeTranslationOptions(TranslationOptions):
     fields = ("name",)

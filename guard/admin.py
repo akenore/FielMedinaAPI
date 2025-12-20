@@ -13,7 +13,7 @@ from .models import (
     Ad,
     PublicTransport,
     PublicTransportTime,
-    TransportType,
+    PublicTransportType,
 )
 from modeltranslation.admin import TranslationAdmin
 
@@ -173,8 +173,8 @@ class AdAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(TransportType)
-class TransportTypeAdmin(TranslationAdmin):
+@admin.register(PublicTransportType)
+class PublicTransportTypeAdmin(TranslationAdmin):
     list_display = ["name"]
     search_fields = ["name"]
 
@@ -188,13 +188,13 @@ class PublicTransportTimeInline(admin.TabularInline):
 class PublicTransportAdmin(admin.ModelAdmin):
     list_display = [
         "city",
-        "transportType",
+        "publicTransportType",
         "fromRegion",
         "toRegion",
     ]
     list_filter = [
         "city",
-        "transportType",
+        "publicTransportType",
     ]
     search_fields = [
         "city__name",
@@ -204,7 +204,7 @@ class PublicTransportAdmin(admin.ModelAdmin):
     fieldsets = (
         (
             _("Basic Information"),
-            {"fields": ("transportType", "city", "fromRegion", "toRegion")},
+            {"fields": ("publicTransportType", "city", "fromRegion", "toRegion")},
         ),
     )
 

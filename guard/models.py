@@ -357,12 +357,12 @@ def cleanup_ad_images(sender, instance, **kwargs):
                 pass
 
 
-class TransportType(models.Model):
+class PublicTransportType(models.Model):
     name = models.CharField(max_length=255)
 
     class Meta:
-        verbose_name = _("Transport Type")
-        verbose_name_plural = _("Transport Types")
+        verbose_name = _("Public Transport Type")
+        verbose_name_plural = _("Public Transport Types")
 
     def __str__(self):
         return self.name
@@ -372,13 +372,13 @@ class PublicTransport(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    transportType = models.ForeignKey(
-        TransportType,
+    publicTransportType = models.ForeignKey(
+        PublicTransportType,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="public_transports",
-        verbose_name=_("Transport Type"),
+        verbose_name=_("Public Transport Type"),
     )
 
     city = models.ForeignKey(
