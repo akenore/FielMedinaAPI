@@ -1,5 +1,13 @@
 from modeltranslation.translator import register, TranslationOptions
-from .models import Location, LocationCategory, Event, EventCategory, Tip, Hiking
+from .models import (
+    Location,
+    LocationCategory,
+    Event,
+    EventCategory,
+    Tip,
+    Hiking,
+    TransportType,
+)
 
 
 @register(Location)
@@ -39,3 +47,8 @@ class HikingTranslationOptions(TranslationOptions):
         "name",
         "description",
     )
+
+
+@register(TransportType)
+class TransportTypeTranslationOptions(TranslationOptions):
+    fields = ("name",)

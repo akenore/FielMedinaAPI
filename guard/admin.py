@@ -13,6 +13,7 @@ from .models import (
     Ad,
     PublicTransport,
     PublicTransportTime,
+    TransportType,
 )
 from modeltranslation.admin import TranslationAdmin
 
@@ -170,6 +171,12 @@ class AdAdmin(admin.ModelAdmin):
         ),
         (_("Statistics"), {"fields": ("clicks",)}),
     )
+
+
+@admin.register(TransportType)
+class TransportTypeAdmin(TranslationAdmin):
+    list_display = ["name"]
+    search_fields = ["name"]
 
 
 class PublicTransportTimeInline(admin.TabularInline):

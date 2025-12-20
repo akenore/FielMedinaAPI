@@ -357,21 +357,28 @@ def cleanup_ad_images(sender, instance, **kwargs):
                 pass
 
 
+class TransportType(models.Model):
+    name = models.CharField(max_length=255)
+
+    class Meta:
+        verbose_name = _("Transport Type")
+        verbose_name_plural = _("Transport Types")
+
+    def __str__(self):
+        return self.name
+
+
 class PublicTransport(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    class TransportType(models.TextChoices):
-        BUS = "BUS", _("Bus")
-        METRO = "METRO", _("Metro")
-        SUBWAY = "SUBWAY", _("Subway")
-        TRAIN = "TRAIN", _("Train")
-        TRAM = "TRAM", _("Tram")
-
-    transportType = models.CharField(
-        max_length=10,
-        choices=TransportType.choices,
-        default=TransportType.BUS,
+    transportType = models.ForeignKey(
+        TransportType,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="public_transports",
+        verbose_name=_("Transport Type"),
     )
 
     city = models.ForeignKey(
