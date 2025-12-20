@@ -27,6 +27,7 @@ from .views import (
     AdTrackingView,
     publicTransportsList,
     get_cities_by_country,
+    get_subregions_by_city,
 )
 
 app_name = "guard"
@@ -116,5 +117,10 @@ urlpatterns = [
         "api/cities/<int:country_id>/",
         get_cities_by_country,
         name="get_cities_by_country",
+    ),
+    path(
+        "api/subregions/<int:city_id>/",
+        get_subregions_by_city,
+        name="get_subregions_by_city",
     ),
 ]

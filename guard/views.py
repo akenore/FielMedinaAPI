@@ -723,3 +723,17 @@ def get_cities_by_country(request, country_id):
     cities_list = list(cities)
 
     return JsonResponse({"success": True, "cities": cities_list})
+
+
+@login_required
+def get_subregions_by_city(request, city_id):
+    from cities_light.models import City, SubRegion
+
+    try:
+        city = City.objects.get(id=city_id)
+        # Filter subregions that belong to the same region as the city
+        subregions = SubRegion.objects.filter(region=city.region).values("id", "name")
+        subregions_list = list(subregions)
+        return JsonResponse({"success": True, "subregions": subregions_list})
+    except City.DoesNotExist:
+        return JsonResponse({"success": False, "error": "City not found"}, status=404)

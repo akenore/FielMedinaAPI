@@ -181,16 +181,42 @@ class PublicTransportTimeInline(admin.TabularInline):
 class PublicTransportAdmin(admin.ModelAdmin):
     list_display = [
         "city",
+        "transportType",
         "fromRegion",
         "toRegion",
     ]
-    list_filter = ["city", "fromRegion", "toRegion"]
-    search_fields = ["city__name", "fromRegion__name", "toRegion__name"]
+    list_filter = [
+        "city",
+        "transportType",
+    ]
+    search_fields = [
+        "city__name",
+    ]
     inlines = [PublicTransportTimeInline]
 
     fieldsets = (
         (
             _("Basic Information"),
-            {"fields": ("city", "fromRegion", "toRegion")},
+            {"fields": ("transportType", "city", "fromRegion", "toRegion")},
         ),
     )
+
+    class Media:
+        js = ("admin/js/public_transport_admin.js",)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name in ["fromRegion", "toRegion"]:
+            # If we are editing an existing object, filter subregions by city
+            obj_id = request.resolver_match.kwargs.get("object_id")
+            if obj_id:
+                try:
+                    obj = self.get_object(request, obj_id)
+                    if obj and obj.city:
+                        from cities_light.models import SubRegion
+
+                        kwargs["queryset"] = SubRegion.objects.filter(
+                            region=obj.city.region
+                        )
+                except Exception:
+                    pass
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
