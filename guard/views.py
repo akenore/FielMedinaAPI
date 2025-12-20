@@ -247,6 +247,24 @@ class PublicTransportCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateV
             context["time_formset"] = PublicTransportFormSet()
         return context
 
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        # Update queryset based on submitted city
+        if self.request.POST and self.request.POST.get("city"):
+            from cities_light.models import City, SubRegion
+
+            try:
+                city = City.objects.get(pk=self.request.POST.get("city"))
+                form.fields["fromRegion"].queryset = SubRegion.objects.filter(
+                    region=city.region
+                )
+                form.fields["toRegion"].queryset = SubRegion.objects.filter(
+                    region=city.region
+                )
+            except City.DoesNotExist:
+                pass
+        return form
+
     def form_valid(self, form):
         context = self.get_context_data()
         time_formset = context["time_formset"]
@@ -287,6 +305,31 @@ class PublicTransportUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateV
         else:
             context["time_formset"] = PublicTransportFormSet(instance=self.object)
         return context
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        # Update queryset based on submitted city or existing city
+        city = None
+        if self.request.POST and self.request.POST.get("city"):
+            from cities_light.models import City, SubRegion
+
+            try:
+                city = City.objects.get(pk=self.request.POST.get("city"))
+            except City.DoesNotExist:
+                pass
+        elif self.object and self.object.city:
+            city = self.object.city
+
+        if city:
+            from cities_light.models import SubRegion
+
+            form.fields["fromRegion"].queryset = SubRegion.objects.filter(
+                region=city.region
+            )
+            form.fields["toRegion"].queryset = SubRegion.objects.filter(
+                region=city.region
+            )
+        return form
 
     def form_valid(self, form):
         context = self.get_context_data()
