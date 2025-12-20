@@ -738,7 +738,62 @@ ImageAdFormSet = inlineformset_factory(
 class PublicTransportForm(FlowbiteFormMixin, forms.ModelForm):
     class Meta:
         model = PublicTransport
-        fields = ("city", "fromRegion", "toRegion")
+        fields = ("publicTransportType", "city", "fromRegion", "toRegion")
+        widgets = {
+            "publicTransportType": forms.Select(
+                attrs={
+                    "placeholder": _("Select transport type"),
+                    "required": True,
+                }
+            ),
+            "city": forms.Select(
+                attrs={
+                    "placeholder": _("Select city"),
+                    "required": True,
+                }
+            ),
+            "fromRegion": forms.Select(
+                attrs={
+                    "placeholder": _("Select departure region"),
+                }
+            ),
+            "toRegion": forms.Select(
+                attrs={
+                    "placeholder": _("Select arrival region"),
+                }
+            ),
+        }
+        error_messages = {
+            "publicTransportType": {
+                "required": _("Please select a transport type."),
+            },
+            "city": {
+                "required": _("Please select a city."),
+            },
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if "publicTransportType" in self.fields:
+            self.fields["publicTransportType"].required = True
+        if "city" in self.fields:
+            self.fields["city"].required = True
+
+        # Filter subregions based on city if editing
+        if "fromRegion" in self.fields and "toRegion" in self.fields:
+            from cities_light.models import SubRegion
+
+            if self.instance and self.instance.pk and self.instance.city:
+                region = self.instance.city.region
+                self.fields["fromRegion"].queryset = SubRegion.objects.filter(
+                    region=region
+                )
+                self.fields["toRegion"].queryset = SubRegion.objects.filter(
+                    region=region
+                )
+            else:
+                self.fields["fromRegion"].queryset = SubRegion.objects.none()
+                self.fields["toRegion"].queryset = SubRegion.objects.none()
 
 
 class PublicTransportTimeForm(FlowbiteFormMixin, forms.ModelForm):
@@ -747,6 +802,14 @@ class PublicTransportTimeForm(FlowbiteFormMixin, forms.ModelForm):
         fields = [
             "time",
         ]
+        widgets = {
+            "time": forms.TimeInput(
+                attrs={
+                    "type": "time",
+                    "placeholder": _("Select time"),
+                }
+            ),
+        }
 
 
 PublicTransportFormSet = inlineformset_factory(
@@ -755,5 +818,5 @@ PublicTransportFormSet = inlineformset_factory(
     form=PublicTransportTimeForm,
     extra=1,
     can_delete=True,
-    max_num=5,
+    max_num=20,
 )

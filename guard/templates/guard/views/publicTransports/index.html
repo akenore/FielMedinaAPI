@@ -1,0 +1,279 @@
+{% extends 'guard/base/index.html' %}
+{% load static i18n %}
+
+{% block title %}
+     {% if object %}
+          {% trans "Edit Public Transport" %}
+     {% else %}
+          {% trans "Add Public Transport" %}
+     {% endif %}
+{% endblock title %}
+
+{% block body %}
+<nav class="flex mb-5" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-1 md:space-x-3">
+        <li class="inline-flex items-center">
+            <a href="{% url 'guard:dashboard' %}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
+                {% trans "Dashboard" %}
+            </a>
+        </li>
+        <li>
+            <div class="flex items-center">
+                <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                <a href="{% url 'guard:publicTransportsList' %}" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">{% trans "Public Transports" %}</a>
+            </div>
+        </li>
+        <li aria-current="page">
+            <div class="flex items-center">
+                <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">
+                    {% if object %}{% trans "Edit" %}{% else %}{% trans "Add" %}{% endif %}
+                </span>
+            </div>
+        </li>
+    </ol>
+</nav>
+
+<div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+        {% if object %}
+            {% trans "Edit Public Transport" %}
+        {% else %}
+            {% trans "Add Public Transport" %}
+        {% endif %}
+    </h1>
+    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        {% if object %}
+            {% trans "Update the transport route details below" %}
+        {% else %}
+            {% trans "Fill in the details to create a new transport route" %}
+        {% endif %}
+    </p>
+</div>
+
+<form action="" method="post" class="space-y-6" id="transportForm" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+        <div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+            {% for error in form.non_field_errors %}
+                <div>{{ error }}</div>
+            {% endfor %}
+        </div>
+    {% endif %} 
+    
+    <div class="bg-white dark:bg-gray-800 shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="border-b border-gray-200 dark:border-gray-700 pb-4 mb-6">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    {% trans "Transport Details" %}
+                </h2>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{% trans "Select the transport type and city" %}</p>
+            </div>
+            
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                    <label for="{{ form.publicTransportType.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        {{ form.publicTransportType.label }}
+                        {% if form.publicTransportType.field.required %}<span class="text-red-600">*</span>{% endif %}
+                    </label>
+                    {{ form.publicTransportType }}
+                    {% if form.publicTransportType.errors %}
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.publicTransportType.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <label for="{{ form.city.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        {{ form.city.label }}
+                        {% if form.city.field.required %}<span class="text-red-600">*</span>{% endif %}
+                    </label>
+                    {{ form.city }}
+                    {% if form.city.errors %}
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.city.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="border-b border-gray-200 dark:border-gray-700 pb-4 mb-6">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                    </svg>
+                    {% trans "Route" %}
+                </h2>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{% trans "Select the departure and arrival regions" %}</p>
+            </div>
+            
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                    <label for="{{ form.fromRegion.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        {{ form.fromRegion.label }}
+                    </label>
+                    {{ form.fromRegion }}
+                    {% if form.fromRegion.errors %}
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.fromRegion.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <label for="{{ form.toRegion.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        {{ form.toRegion.label }}
+                    </label>
+                    {{ form.toRegion }}
+                    {% if form.toRegion.errors %}
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.toRegion.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Time Schedule Section -->
+    <div class="bg-white dark:bg-gray-800 shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="border-b border-gray-200 dark:border-gray-700 pb-4 mb-6">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    {% trans "Departure Times" %}
+                </h2>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{% trans "Add the departure times for this route" %}</p>
+            </div>
+            
+            {{ time_formset.management_form }}
+            <div id="time-formset" class="space-y-3">
+                {% for form_item in time_formset %}
+                <div class="time-form-row flex items-center gap-4 p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
+                    {{ form_item.id }}
+                    <div class="flex-1">
+                        <label class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                            {% trans "Departure Time" %}
+                        </label>
+                        {{ form_item.time }}
+                        {% if form_item.errors.time %}
+                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form_item.errors.time }}</p>
+                        {% endif %}
+                    </div>
+                    {% if form_item.instance.pk %}
+                    <div class="flex-shrink-0">
+                        <label class="inline-flex items-center cursor-pointer">
+                            {{ form_item.DELETE }}
+                            <span class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{% trans "Delete" %}</span>
+                        </label>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <button type="button" id="add-time-button" class="mt-4 text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
+                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                {% trans "Add Another Time" %}
+            </button>
+        </div>
+    </div>
+
+    <div class="flex items-center justify-between gap-x-6 border-t border-gray-900/10 pt-6">
+        <a href="{% url 'guard:publicTransportsList' %}" class="text-body bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading focus:ring-4 focus:ring-neutral-tertiary shadow-xs font-medium leading-5 rounded-full text-sm px-4 py-2.5 focus:outline-none">
+            {% trans "Cancel" %}
+        </a>
+        <div class="flex gap-x-3">
+            <button type="submit" class="inline-flex items-center px-5 py-2.5 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                </svg>
+                {% if object %}{% trans "Update Transport" %}{% else %}{% trans "Save Transport" %}{% endif %}
+            </button>
+        </div>
+    </div>
+</form>
+
+{% endblock body %}
+
+{% block extrascript %}
+<script>
+    const citySelect = document.getElementById('{{ form.city.id_for_label }}');
+    const fromRegionSelect = document.getElementById('{{ form.fromRegion.id_for_label }}');
+    const toRegionSelect = document.getElementById('{{ form.toRegion.id_for_label }}');
+    
+    if (citySelect && fromRegionSelect && toRegionSelect) {
+        citySelect.addEventListener('change', async function() {
+            const cityId = this.value;
+            
+            // Clear current region options
+            fromRegionSelect.innerHTML = '<option value="">---------</option>';
+            toRegionSelect.innerHTML = '<option value="">---------</option>';
+            
+            if (cityId) {
+                try {
+                    const response = await fetch(`/api/subregions/${cityId}/`);
+                    const data = await response.json();
+                    
+                    if (data.success && data.subregions) {
+                        // Populate region dropdowns
+                        data.subregions.forEach(region => {
+                            const option1 = document.createElement('option');
+                            option1.value = region.id;
+                            option1.textContent = region.name;
+                            fromRegionSelect.appendChild(option1);
+                            
+                            const option2 = document.createElement('option');
+                            option2.value = region.id;
+                            option2.textContent = region.name;
+                            toRegionSelect.appendChild(option2);
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error fetching subregions:', error);
+                }
+            }
+        });
+    }
+
+    // Handle dynamic time formset
+    document.getElementById('add-time-button')?.addEventListener('click', function() {
+        const formset = document.getElementById('time-formset');
+        const totalForms = document.querySelector('#id_publicTransportTimes-TOTAL_FORMS');
+        const formCount = parseInt(totalForms.value);
+        const maxForms = parseInt(document.querySelector('#id_publicTransportTimes-MAX_NUM_FORMS').value);
+        
+        if (formCount >= maxForms) {
+            alert('Maximum number of times reached (20)');
+            return;
+        }
+        
+        // Clone the first empty form
+        const emptyForm = formset.querySelector('.time-form-row');
+        const newForm = emptyForm.cloneNode(true);
+        
+        // Update form index
+        const formRegex = RegExp(`publicTransportTimes-(\\d+)-`, 'g');
+        newForm.innerHTML = newForm.innerHTML.replace(formRegex, `publicTransportTimes-${formCount}-`);
+        
+        // Clear the time input
+        const timeInput = newForm.querySelector('input[type="time"]');
+        if (timeInput) timeInput.value = '';
+        
+        // Remove delete checkbox if present (new forms don't need it)
+        const deleteSection = newForm.querySelector('.flex-shrink-0');
+        if (deleteSection) deleteSection.remove();
+        
+        // Append to formset
+        formset.appendChild(newForm);
+        
+        // Update total forms count
+        totalForms.value = formCount + 1;
+    });
+</script>
+{% endblock extrascript %}

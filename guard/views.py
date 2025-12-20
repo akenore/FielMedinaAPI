@@ -30,6 +30,8 @@ from .forms import (
     HikingForm,
     ImageHikingFormSet,
     AdForm,
+    PublicTransportForm,
+    PublicTransportFormSet,
     # ImageAdFormSet,
 )
 
@@ -41,6 +43,8 @@ from .models import (
     Tip,
     Hiking,
     Ad,
+    PublicTransport,
+    PublicTransportType,
     # ImageAd,
 )
 
@@ -213,6 +217,117 @@ class SubscribersListView(LoginRequiredMixin, ListView):
 @login_required
 def publicTransportsList(request):
     return render(request, "guard/views/publicTransports/list.html")
+
+
+class PublicTransportListView(LoginRequiredMixin, ListView):
+    model = PublicTransport
+    template_name = "guard/views/publicTransports/list.html"
+    context_object_name = "transports"
+    paginate_by = 10
+    ordering = ["-created_at"]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["transport_types"] = PublicTransportType.objects.all()
+        return context
+
+
+class PublicTransportCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+    model = PublicTransport
+    template_name = "guard/views/publicTransports/index.html"
+    form_class = PublicTransportForm
+    success_url = reverse_lazy("guard:publicTransportsList")
+    success_message = _("Public transport created successfully.")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context["time_formset"] = PublicTransportFormSet(self.request.POST)
+        else:
+            context["time_formset"] = PublicTransportFormSet()
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        time_formset = context["time_formset"]
+
+        if time_formset.is_valid():
+            has_time = any(
+                formset_form.cleaned_data.get("time")
+                and not formset_form.cleaned_data.get("DELETE", False)
+                for formset_form in time_formset
+                if formset_form.cleaned_data
+            )
+
+            if not has_time:
+                form.add_error(None, _("Please add at least one departure time."))
+                return self.form_invalid(form)
+
+            self.object = form.save()
+            time_formset.instance = self.object
+            time_formset.save()
+            return super().form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+
+class PublicTransportUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+    model = PublicTransport
+    template_name = "guard/views/publicTransports/index.html"
+    form_class = PublicTransportForm
+    success_url = reverse_lazy("guard:publicTransportsList")
+    success_message = _("Public transport updated successfully.")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context["time_formset"] = PublicTransportFormSet(
+                self.request.POST, instance=self.object
+            )
+        else:
+            context["time_formset"] = PublicTransportFormSet(instance=self.object)
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        time_formset = context["time_formset"]
+
+        if time_formset.is_valid():
+            existing_times = sum(
+                1
+                for formset_form in time_formset
+                if formset_form.instance.pk
+                and not formset_form.cleaned_data.get("DELETE", False)
+            )
+            new_times = sum(
+                1
+                for formset_form in time_formset
+                if formset_form.cleaned_data.get("time")
+                and not formset_form.instance.pk
+            )
+
+            if existing_times + new_times < 1:
+                form.add_error(
+                    None, _("Please keep or add at least one departure time.")
+                )
+                return self.form_invalid(form)
+
+            self.object = form.save()
+            time_formset.instance = self.object
+            time_formset.save()
+            return super().form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+
+class PublicTransportDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+    model = PublicTransport
+    success_url = reverse_lazy("guard:publicTransportsList")
+    success_message = _("Public transport has been deleted.")
+
+    def delete(self, request, *args, **kwargs):
+        messages.warning(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
 
 
 class EventListView(LoginRequiredMixin, ListView):

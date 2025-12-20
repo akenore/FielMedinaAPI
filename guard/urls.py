@@ -25,7 +25,10 @@ from .views import (
     AdDeleteView,
     EventTrackingView,
     AdTrackingView,
-    publicTransportsList,
+    PublicTransportListView,
+    PublicTransportCreateView,
+    PublicTransportUpdateView,
+    PublicTransportDeleteView,
     get_cities_by_country,
     get_subregions_by_city,
 )
@@ -102,8 +105,23 @@ urlpatterns = [
                 ),
                 path(
                     "publicTransportsList/",
-                    publicTransportsList,
+                    PublicTransportListView.as_view(),
                     name="publicTransportsList",
+                ),
+                path(
+                    "publicTransports/create/",
+                    PublicTransportCreateView.as_view(),
+                    name="publicTransport_create",
+                ),
+                path(
+                    "publicTransports/update/<int:pk>/",
+                    PublicTransportUpdateView.as_view(),
+                    name="publicTransport_update",
+                ),
+                path(
+                    "publicTransports/delete/<int:pk>/",
+                    PublicTransportDeleteView.as_view(),
+                    name="publicTransport_delete",
                 ),
             ]
         ),
