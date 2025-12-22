@@ -4,8 +4,8 @@
     "build-css-prod": "tailwindcss -i ./static/input.css -o ./static/main.css --minify"
   },
   "devDependencies": {
-    "@tailwindcss/cli": "^4.1.17",
-    "tailwindcss": "^4.1.17"
+    "@tailwindcss/cli": "^4.1.18",
+    "tailwindcss": "^4.1.18"
   },
   "dependencies": {
     "flowbite": "^4.0.1"
