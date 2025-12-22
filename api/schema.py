@@ -1,4 +1,5 @@
 import graphene
+import math
 from graphene_django import DjangoObjectType
 
 from guard.models import (
@@ -196,6 +197,12 @@ class Query(graphene.ObjectType):
         id=graphene.ID(required=True),
     )
     public_transport_types = graphene.List(PublicTransportTypeType)
+    nearest_city = graphene.Field(
+        CityType,
+        lat=graphene.Float(required=True),
+        lon=graphene.Float(required=True),
+        max_distance_km=graphene.Float(required=False, description="Optional max radius in km"),
+    )
 
     def resolve_pages(self, info, is_active=None):
         qs = Page.objects.all()
@@ -308,6 +315,47 @@ class Query(graphene.ObjectType):
 
     def resolve_public_transport_types(self, info):
         return PublicTransportType.objects.all()
+
+    def resolve_nearest_city(self, info, lat, lon, max_distance_km=None):
+        """
+        Return the closest city to the given coordinate.
+        Optionally filter out cities farther than max_distance_km.
+        """
+        # Haversine helpers
+        def haversine(lat1, lon1, lat2, lon2):
+            R = 6371  # Earth radius in km
+            phi1 = math.radians(lat1)
+            phi2 = math.radians(lat2)
+            dphi = math.radians(lat2 - lat1)
+            dlambda = math.radians(lon2 - lon1)
+            a = (
+                math.sin(dphi / 2) ** 2
+                + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
+            )
+            c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+            return R * c
+
+        candidates = (
+            City.objects.exclude(latitude__isnull=True)
+            .exclude(longitude__isnull=True)
+            .values("id", "name", "latitude", "longitude")
+        )
+
+        nearest = None
+        nearest_distance = None
+
+        for city in candidates:
+            distance = haversine(lat, lon, float(city["latitude"]), float(city["longitude"]))
+            if max_distance_km is not None and distance > max_distance_km:
+                continue
+            if nearest_distance is None or distance < nearest_distance:
+                nearest_distance = distance
+                nearest = city["id"]
+
+        if nearest is None:
+            return None
+
+        return City.objects.filter(pk=nearest).first()
 
 
 class PageType(DjangoObjectType):
