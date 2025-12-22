@@ -108,8 +108,9 @@ class EventCategoryAdmin(TranslationAdmin):
 
 @admin.register(Tip)
 class TipAdmin(TranslationAdmin):
-    list_display = ["description", "created_at"]
-    search_fields = ["description"]
+    list_display = ["city", "created_at"]
+    list_filter = ["city"]
+    search_fields = ["city__name"]
 
 
 class ImageHikingInline(admin.TabularInline):

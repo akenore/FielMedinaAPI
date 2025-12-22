@@ -263,15 +263,15 @@ class Tip(models.Model):
         related_name="tips",
         verbose_name=_("Cities"),
     )
-    description = models.TextField()
-    location = models.ManyToManyField("Location", verbose_name=_("Location"))
+    description = HTMLField()
+    # location = models.ManyToManyField("Location", verbose_name=_("Location"))
 
     class Meta:
         verbose_name = _("Tip")
         verbose_name_plural = _("Tips")
 
     def __str__(self):
-        return self.description[:50]
+        return self.city.name
 
 
 class Ad(models.Model):
