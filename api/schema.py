@@ -18,6 +18,7 @@ from guard.models import (
     ImageAd,
 )
 
+from cities_light.models import City
 from shared.models import Page
 
 
@@ -105,6 +106,12 @@ class TipType(DjangoObjectType):
     class Meta:
         model = Tip
         fields = "__all__"
+
+
+class CityType(DjangoObjectType):
+    class Meta:
+        model = City
+        fields = ("id", "name", "region", "country")
 
 
 class PublicTransportTypeType(DjangoObjectType):
@@ -200,7 +207,10 @@ class Query(graphene.ObjectType):
         return Page.objects.filter(slug=slug).first()
 
     def resolve_locations(self, info, city_id=None, category_id=None):
-        qs = Location.objects.all().prefetch_related("images")
+        qs = (
+            Location.objects.select_related("city", "country", "category")
+            .prefetch_related("images")
+        )
         if city_id is not None:
             qs = qs.filter(city_id=city_id)
         if category_id is not None:
@@ -214,7 +224,10 @@ class Query(graphene.ObjectType):
         return LocationCategory.objects.all()
 
     def resolve_hikings(self, info, city_id=None):
-        qs = Hiking.objects.all().prefetch_related("images", "location")
+        qs = (
+            Hiking.objects.select_related("city")
+            .prefetch_related("images", "location")
+        )
         if city_id is not None:
             qs = qs.filter(city_id=city_id)
         return qs
@@ -223,7 +236,10 @@ class Query(graphene.ObjectType):
         return Hiking.objects.prefetch_related("images", "location").filter(pk=id).first()
 
     def resolve_events(self, info, city_id=None, category_id=None):
-        qs = Event.objects.all().prefetch_related("images", "location", "category")
+        qs = (
+            Event.objects.select_related("city", "category", "client", "location")
+            .prefetch_related("images")
+        )
         if city_id is not None:
             qs = qs.filter(city_id=city_id)
         if category_id is not None:
@@ -241,7 +257,7 @@ class Query(graphene.ObjectType):
         return EventCategory.objects.all()
 
     def resolve_ads(self, info, city_id=None, is_active=None):
-        qs = Ad.objects.all()
+        qs = Ad.objects.select_related("city", "client")
         if city_id is not None:
             qs = qs.filter(city_id=city_id)
         if is_active is not None:
@@ -252,7 +268,7 @@ class Query(graphene.ObjectType):
         return Ad.objects.filter(pk=id).first()
 
     def resolve_tips(self, info, city_id=None):
-        qs = Tip.objects.all()
+        qs = Tip.objects.select_related("city")
         if city_id is not None:
             qs = qs.filter(city_id=city_id)
         return qs
@@ -265,7 +281,11 @@ class Query(graphene.ObjectType):
         from_region_id=None,
         to_region_id=None,
     ):
-        qs = PublicTransport.objects.all().prefetch_related("publicTransportTimes")
+        qs = (
+            PublicTransport.objects.select_related(
+                "city", "publicTransportType", "fromRegion", "toRegion"
+            ).prefetch_related("publicTransportTimes")
+        )
         if city_id is not None:
             qs = qs.filter(city_id=city_id)
         if type_id is not None:
@@ -278,7 +298,10 @@ class Query(graphene.ObjectType):
 
     def resolve_public_transport(self, info, id):
         return (
-            PublicTransport.objects.prefetch_related("publicTransportTimes")
+            PublicTransport.objects.select_related(
+                "city", "publicTransportType", "fromRegion", "toRegion"
+            )
+            .prefetch_related("publicTransportTimes")
             .filter(pk=id)
             .first()
         )
