@@ -1,5 +1,6 @@
 import os
 import uuid
+from io import BytesIO
 
 
 from django.db import models
@@ -8,9 +9,12 @@ from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 from tinymce.models import HTMLField
 from django.core.files.uploadedfile import UploadedFile
+from django.core.files.base import ContentFile
 from shared.models import OptimizedImageModel
 from shared.utils import optimize_image
 from shared.models import UserProfile
+from PIL import Image as PilImage
+from PIL import ImageOps
 
 
 def location_image_path(instance, filename):
@@ -432,3 +436,76 @@ class PublicTransportTime(models.Model):
 
     def __str__(self):
         return self.publicTransport.city.name
+
+
+def resize_to_fixed(image_field, size=(300, 200)):
+    """
+    Resize and center-crop an uploaded image to a fixed size, returning a JPEG ContentFile.
+    """
+    if not image_field:
+        return None
+
+    try:
+        img = PilImage.open(image_field)
+        if img.mode != "RGB":
+            img = img.convert("RGB")
+        # Fit and center-crop to target size
+        img = ImageOps.fit(img, size, PilImage.Resampling.LANCZOS)
+
+        buffer = BytesIO()
+        img.save(buffer, format="JPEG", quality=80, optimize=True)
+        buffer.seek(0)
+
+        base, _ = os.path.splitext(os.path.basename(image_field.name))
+        new_name = f"{base}.jpg"
+        return new_name, ContentFile(buffer.read())
+    except Exception:
+        return None
+
+
+class Partner(models.Model):
+
+    name = models.CharField(max_length=255, verbose_name=_("Name"))
+    image = models.ImageField(upload_to="partners/", verbose_name=_("Image"))
+    link = models.URLField(verbose_name=_("Link"))
+
+    class Meta:
+        verbose_name = _("Partner")
+        verbose_name_plural = _("Partners")
+
+    def save(self, *args, **kwargs):
+        # Resize image to 300x200 when a new upload is provided
+        if self.image and isinstance(self.image.file, UploadedFile):
+            processed = resize_to_fixed(self.image, size=(300, 200))
+            if processed:
+                name, content = processed
+                content.name = name
+                self.image = content
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
+class Sponsor(models.Model):
+
+    name = models.CharField(max_length=255, verbose_name=_("Name"))
+    image = models.ImageField(upload_to="sponsors/", verbose_name=_("Image"))
+    link = models.URLField(verbose_name=_("Link"))
+
+    class Meta:
+        verbose_name = _("sponsor")
+        verbose_name_plural = _("sponsors")
+
+    def save(self, *args, **kwargs):
+        if self.image and isinstance(self.image.file, UploadedFile):
+            processed = resize_to_fixed(self.image, size=(300, 200))
+            if processed:
+                name, content = processed
+                content.name = name
+                self.image = content
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+

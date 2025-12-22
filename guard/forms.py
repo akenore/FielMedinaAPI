@@ -15,6 +15,8 @@ from .models import (
     ImageAd,
     PublicTransport,
     PublicTransportTime,
+    Partner,
+    Sponsor,
 )
 
 
@@ -733,6 +735,76 @@ ImageAdFormSet = inlineformset_factory(
     can_delete=True,
     max_num=5,
 )
+
+
+class PartnerForm(FlowbiteFormMixin, forms.ModelForm):
+    class Meta:
+        model = Partner
+        fields = ["name", "image", "link"]
+        widgets = {
+            "name": forms.TextInput(
+                attrs={
+                    "placeholder": _("e.g., Partner name"),
+                }
+            ),
+            "link": forms.URLInput(
+                attrs={
+                    "placeholder": "https://example.com",
+                }
+            ),
+            "image": forms.FileInput(
+                attrs={
+                    "accept": "image/*",
+                }
+            ),
+        }
+        error_messages = {
+            "name": {"required": _("Please enter a name.")},
+            "image": {"required": _("Please upload an image (300x200).")},
+            "link": {"required": _("Please provide a link.")},
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if "image" in self.fields:
+            self.fields["image"].required = True
+            if self.instance and self.instance.pk:
+                self.fields["image"].required = False
+
+
+class SponsorForm(FlowbiteFormMixin, forms.ModelForm):
+    class Meta:
+        model = Sponsor
+        fields = ["name", "image", "link"]
+        widgets = {
+            "name": forms.TextInput(
+                attrs={
+                    "placeholder": _("e.g., Sponsor name"),
+                }
+            ),
+            "link": forms.URLInput(
+                attrs={
+                    "placeholder": "https://example.com",
+                }
+            ),
+            "image": forms.FileInput(
+                attrs={
+                    "accept": "image/*",
+                }
+            ),
+        }
+        error_messages = {
+            "name": {"required": _("Please enter a name.")},
+            "image": {"required": _("Please upload an image (300x200).")},
+            "link": {"required": _("Please provide a link.")},
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if "image" in self.fields:
+            self.fields["image"].required = True
+            if self.instance and self.instance.pk:
+                self.fields["image"].required = False
 
 
 class PublicTransportForm(FlowbiteFormMixin, forms.ModelForm):

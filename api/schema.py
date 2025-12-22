@@ -321,7 +321,7 @@ class Query(graphene.ObjectType):
         Return the closest city to the given coordinate.
         Optionally filter out cities farther than max_distance_km.
         """
-        # Haversine helpers
+        
         def haversine(lat1, lon1, lat2, lon2):
             R = 6371  # Earth radius in km
             phi1 = math.radians(lat1)

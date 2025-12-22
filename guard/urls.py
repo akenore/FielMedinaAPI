@@ -29,6 +29,14 @@ from .views import (
     PublicTransportCreateView,
     PublicTransportUpdateView,
     PublicTransportDeleteView,
+    PartnerListView,
+    PartnerCreateView,
+    PartnerUpdateView,
+    PartnerDeleteView,
+    SponsorListView,
+    SponsorCreateView,
+    SponsorUpdateView,
+    SponsorDeleteView,
     get_cities_by_country,
     get_subregions_by_city,
 )
@@ -122,6 +130,38 @@ urlpatterns = [
                     "publicTransports/delete/<int:pk>/",
                     PublicTransportDeleteView.as_view(),
                     name="publicTransport_delete",
+                ),
+                path("partners/", PartnerListView.as_view(), name="partnersList"),
+                path(
+                    "partners/create/",
+                    PartnerCreateView.as_view(),
+                    name="partner_create",
+                ),
+                path(
+                    "partners/update/<int:pk>/",
+                    PartnerUpdateView.as_view(),
+                    name="partner_update",
+                ),
+                path(
+                    "partners/delete/<int:pk>/",
+                    PartnerDeleteView.as_view(),
+                    name="partner_delete",
+                ),
+                path("sponsors/", SponsorListView.as_view(), name="sponsorsList"),
+                path(
+                    "sponsors/create/",
+                    SponsorCreateView.as_view(),
+                    name="sponsor_create",
+                ),
+                path(
+                    "sponsors/update/<int:pk>/",
+                    SponsorUpdateView.as_view(),
+                    name="sponsor_update",
+                ),
+                path(
+                    "sponsors/delete/<int:pk>/",
+                    SponsorDeleteView.as_view(),
+                    name="sponsor_delete",
                 ),
             ]
         ),

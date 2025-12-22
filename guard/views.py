@@ -32,6 +32,8 @@ from .forms import (
     AdForm,
     PublicTransportForm,
     PublicTransportFormSet,
+    PartnerForm,
+    SponsorForm,
     # ImageAdFormSet,
 )
 
@@ -45,6 +47,8 @@ from .models import (
     Ad,
     PublicTransport,
     PublicTransportType,
+    Partner,
+    Sponsor,
     # ImageAd,
 )
 
@@ -867,6 +871,76 @@ class AdDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
 
     def get_queryset(self):
         return super().get_queryset().filter(client=self.request.user.profile)
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+class PartnerListView(LoginRequiredMixin, ListView):
+    model = Partner
+    template_name = "guard/views/partners/list.html"
+    context_object_name = "partners"
+    paginate_by = 10
+    ordering = ["-id"]
+
+
+class PartnerCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+    model = Partner
+    form_class = PartnerForm
+    template_name = "guard/views/partners/index.html"
+    success_url = reverse_lazy("guard:partnersList")
+    success_message = _("Partner created successfully.")
+
+
+class PartnerUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+    model = Partner
+    form_class = PartnerForm
+    template_name = "guard/views/partners/index.html"
+    success_url = reverse_lazy("guard:partnersList")
+    success_message = _("Partner updated successfully.")
+
+
+class PartnerDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+    model = Partner
+    template_name = "guard/views/partners/delete.html"
+    success_url = reverse_lazy("guard:partnersList")
+    success_message = _("Partner deleted successfully.")
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+class SponsorListView(LoginRequiredMixin, ListView):
+    model = Sponsor
+    template_name = "guard/views/sponsors/list.html"
+    context_object_name = "sponsors"
+    paginate_by = 10
+    ordering = ["-id"]
+
+
+class SponsorCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+    model = Sponsor
+    form_class = SponsorForm
+    template_name = "guard/views/sponsors/index.html"
+    success_url = reverse_lazy("guard:sponsorsList")
+    success_message = _("Sponsor created successfully.")
+
+
+class SponsorUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+    model = Sponsor
+    form_class = SponsorForm
+    template_name = "guard/views/sponsors/index.html"
+    success_url = reverse_lazy("guard:sponsorsList")
+    success_message = _("Sponsor updated successfully.")
+
+
+class SponsorDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+    model = Sponsor
+    template_name = "guard/views/sponsors/delete.html"
+    success_url = reverse_lazy("guard:sponsorsList")
+    success_message = _("Sponsor deleted successfully.")
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)

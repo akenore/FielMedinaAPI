@@ -14,6 +14,8 @@ from .models import (
     PublicTransport,
     PublicTransportTime,
     PublicTransportType,
+    Partner,
+    Sponsor,
 )
 from modeltranslation.admin import TranslationAdmin
 
@@ -228,3 +230,27 @@ class PublicTransportAdmin(admin.ModelAdmin):
                 except Exception:
                     pass
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+@admin.register(Partner)
+class PartnerAdmin(admin.ModelAdmin):
+    list_display = ["name", "image", "link"]
+    search_fields = ["name"]
+
+    fieldsets = (
+        (
+            _("Basic Information"),
+            {"fields": ("name", "image", "link")},
+        ),
+    )
+
+@admin.register(Sponsor)
+class SponsorAdmin(admin.ModelAdmin):
+    list_display = ["name", "image", "link"]
+    search_fields = ["name"]
+
+    fieldsets = (
+        (
+            _("Basic Information"),
+            {"fields": ("name", "image", "link")},
+        ),
+    )
