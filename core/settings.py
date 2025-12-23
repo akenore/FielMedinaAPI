@@ -151,7 +151,7 @@ if DEBUG:
     STATICFILES_DIRS = [
         BASE_DIR / "static",
     ]
-    STATIC_ROOT = BASE_DIR / "static"
+    
     
 else:
     CORS_ALLOWED_ORIGINS = [
