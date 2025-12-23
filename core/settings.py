@@ -1,21 +1,15 @@
 from pathlib import Path
-
-BASE_DIR = Path(__file__).resolve().parent.parent
-
 import environ
 
+BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env()
 env.read_env(env_file=str(BASE_DIR / ".env"))
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
-
 SECRET_KEY = env("SECRET_KEY")
 
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ["*"]
+
 
 INSTALLED_APPS = [
     "modeltranslation",
@@ -66,15 +60,6 @@ TEMPLATES = [
 WSGI_APPLICATION = "core.wsgi.application"
 
 
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -90,10 +75,6 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
-
-
-# Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
 
 LANGUAGE_CODE = "en"
 
@@ -112,10 +93,6 @@ USE_L10N = True
 USE_TZ = True
 
 STATIC_URL = "static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
 MEDIA_URL = "upload/"
 MEDIA_ROOT = BASE_DIR / "upload"
 
@@ -124,15 +101,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 GRAPHENE = {"SCHEMA": "api.schema.schema"}
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "https://fielmedina.com",
-]
-
-
-CORS_ALLOW_ALL_ORIGINS = DEBUG
 CORS_ALLOW_CREDENTIALS = True
+CORS_PREFLIGHT_MAX_AGE = 86400
 CORS_ALLOW_HEADERS = [
     "accept",
     "accept-encoding",
@@ -145,9 +115,6 @@ CORS_ALLOW_HEADERS = [
     "x-requested-with",
 ]
 
-
-CORS_ALLOW_CREDENTIALS = True
-CORS_PREFLIGHT_MAX_AGE = 86400
 TINYMCE_DEFAULT_CONFIG = {
     "height": 360,
     "width": "100%",
@@ -167,20 +134,57 @@ LOGIN_URL = "shared:login"
 LOGIN_REDIRECT_URL = "guard:dashboard"
 LOGOUT_REDIRECT_URL = "shared:login"
 
-DEFAULT_FROM_EMAIL = env(
-    "DEFAULT_FROM_EMAIL", default="FielMedina <noreply@fielmedina.com>"
-)
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
+ADMIN_LIST_EMAILS = env.list("ADMIN_LIST_EMAILS")
 
 if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = DEBUG
+    ALLOWED_HOSTS = ["*"]
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
+    
+    STATICFILES_DIRS = [
+        BASE_DIR / "static",
+    ]
+    
 else:
+    CORS_ALLOWED_ORIGINS = [
+        "https://fielmedina.com",
+        "https://www.fielmedina.com",
+    ]
+    ALLOWED_HOSTS = ["mystory.fielmedina.com"]
     EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-    EMAIL_HOST = env("EMAIL_HOST", default="smtp.gmail.com")
-    EMAIL_PORT = env.int("EMAIL_PORT", default=587)
-    EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
-    EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
-    EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
-    EMAIL_USE_SSL = env.bool("EMAIL_USE_SSL", default=False)
+    EMAIL_HOST = env("EMAIL_HOST")
+    EMAIL_PORT = env.int("EMAIL_PORT")
+    EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+    EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+    EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS")
+    EMAIL_USE_SSL = env.bool("EMAIL_USE_SSL")
+    # DATABASES = {
+    #     'default': {
+    #         "ENGINE": "django.db.backends.postgresql",
+    #         "NAME": env("DB_NAME"),
+    #         "USER": env("DB_USER"),
+    #         "PASSWORD": env("DB_PASSWORD"),
+    #         "HOST": env("DB_HOST"),
+    #         "PORT": env("DB_PORT"),
+    #         "OPTIONS": {
+    #             "sslmode": "require",
+    #         },
+    #     }
+    # }
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 3600
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    STATIC_ROOT = BASE_DIR / "static"
 
 
 PUBLIC_GROQ_API_KEI = env("PUBLIC_GROQ_API_KEI")
