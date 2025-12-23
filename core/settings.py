@@ -151,6 +151,7 @@ if DEBUG:
     STATICFILES_DIRS = [
         BASE_DIR / "static",
     ]
+    STATIC_ROOT = BASE_DIR / "static"
     
 else:
     CORS_ALLOWED_ORIGINS = [
@@ -165,19 +166,19 @@ else:
     EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
     EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS")
     EMAIL_USE_SSL = env.bool("EMAIL_USE_SSL")
-    # DATABASES = {
-    #     'default': {
-    #         "ENGINE": "django.db.backends.postgresql",
-    #         "NAME": env("DB_NAME"),
-    #         "USER": env("DB_USER"),
-    #         "PASSWORD": env("DB_PASSWORD"),
-    #         "HOST": env("DB_HOST"),
-    #         "PORT": env("DB_PORT"),
-    #         "OPTIONS": {
-    #             "sslmode": "require",
-    #         },
-    #     }
-    # }
+    DATABASES = {
+        'default': {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": env("DB_NAME"),
+            "USER": env("DB_USER"),
+            "PASSWORD": env("DB_PASSWORD"),
+            "HOST": env("DB_HOST"),
+            "PORT": env("DB_PORT"),
+            "OPTIONS": {
+                "sslmode": "require",
+            },
+        }
+    }
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
