@@ -1,6 +1,7 @@
 import graphene
 import math
 from graphene_django import DjangoObjectType
+from django.db.models import Q
 
 from guard.models import (
     Location,
@@ -17,11 +18,27 @@ from guard.models import (
     ImageHiking,
     ImageEvent,
     ImageAd,
+    Partner,
+    Sponsor,
 )
 
 from cities_light.models import City
 from shared.models import Page
 
+class PageType(DjangoObjectType):
+    class Meta:
+        model = Page
+        fields = "__all__"
+
+class PartnerType(DjangoObjectType):
+    class Meta:
+        model = Partner
+        fields = "__all__"
+
+class SponsorType(DjangoObjectType):
+    class Meta:
+        model = Sponsor
+        fields = "__all__"
 
 class ImageLocationType(DjangoObjectType):
     class Meta:
@@ -204,6 +221,14 @@ class Query(graphene.ObjectType):
         max_distance_km=graphene.Float(required=False, description="Optional max radius in km"),
     )
 
+    # Partners
+    partners = graphene.List(PartnerType)
+    sponsor = graphene.Field(SponsorType, id=graphene.ID(required=True))
+
+    # Sponsors
+    sponsors = graphene.List(SponsorType)
+
+
     def resolve_pages(self, info, is_active=None):
         qs = Page.objects.all()
         if is_active is not None:
@@ -211,7 +236,10 @@ class Query(graphene.ObjectType):
         return qs
 
     def resolve_page(self, info, slug):
-        return Page.objects.filter(slug=slug).first()
+        return Page.objects.filter(
+            Q(slug_en=slug) | Q(slug_fr=slug)
+        ).filter(is_active=True).first()
+        # return Page.objects.filter(slug=slug).first()
 
     def resolve_locations(self, info, city_id=None, category_id=None):
         qs = (
@@ -358,10 +386,14 @@ class Query(graphene.ObjectType):
         return City.objects.filter(pk=nearest).first()
 
 
-class PageType(DjangoObjectType):
-    class Meta:
-        model = Page
-        fields = "__all__"
+    def resolve_partners(self, info):
+        return Partner.objects.all()
+
+
+    def resolve_sponsors(self, info):
+        return Sponsor.objects.all()
+
+    
 
 
 schema = graphene.Schema(query=Query)

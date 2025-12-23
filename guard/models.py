@@ -5,6 +5,7 @@ from io import BytesIO
 
 from django.db import models
 from django.db.models.signals import post_delete
+from django.db.models import FileField
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 from tinymce.models import HTMLField
@@ -509,3 +510,22 @@ class Sponsor(models.Model):
     def __str__(self):
         return self.name
 
+@receiver(post_delete, sender=Partner)
+@receiver(post_delete, sender=Sponsor)
+def cleanup_all_files(sender, instance, **kwargs):
+    """
+    Deletes files from filesystem when the record is deleted.
+    """
+    for field in instance._meta.fields:
+        if isinstance(field, FileField):
+            file_field = getattr(instance, field.name)
+            
+            # Check if a file actually exists in this field
+            if file_field and file_field.name:
+                # print(f"Attempting to delete file: {file_field.name}") # Debug line
+                try:
+                    # Use Django's storage API to delete
+                    file_field.storage.delete(file_field.name)
+                    # print("Delete successful!")
+                except Exception as e:
+                    print(f"Error deleting file: {e}")

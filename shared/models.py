@@ -6,6 +6,7 @@ from PIL import Image as PilImage
 from django.core.files.base import ContentFile
 from django.db import models
 from django.db.models.signals import post_delete, post_save
+from django.urls import reverse
 from django.utils import timezone
 from django.dispatch import receiver
 from tinymce.models import HTMLField
@@ -215,3 +216,26 @@ def ensure_profile_exists(sender, instance, created, **kwargs):
         updated_fields.append("subscription_renews_at")
     if updated_fields:
         profile.save(update_fields=updated_fields)
+
+
+class Package(models.Model):
+
+    name = models.CharField(max_length=255, verbose_name=_("Name"))
+    description = models.TextField(verbose_name=_("Description"))
+    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_("Price"))
+    duration = models.IntegerField(verbose_name=_("Duration"))
+    duration_unit = models.CharField(max_length=255, verbose_name=_("Duration Unit"))
+    features = models.JSONField(verbose_name=_("Features"))
+    is_active = models.BooleanField(default=True, verbose_name=_("Active"))
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _("Package")
+        verbose_name_plural = _("Packages")
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse("package_detail", kwargs={"pk": self.pk})
