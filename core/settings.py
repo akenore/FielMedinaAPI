@@ -10,7 +10,6 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = True
 
 
-
 INSTALLED_APPS = [
     "modeltranslation",
     "cities_light",
@@ -58,7 +57,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "core.wsgi.application"
-
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -139,7 +137,8 @@ ADMIN_LIST_EMAILS = env.list("ADMIN_LIST_EMAILS")
 
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = DEBUG
-    ALLOWED_HOSTS = ["*"]
+    GRAPHQL_GRAPHIQL_ENABLED = True
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
     DATABASES = {
         "default": {
@@ -147,17 +146,18 @@ if DEBUG:
             "NAME": BASE_DIR / "db.sqlite3",
         }
     }
-    
+
     STATICFILES_DIRS = [
         BASE_DIR / "static",
     ]
-    
-    
+
+
 else:
     CORS_ALLOWED_ORIGINS = [
         "https://fielmedina.com",
         "https://www.fielmedina.com",
     ]
+    GRAPHQL_GRAPHIQL_ENABLED = False
     ALLOWED_HOSTS = ["mystory.fielmedina.com"]
     EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
     EMAIL_HOST = env("EMAIL_HOST")
@@ -167,7 +167,7 @@ else:
     EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS")
     EMAIL_USE_SSL = env.bool("EMAIL_USE_SSL")
     DATABASES = {
-        'default': {
+        "default": {
             "ENGINE": "django.db.backends.postgresql",
             "NAME": env("DB_NAME"),
             "USER": env("DB_USER"),

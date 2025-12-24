@@ -20,25 +20,36 @@ from guard.models import (
     ImageAd,
     Partner,
     Sponsor,
+    Weekday,
 )
 
 from cities_light.models import City
 from shared.models import Page
+
 
 class PageType(DjangoObjectType):
     class Meta:
         model = Page
         fields = "__all__"
 
+
+class WeekdayType(DjangoObjectType):
+    class Meta:
+        model = Weekday
+        fields = "__all__"
+
+
 class PartnerType(DjangoObjectType):
     class Meta:
         model = Partner
         fields = "__all__"
 
+
 class SponsorType(DjangoObjectType):
     class Meta:
         model = Sponsor
         fields = "__all__"
+
 
 class ImageLocationType(DjangoObjectType):
     class Meta:
@@ -54,6 +65,7 @@ class LocationCategoryType(DjangoObjectType):
 
 class LocationType(DjangoObjectType):
     images = graphene.List(ImageLocationType)
+    open_days = graphene.List(WeekdayType)
 
     class Meta:
         model = Location
@@ -61,6 +73,9 @@ class LocationType(DjangoObjectType):
 
     def resolve_images(self, info):
         return self.images.all()
+
+    def resolve_open_days(self, info):
+        return self.openDays.all()
 
 
 class ImageHikingType(DjangoObjectType):
@@ -218,7 +233,9 @@ class Query(graphene.ObjectType):
         CityType,
         lat=graphene.Float(required=True),
         lon=graphene.Float(required=True),
-        max_distance_km=graphene.Float(required=False, description="Optional max radius in km"),
+        max_distance_km=graphene.Float(
+            required=False, description="Optional max radius in km"
+        ),
     )
 
     # Partners
@@ -228,7 +245,6 @@ class Query(graphene.ObjectType):
     # Sponsors
     sponsors = graphene.List(SponsorType)
 
-
     def resolve_pages(self, info, is_active=None):
         qs = Page.objects.all()
         if is_active is not None:
@@ -236,16 +252,17 @@ class Query(graphene.ObjectType):
         return qs
 
     def resolve_page(self, info, slug):
-        return Page.objects.filter(
-            Q(slug_en=slug) | Q(slug_fr=slug)
-        ).filter(is_active=True).first()
+        return (
+            Page.objects.filter(Q(slug_en=slug) | Q(slug_fr=slug))
+            .filter(is_active=True)
+            .first()
+        )
         # return Page.objects.filter(slug=slug).first()
 
     def resolve_locations(self, info, city_id=None, category_id=None):
-        qs = (
-            Location.objects.select_related("city", "country", "category")
-            .prefetch_related("images")
-        )
+        qs = Location.objects.select_related(
+            "city", "country", "category"
+        ).prefetch_related("images")
         if city_id is not None:
             qs = qs.filter(city_id=city_id)
         if category_id is not None:
@@ -259,22 +276,22 @@ class Query(graphene.ObjectType):
         return LocationCategory.objects.all()
 
     def resolve_hikings(self, info, city_id=None):
-        qs = (
-            Hiking.objects.select_related("city")
-            .prefetch_related("images", "location")
+        qs = Hiking.objects.select_related("city").prefetch_related(
+            "images", "location"
         )
         if city_id is not None:
             qs = qs.filter(city_id=city_id)
         return qs
 
     def resolve_hiking(self, info, id):
-        return Hiking.objects.prefetch_related("images", "location").filter(pk=id).first()
+        return (
+            Hiking.objects.prefetch_related("images", "location").filter(pk=id).first()
+        )
 
     def resolve_events(self, info, city_id=None, category_id=None):
-        qs = (
-            Event.objects.select_related("city", "category", "client", "location")
-            .prefetch_related("images")
-        )
+        qs = Event.objects.select_related(
+            "city", "category", "client", "location"
+        ).prefetch_related("images")
         if city_id is not None:
             qs = qs.filter(city_id=city_id)
         if category_id is not None:
@@ -316,11 +333,9 @@ class Query(graphene.ObjectType):
         from_region_id=None,
         to_region_id=None,
     ):
-        qs = (
-            PublicTransport.objects.select_related(
-                "city", "publicTransportType", "fromRegion", "toRegion"
-            ).prefetch_related("publicTransportTimes")
-        )
+        qs = PublicTransport.objects.select_related(
+            "city", "publicTransportType", "fromRegion", "toRegion"
+        ).prefetch_related("publicTransportTimes")
         if city_id is not None:
             qs = qs.filter(city_id=city_id)
         if type_id is not None:
@@ -349,7 +364,7 @@ class Query(graphene.ObjectType):
         Return the closest city to the given coordinate.
         Optionally filter out cities farther than max_distance_km.
         """
-        
+
         def haversine(lat1, lon1, lat2, lon2):
             R = 6371  # Earth radius in km
             phi1 = math.radians(lat1)
@@ -373,7 +388,9 @@ class Query(graphene.ObjectType):
         nearest_distance = None
 
         for city in candidates:
-            distance = haversine(lat, lon, float(city["latitude"]), float(city["longitude"]))
+            distance = haversine(
+                lat, lon, float(city["latitude"]), float(city["longitude"])
+            )
             if max_distance_km is not None and distance > max_distance_km:
                 continue
             if nearest_distance is None or distance < nearest_distance:
@@ -385,16 +402,11 @@ class Query(graphene.ObjectType):
 
         return City.objects.filter(pk=nearest).first()
 
-
     def resolve_partners(self, info):
         return Partner.objects.all()
-
 
     def resolve_sponsors(self, info):
         return Sponsor.objects.all()
 
-    
-
 
 schema = graphene.Schema(query=Query)
-
