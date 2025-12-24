@@ -201,7 +201,7 @@
                     const options = {
                         ...chartOptionsBase,
                         chart: { ...chartOptionsBase.chart, type: 'area', height: 300 },
-                        series: [{ name: 'Clicks', data: values }],
+                        series: [{ name: '{% trans "Clicks" %}', data: values }],
                         xaxis: { 
                             categories: labels, 
                             labels: { show: false },
@@ -248,7 +248,7 @@
             const options = {
                 ...chartOptionsBase,
                 chart: { ...chartOptionsBase.chart, type: 'bar', height: 300 },
-                series: [{ name: 'Clicks', data: values }],
+                series: [{ name: '{% trans "Clicks" %}', data: values }],
                 xaxis: { 
                     categories: labels,
                     axisBorder: { show: false },
@@ -263,7 +263,7 @@
 
         function renderNoData(elementId) {
             const el = document.getElementById(elementId);
-            if (el) el.innerHTML = "<div class='flex items-center justify-center h-full text-gray-500 text-sm'>No data available</div>";
+            if (el) el.innerHTML = "<div class='flex items-center justify-center h-full text-gray-500 text-sm'>{% trans "No data available" %}</div>";
         }
 
         renderBarChart("countriesChart", statsData.country, "country");

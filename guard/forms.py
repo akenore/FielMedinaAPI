@@ -644,7 +644,7 @@ class AdForm(FlowbiteFormMixin, forms.ModelForm):
         required=False,
         widget=forms.TextInput(
             attrs={
-                "placeholder": _("e.g., Summer Campaign 2024"),
+                "placeholder": _("e.g., Summer Campaign 2026"),
             }
         ),
         help_text=_("If empty, a name like 'ADS-XXXXXX' will be auto-generated."),
@@ -695,11 +695,9 @@ class AdForm(FlowbiteFormMixin, forms.ModelForm):
     def clean_image_mobile(self):
         image = self.cleaned_data.get("image_mobile")
         if image:
-            # Check if it's a new upload (InMemoryUploadedFile)
             if hasattr(image, "image"):
                 w, h = image.image.width, image.image.height
             else:
-                # Fallback for some upload handlers or if Pillow not directly accessible
                 from django.core.files.images import get_image_dimensions
 
                 w, h = get_image_dimensions(image)

@@ -128,7 +128,7 @@ User = get_user_model()
 class UserProfile(models.Model):
     class UserType(models.TextChoices):
         STAFF = "staff", _("Staff")
-        CLIENT_PARTNER = "client_partner", _("Client / Partenaire")
+        CLIENT_PARTNER = "client_partner", _("Client / Partners")
 
     user = models.OneToOneField(
         User,
