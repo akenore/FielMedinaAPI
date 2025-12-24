@@ -23,11 +23,11 @@ msgstr ""
 #: guard/templates/guard/views/hiking/index.html:72
 #: guard/templates/guard/views/locations/index.html:72 shared/admin.py:16
 msgid "Basic Information"
-msgstr ""
+msgstr "Informations de base"
 
 #: guard/admin.py:41 guard/templates/guard/views/locations/index.html:168
 msgid "Location Details"
-msgstr ""
+msgstr "Détails du lieu"
 
 #: guard/admin.py:90
 msgid "Event Schedule"
@@ -342,31 +342,31 @@ msgstr ""
 
 #: guard/models.py:113
 msgid "Sunday"
-msgstr ""
+msgstr "Dimanche"
 
 #: guard/models.py:114
 msgid "Monday"
-msgstr ""
+msgstr "Lundi"
 
 #: guard/models.py:115
 msgid "Tuesday"
-msgstr ""
+msgstr "Mardi"
 
 #: guard/models.py:116
 msgid "Wednesday"
-msgstr ""
+msgstr "Mercredi"
 
 #: guard/models.py:117
 msgid "Thursday"
-msgstr ""
+msgstr "Jeudi"
 
 #: guard/models.py:118
 msgid "Friday"
-msgstr ""
+msgstr "Vendredi"
 
 #: guard/models.py:119
 msgid "Saturday"
-msgstr ""
+msgstr "Samedi"
 
 #: guard/models.py:124
 msgid "Day"
@@ -431,7 +431,7 @@ msgstr ""
 
 #: guard/models.py:189
 msgid "Open Days"
-msgstr ""
+msgstr "Jours d'ouverture"
 
 #: guard/models.py:195 guard/models.py:215 guard/models.py:269
 #: guard/templates/guard/views/events/list.html:33
@@ -442,7 +442,7 @@ msgstr ""
 #: guard/models.py:196 guard/templates/guard/base/sidebar-left.html:36
 #: guard/templates/guard/views/locations/index.html:24
 msgid "Locations"
-msgstr ""
+msgstr "Lieux"
 
 #: guard/models.py:211 guard/models.py:299
 msgid "Cities"
@@ -455,19 +455,19 @@ msgstr ""
 #: guard/templates/guard/views/partners/list.html:23
 #: guard/templates/guard/views/sponsors/list.html:23 shared/models.py:223
 msgid "Name"
-msgstr ""
+msgstr "Nom"
 
 #: guard/models.py:214 guard/models.py:280
 #: guard/templates/guard/views/events/index.html:167
 #: guard/templates/guard/views/hiking/index.html:161
 #: guard/templates/guard/views/tips/list.html:33 shared/models.py:224
 msgid "Description"
-msgstr ""
+msgstr "Description"
 
 #: guard/models.py:218 guard/templates/guard/base/sidebar-left.html:47
 #: guard/templates/guard/views/hiking/index.html:24
 msgid "Hiking"
-msgstr ""
+msgstr "Randonnée"
 
 #: guard/models.py:219
 msgid "Hikings"
@@ -500,7 +500,7 @@ msgstr ""
 #: guard/models.py:275 guard/templates/guard/views/events/list.html:57
 #: shared/models.py:225
 msgid "Price"
-msgstr ""
+msgstr "Prix"
 
 #: guard/models.py:277
 msgid "The link to subscribe"
@@ -512,7 +512,7 @@ msgstr ""
 
 #: guard/models.py:284 guard/templates/guard/views/events/index.html:24
 msgid "Events"
-msgstr ""
+msgstr "Événements"
 
 #: guard/models.py:304
 msgid "Tip"
@@ -521,7 +521,7 @@ msgstr ""
 #: guard/models.py:305 guard/templates/guard/base/sidebar-left.html:85
 #: guard/templates/guard/views/tips/index.html:24
 msgid "Tips"
-msgstr ""
+msgstr "Conseils"
 
 #: guard/models.py:315
 msgid "Add a name"
@@ -550,7 +550,7 @@ msgstr ""
 #: guard/models.py:355 guard/templates/guard/base/sidebar-left.html:126
 #: guard/templates/guard/views/ads/index.html:24
 msgid "Ads"
-msgstr ""
+msgstr "Publicités"
 
 #: guard/models.py:398 guard/models.py:415
 msgid "Public Transport Type"
@@ -575,7 +575,7 @@ msgstr ""
 #: guard/models.py:446
 #: guard/templates/guard/views/publicTransports/index.html:24
 msgid "Public Transports"
-msgstr ""
+msgstr "Transports publics"
 
 #: guard/models.py:464
 msgid "Public Transport Time"
@@ -603,7 +603,7 @@ msgstr ""
 #: guard/models.py:503 guard/templates/guard/base/sidebar-left.html:94
 #: guard/templates/guard/views/partners/list.html:4
 msgid "Partners"
-msgstr ""
+msgstr "Partenaires"
 
 #: guard/models.py:525
 msgid "sponsor"
@@ -662,7 +662,7 @@ msgstr ""
 #: guard/templates/guard/views/sponsors/index.html:68
 #: guard/templates/guard/views/tips/index.html:167
 msgid "Cancel"
-msgstr ""
+msgstr "Annuler"
 
 #: guard/templates/guard/auth/password_change.html:52
 msgid "Save new password"
@@ -800,7 +800,7 @@ msgstr ""
 #: guard/templates/guard/base/sidebar-left.html:142
 #: guard/templates/guard/base/topBar.html:52
 msgid "Settings"
-msgstr ""
+msgstr "Paramètres"
 
 #: guard/templates/guard/auth/settings.html:17
 msgid "Subscription expiring soon"
@@ -864,7 +864,7 @@ msgstr ""
 #: guard/templates/guard/views/ads/list.html:56
 #: guard/templates/guard/views/pages/list.html:41
 msgid "Status"
-msgstr ""
+msgstr "Statut"
 
 #: guard/templates/guard/auth/settings.html:124
 msgid "Started"
@@ -893,29 +893,29 @@ msgstr ""
 #: guard/templates/guard/views/publicTransports/index.html:18
 #: guard/templates/guard/views/tips/index.html:18
 msgid "Dashboard"
-msgstr ""
+msgstr "Tableau de bord"
 
 #: guard/templates/guard/base/sidebar-left.html:27
 #: guard/templates/guard/views/pages/index.html:24 shared/models.py:118
 msgid "Pages"
-msgstr ""
+msgstr "Pages"
 
 #: guard/templates/guard/base/sidebar-left.html:59
 msgid "Subscribers"
-msgstr ""
+msgstr "Abonnés"
 
 #: guard/templates/guard/base/sidebar-left.html:72
 msgid "Transports"
-msgstr ""
+msgstr "Transports"
 
 #: guard/templates/guard/base/sidebar-left.html:103
 #: guard/templates/guard/views/sponsors/list.html:4
 msgid "Sponsors"
-msgstr ""
+msgstr "Sponsors"
 
 #: guard/templates/guard/base/sidebar-left.html:113
 msgid "My events"
-msgstr ""
+msgstr "Mes événements"
 
 #: guard/templates/guard/base/topBar.html:29
 msgid "Open user menu"
@@ -923,7 +923,7 @@ msgstr ""
 
 #: guard/templates/guard/base/topBar.html:62
 msgid "Sign out"
-msgstr ""
+msgstr "Se déconnecter"
 
 #: guard/templates/guard/views/ads/index.html:6
 #: guard/templates/guard/views/ads/index.html:41
@@ -952,7 +952,7 @@ msgstr ""
 #: guard/templates/guard/views/tips/index.html:31
 #: guard/templates/guard/views/tips/list.html:59
 msgid "Edit"
-msgstr ""
+msgstr "Modifier"
 
 #: guard/templates/guard/views/ads/index.html:31
 #: guard/templates/guard/views/ads/list.html:14
@@ -971,7 +971,7 @@ msgstr ""
 #: guard/templates/guard/views/tips/index.html:31
 #: guard/templates/guard/views/tips/list.html:14
 msgid "Add"
-msgstr ""
+msgstr "Ajouter"
 
 #: guard/templates/guard/views/ads/index.html:48
 msgid ""
@@ -1030,7 +1030,7 @@ msgstr ""
 #: guard/templates/guard/views/sponsors/list.html:10
 #: guard/templates/guard/views/tips/list.html:10
 msgid "List"
-msgstr ""
+msgstr "Liste"
 
 #: guard/templates/guard/views/ads/list.html:100
 #: guard/templates/guard/views/pages/list.html:67
@@ -1058,7 +1058,7 @@ msgstr ""
 #: guard/templates/guard/views/sponsors/list.html:54
 #: guard/templates/guard/views/tips/list.html:65
 msgid "Delete"
-msgstr ""
+msgstr "Supprimer"
 
 #: guard/templates/guard/views/ads/partials/confirm_model.html:7
 msgid "Delete ad"
@@ -1188,7 +1188,7 @@ msgstr ""
 #: guard/templates/guard/views/ads/partials/tracking.html:139
 #: guard/templates/guard/views/events/partials/tracking.html:136
 msgid "Back"
-msgstr ""
+msgstr "Retour"
 
 #: guard/templates/guard/views/dashboard.html:13
 msgid "Total Ads Clicks"
@@ -1411,7 +1411,7 @@ msgstr ""
 
 #: guard/templates/guard/views/locations/index.html:352
 msgid "Operational Details"
-msgstr ""
+msgstr "Détails opérationnels"
 
 #: guard/templates/guard/views/locations/index.html:354
 msgid "Opening hours and pricing information"
@@ -1419,7 +1419,7 @@ msgstr ""
 
 #: guard/templates/guard/views/locations/index.html:430
 msgid "Status & Settings"
-msgstr ""
+msgstr "Statut et paramètres"
 
 #: guard/templates/guard/views/locations/index.html:432
 msgid "Location visibility and features"
@@ -1497,7 +1497,7 @@ msgstr ""
 
 #: guard/templates/guard/views/pages/list.html:25 shared/models.py:113
 msgid "Title"
-msgstr ""
+msgstr "Titre"
 
 #: guard/templates/guard/views/pages/list.html:33
 msgid "Slug"
@@ -1628,6 +1628,8 @@ msgstr ""
 #: guard/templates/guard/views/publicTransports/index.html:182
 msgid "Add Another Time"
 msgstr ""
+
+
 
 #: guard/templates/guard/views/publicTransports/index.html:196
 msgid "Update Transport"
@@ -2018,7 +2020,7 @@ msgstr ""
 
 #: shared/models.py:117
 msgid "Page"
-msgstr ""
+msgstr "Page"
 
 #: shared/models.py:130
 msgid "Staff"
