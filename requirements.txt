@@ -8,3 +8,5 @@ django-filter
 Pillow
 django-cities-light
 psycopg[binary]
+requests
+groq

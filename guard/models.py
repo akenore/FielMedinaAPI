@@ -109,6 +109,30 @@ class LocationCategory(models.Model):
         return self.name
 
 
+class WeekdayChoices(models.IntegerChoices):
+    SUNDAY = 1, _("Sunday")
+    MONDAY = 2, _("Monday")
+    TUESDAY = 3, _("Tuesday")
+    WEDNESDAY = 4, _("Wednesday")
+    THURSDAY = 5, _("Thursday")
+    FRIDAY = 6, _("Friday")
+    SATURDAY = 7, _("Saturday")
+
+
+class Weekday(models.Model):
+    day = models.IntegerField(
+        choices=WeekdayChoices.choices, unique=True, verbose_name=_("Day")
+    )
+
+    class Meta:
+        verbose_name = _("Weekday")
+        verbose_name_plural = _("Weekdays")
+        ordering = ["day"]
+
+    def __str__(self):
+        return self.get_day_display()
+
+
 class Location(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     category = models.ForeignKey(
@@ -159,6 +183,12 @@ class Location(models.Model):
         blank=True,
         null=True,
         help_text=_("Add admission fee if the location has a specific admission fee"),
+    )
+    openDays = models.ManyToManyField(
+        Weekday,
+        verbose_name=_("Open Days"),
+        blank=True,
+        related_name="locations",
     )
 
     class Meta:
@@ -269,7 +299,6 @@ class Tip(models.Model):
         verbose_name=_("Cities"),
     )
     description = HTMLField()
-    # location = models.ManyToManyField("Location", verbose_name=_("Location"))
 
     class Meta:
         verbose_name = _("Tip")
@@ -465,7 +494,6 @@ def resize_to_fixed(image_field, size=(300, 200)):
 
 
 class Partner(models.Model):
-
     name = models.CharField(max_length=255, verbose_name=_("Name"))
     image = models.ImageField(upload_to="partners/", verbose_name=_("Image"))
     link = models.URLField(verbose_name=_("Link"))
@@ -489,7 +517,6 @@ class Partner(models.Model):
 
 
 class Sponsor(models.Model):
-
     name = models.CharField(max_length=255, verbose_name=_("Name"))
     image = models.ImageField(upload_to="sponsors/", verbose_name=_("Image"))
     link = models.URLField(verbose_name=_("Link"))
@@ -510,13 +537,14 @@ class Sponsor(models.Model):
     def __str__(self):
         return self.name
 
+
 @receiver(post_delete, sender=Partner)
 @receiver(post_delete, sender=Sponsor)
 def cleanup_all_files(sender, instance, **kwargs):
     for field in instance._meta.fields:
         if isinstance(field, FileField):
             file_field = getattr(instance, field.name)
-            
+
             if file_field and file_field.name:
                 # print(f"Attempting to delete file: {file_field.name}") # Debug line
                 try:

@@ -7,7 +7,7 @@ env.read_env(env_file=str(BASE_DIR / ".env"))
 
 SECRET_KEY = env("SECRET_KEY")
 
-DEBUG = False
+DEBUG = True
 
 
 
@@ -174,9 +174,9 @@ else:
             "PASSWORD": env("DB_PASSWORD"),
             "HOST": env("DB_HOST"),
             "PORT": env("DB_PORT"),
-            "OPTIONS": {
-                "sslmode": "require",
-            },
+            # "OPTIONS": {
+            #     "sslmode": "require",
+            # },
         }
     }
     SECURE_SSL_REDIRECT = True
