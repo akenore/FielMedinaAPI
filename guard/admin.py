@@ -46,6 +46,7 @@ class LocationAdmin(TranslationAdmin):
                     "longitude",
                     "openFrom",
                     "openTo",
+                    "openDays",
                     "admissionFee",
                     "story",
                 )
@@ -231,6 +232,7 @@ class PublicTransportAdmin(admin.ModelAdmin):
                     pass
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
+
 @admin.register(Partner)
 class PartnerAdmin(admin.ModelAdmin):
     list_display = ["name", "image", "link"]
@@ -242,6 +244,7 @@ class PartnerAdmin(admin.ModelAdmin):
             {"fields": ("name", "image", "link")},
         ),
     )
+
 
 @admin.register(Sponsor)
 class SponsorAdmin(admin.ModelAdmin):

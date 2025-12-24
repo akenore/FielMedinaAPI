@@ -397,6 +397,26 @@
                     {% endif %}
                 </div>
             </div>
+            
+            <div class="mt-6">
+                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                    {{ form.openDays.label }}
+                    {% if form.openDays.field.required %}<span class="text-red-600">*</span>{% endif %}
+                </label>
+                <div class="flex flex-wrap gap-4">
+                    {% for checkbox in form.openDays %}
+                        <div class="flex items-center">
+                            {{ checkbox.tag }}
+                            <label for="{{ checkbox.id_for_label }}" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                                {{ checkbox.choice_label }}
+                            </label>
+                        </div>
+                    {% endfor %}
+                </div>
+                {% if form.openDays.errors %}
+                    <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.openDays.errors.0 }}</p>
+                {% endif %}
+            </div>
         </div>
     </div>
 
