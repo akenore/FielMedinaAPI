@@ -21,6 +21,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "strawberry.django",
+    "strawberry_django",
     "tinymce",
     "api",
     "guard",
