@@ -1,6 +1,7 @@
 from django.shortcuts import redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
 from django.views.generic import (
     CreateView,
@@ -163,31 +164,46 @@ class SettingView(LoginRequiredMixin, TemplateView):
         }
 
 
-class PageListView(LoginRequiredMixin, ListView):
+class PageListView(UserPassesTestMixin, LoginRequiredMixin, ListView):
     model = Page
     template_name = "guard/views/pages/list.html"
     context_object_name = "pages"
     paginate_by = 10
     ordering = ["slug"]
 
+    def test_func(self):
+        return self.request.user.is_staff
 
-class PageCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+
+class PageCreateView(
+    UserPassesTestMixin, LoginRequiredMixin, SuccessMessageMixin, CreateView
+):
     model = Page
     form_class = PageForm
     template_name = "guard/views/pages/index.html"
     success_url = reverse_lazy("shared:pageList")
     success_message = _("Page created successfully.")
 
+    def test_func(self):
+        return self.request.user.is_staff
 
-class PageUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+
+class PageUpdateView(
+    UserPassesTestMixin, LoginRequiredMixin, SuccessMessageMixin, UpdateView
+):
     model = Page
     form_class = PageForm
     template_name = "guard/views/pages/index.html"
     success_url = reverse_lazy("shared:pageList")
     success_message = _("Page updated successfully.")
 
+    def test_func(self):
+        return self.request.user.is_staff
 
-class PageDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+
+class PageDeleteView(
+    UserPassesTestMixin, LoginRequiredMixin, SuccessMessageMixin, DeleteView
+):
     model = Page
     success_url = reverse_lazy("shared:pageList")
     success_message = _("Page deleted successfully.")
@@ -195,6 +211,9 @@ class PageDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
+    def test_func(self):
+        return self.request.user.is_staff
 
 
 @login_required

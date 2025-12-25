@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.contrib import messages
-
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.decorators import login_required
@@ -97,7 +97,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class LocationsListView(LoginRequiredMixin, ListView):
+class LocationsListView(UserPassesTestMixin, LoginRequiredMixin, ListView):
     model = Location
     template_name = "guard/views/locations/list.html"
     context_object_name = "locations"
@@ -109,8 +109,13 @@ class LocationsListView(LoginRequiredMixin, ListView):
         context["location_categories"] = LocationCategory.objects.all()
         return context
 
+    def test_func(self):
+        return self.request.user.is_staff
 
-class LocationCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+
+class LocationCreateView(
+    UserPassesTestMixin, LoginRequiredMixin, SuccessMessageMixin, CreateView
+):
     model = Location
     template_name = "guard/views/locations/index.html"
     form_class = LocationForm
@@ -150,8 +155,13 @@ class LocationCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         else:
             return self.form_invalid(form)
 
+    def test_func(self):
+        return self.request.user.is_staff
 
-class LocationUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+
+class LocationUpdateView(
+    UserPassesTestMixin, LoginRequiredMixin, SuccessMessageMixin, UpdateView
+):
     model = Location
     template_name = "guard/views/locations/index.html"
     form_class = LocationForm
@@ -199,8 +209,13 @@ class LocationUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
         else:
             return self.form_invalid(form)
 
+    def test_func(self):
+        return self.request.user.is_staff
 
-class LocationDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+
+class LocationDeleteView(
+    UserPassesTestMixin, LoginRequiredMixin, SuccessMessageMixin, DeleteView
+):
     model = Location
     success_url = reverse_lazy("guard:locationsList")
     success_message = _("Unfortunately, this location has been deleted")
@@ -209,21 +224,22 @@ class LocationDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
         messages.warning(self.request, self.success_message)
         return super(LocationDeleteView, self).delete(request, *args, **kwargs)
 
+    def test_func(self):
+        return self.request.user.is_staff
 
-class SubscribersListView(LoginRequiredMixin, ListView):
+
+class SubscribersListView(UserPassesTestMixin, LoginRequiredMixin, ListView):
     model = UserProfile
     template_name = "guard/views/subscribers/list.html"
     context_object_name = "subscribers"
     paginate_by = 10
     ordering = ["-created_at"]
 
-
-@login_required
-def publicTransportsList(request):
-    return render(request, "guard/views/publicTransports/list.html")
+    def test_func(self):
+        return self.request.user.is_staff
 
 
-class PublicTransportListView(LoginRequiredMixin, ListView):
+class PublicTransportListView(UserPassesTestMixin, LoginRequiredMixin, ListView):
     model = PublicTransport
     template_name = "guard/views/publicTransports/list.html"
     context_object_name = "transports"
@@ -235,8 +251,13 @@ class PublicTransportListView(LoginRequiredMixin, ListView):
         context["transport_types"] = PublicTransportType.objects.all()
         return context
 
+    def test_func(self):
+        return self.request.user.is_staff
 
-class PublicTransportCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+
+class PublicTransportCreateView(
+    UserPassesTestMixin, LoginRequiredMixin, SuccessMessageMixin, CreateView
+):
     model = PublicTransport
     template_name = "guard/views/publicTransports/index.html"
     form_class = PublicTransportForm
@@ -292,8 +313,13 @@ class PublicTransportCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateV
         else:
             return self.form_invalid(form)
 
+    def test_func(self):
+        return self.request.user.is_staff
 
-class PublicTransportUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+
+class PublicTransportUpdateView(
+    UserPassesTestMixin, LoginRequiredMixin, SuccessMessageMixin, UpdateView
+):
     model = PublicTransport
     template_name = "guard/views/publicTransports/index.html"
     form_class = PublicTransportForm
@@ -366,8 +392,13 @@ class PublicTransportUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateV
         else:
             return self.form_invalid(form)
 
+    def test_func(self):
+        return self.request.user.is_staff
 
-class PublicTransportDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+
+class PublicTransportDeleteView(
+    UserPassesTestMixin, LoginRequiredMixin, SuccessMessageMixin, DeleteView
+):
     model = PublicTransport
     success_url = reverse_lazy("guard:publicTransportsList")
     success_message = _("Public transport has been deleted.")
@@ -375,6 +406,9 @@ class PublicTransportDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteV
     def delete(self, request, *args, **kwargs):
         messages.warning(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
+    def test_func(self):
+        return self.request.user.is_staff
 
 
 class EventListView(LoginRequiredMixin, ListView):
@@ -574,15 +608,20 @@ class EventDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
         return super(EventDeleteView, self).delete(request, *args, **kwargs)
 
 
-class TipsListView(LoginRequiredMixin, ListView):
+class TipsListView(UserPassesTestMixin, LoginRequiredMixin, ListView):
     model = Tip
     template_name = "guard/views/tips/list.html"
     context_object_name = "tips"
     paginate_by = 10
     ordering = ["-created_at"]
 
+    def test_func(self):
+        return self.request.user.is_staff
 
-class TipCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+
+class TipCreateView(
+    UserPassesTestMixin, LoginRequiredMixin, SuccessMessageMixin, CreateView
+):
     model = Tip
     form_class = TipForm
     template_name = "guard/views/tips/index.html"
@@ -595,8 +634,13 @@ class TipCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         messages.error(self.request, _("Error creating tip. Please check the form."))
         return super().form_invalid(form)
 
+    def test_func(self):
+        return self.request.user.is_staff
 
-class TipUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+
+class TipUpdateView(
+    UserPassesTestMixin, LoginRequiredMixin, SuccessMessageMixin, UpdateView
+):
     model = Tip
     form_class = TipForm
     template_name = "guard/views/tips/index.html"
@@ -609,8 +653,13 @@ class TipUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
         messages.error(self.request, _("Error updating tip. Please check the form."))
         return super().form_invalid(form)
 
+    def test_func(self):
+        return self.request.user.is_staff
 
-class TipDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+
+class TipDeleteView(
+    UserPassesTestMixin, LoginRequiredMixin, SuccessMessageMixin, DeleteView
+):
     model = Tip
     success_url = reverse_lazy("guard:tipsList")
     success_message = _("Tip deleted successfully")
@@ -619,16 +668,24 @@ class TipDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
 
+    def test_func(self):
+        return self.request.user.is_staff
 
-class HikingListView(LoginRequiredMixin, ListView):
+
+class HikingListView(UserPassesTestMixin, LoginRequiredMixin, ListView):
     model = Hiking
     template_name = "guard/views/hiking/list.html"
     context_object_name = "hikings"
     paginate_by = 10
     ordering = ["-created_at"]
 
+    def test_func(self):
+        return self.request.user.is_staff
 
-class HikingCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+
+class HikingCreateView(
+    UserPassesTestMixin, LoginRequiredMixin, SuccessMessageMixin, CreateView
+):
     model = Hiking
     form_class = HikingForm
     template_name = "guard/views/hiking/index.html"
@@ -672,8 +729,13 @@ class HikingCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         messages.error(self.request, _("Error creating hiking. Please check the form."))
         return super().form_invalid(form)
 
+    def test_func(self):
+        return self.request.user.is_staff
 
-class HikingUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+
+class HikingUpdateView(
+    UserPassesTestMixin, LoginRequiredMixin, SuccessMessageMixin, UpdateView
+):
     model = Hiking
     form_class = HikingForm
     template_name = "guard/views/hiking/index.html"
@@ -725,8 +787,13 @@ class HikingUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
         messages.error(self.request, _("Error updating hiking. Please check the form."))
         return super().form_invalid(form)
 
+    def test_func(self):
+        return self.request.user.is_staff
 
-class HikingDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+
+class HikingDeleteView(
+    UserPassesTestMixin, LoginRequiredMixin, SuccessMessageMixin, DeleteView
+):
     model = Hiking
     success_url = reverse_lazy("guard:hikingsList")
     success_message = _("Hiking deleted successfully")
@@ -734,6 +801,9 @@ class HikingDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
+    def test_func(self):
+        return self.request.user.is_staff
 
 
 class AdListView(LoginRequiredMixin, ListView):
@@ -877,31 +947,46 @@ class AdDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-class PartnerListView(LoginRequiredMixin, ListView):
+class PartnerListView(UserPassesTestMixin, LoginRequiredMixin, ListView):
     model = Partner
     template_name = "guard/views/partners/list.html"
     context_object_name = "partners"
     paginate_by = 10
     ordering = ["-id"]
 
+    def test_func(self):
+        return self.request.user.is_staff
 
-class PartnerCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+
+class PartnerCreateView(
+    UserPassesTestMixin, LoginRequiredMixin, SuccessMessageMixin, CreateView
+):
     model = Partner
     form_class = PartnerForm
     template_name = "guard/views/partners/index.html"
     success_url = reverse_lazy("guard:partnersList")
     success_message = _("Partner created successfully.")
 
+    def test_func(self):
+        return self.request.user.is_staff
 
-class PartnerUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+
+class PartnerUpdateView(
+    UserPassesTestMixin, LoginRequiredMixin, SuccessMessageMixin, UpdateView
+):
     model = Partner
     form_class = PartnerForm
     template_name = "guard/views/partners/index.html"
     success_url = reverse_lazy("guard:partnersList")
     success_message = _("Partner updated successfully.")
 
+    def test_func(self):
+        return self.request.user.is_staff
 
-class PartnerDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+
+class PartnerDeleteView(
+    UserPassesTestMixin, LoginRequiredMixin, SuccessMessageMixin, DeleteView
+):
     model = Partner
     template_name = "guard/views/partners/delete.html"
     success_url = reverse_lazy("guard:partnersList")
@@ -911,32 +996,50 @@ class PartnerDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
 
+    def test_func(self):
+        return self.request.user.is_staff
 
-class SponsorListView(LoginRequiredMixin, ListView):
+
+class SponsorListView(UserPassesTestMixin, LoginRequiredMixin, ListView):
     model = Sponsor
     template_name = "guard/views/sponsors/list.html"
     context_object_name = "sponsors"
     paginate_by = 10
     ordering = ["-id"]
 
+    def test_func(self):
+        return self.request.user.is_staff
 
-class SponsorCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+
+class SponsorCreateView(
+    UserPassesTestMixin, LoginRequiredMixin, SuccessMessageMixin, CreateView
+):
     model = Sponsor
     form_class = SponsorForm
     template_name = "guard/views/sponsors/index.html"
     success_url = reverse_lazy("guard:sponsorsList")
     success_message = _("Sponsor created successfully.")
 
+    def test_func(self):
+        return self.request.user.is_staff
 
-class SponsorUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+
+class SponsorUpdateView(
+    UserPassesTestMixin, LoginRequiredMixin, SuccessMessageMixin, UpdateView
+):
     model = Sponsor
     form_class = SponsorForm
     template_name = "guard/views/sponsors/index.html"
     success_url = reverse_lazy("guard:sponsorsList")
     success_message = _("Sponsor updated successfully.")
 
+    def test_func(self):
+        return self.request.user.is_staff
 
-class SponsorDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+
+class SponsorDeleteView(
+    UserPassesTestMixin, LoginRequiredMixin, SuccessMessageMixin, DeleteView
+):
     model = Sponsor
     template_name = "guard/views/sponsors/delete.html"
     success_url = reverse_lazy("guard:sponsorsList")
@@ -945,6 +1048,9 @@ class SponsorDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
+    def test_func(self):
+        return self.request.user.is_staff
 
 
 @login_required
