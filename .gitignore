@@ -16,3 +16,15 @@ db.sqlite3
 .DS_Store
 # Environment variables
 .env
+
+# Media
+upload/
+
+# Security keys
+*.pem
+*.key
+*.p12
+*.pfx
+*.cert
+*.crt
+*.jks
