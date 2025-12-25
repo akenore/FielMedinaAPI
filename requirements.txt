@@ -2,6 +2,7 @@ Django==5.2.9
 django-environ
 django-cors-headers
 strawberry-graphql[cli]
+strawberry-graphql-django
 django-tinymce
 django-modeltranslation
 django-filter
