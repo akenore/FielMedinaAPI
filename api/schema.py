@@ -24,7 +24,7 @@ from guard.models import (
 )
 
 from cities_light.models import City
-from shared.models import Page
+from shared.models import Page, UserPreference
 
 
 class PageType(DjangoObjectType):
@@ -409,4 +409,44 @@ class Query(graphene.ObjectType):
         return Sponsor.objects.all()
 
 
-schema = graphene.Schema(query=Query)
+class SyncUserPreference(graphene.Mutation):
+    class Arguments:
+        user_uid = graphene.UUID(required=True)
+        first_visit = graphene.Boolean(required=True)
+        traveling_with = graphene.String(required=True)
+        interests = graphene.List(graphene.String, required=True)
+        updated_at = graphene.DateTime(required=True)
+
+    ok = graphene.Boolean()
+
+    def mutate(self, info, **data):
+        obj, created = UserPreference.objects.get_or_create(
+            user_uid=data["user_uid"], defaults=data
+        )
+
+        # Conflict resolution
+        if not created and data["updated_at"] > obj.updated_at:
+            for field in ["first_visit", "traveling_with", "interests"]:
+                setattr(obj, field, data[field])
+            obj.save()
+
+        return SyncUserPreference(ok=True)
+
+
+class ForgetMe(graphene.Mutation):
+    class Arguments:
+        user_uid = graphene.UUID(required=True)
+
+    ok = graphene.Boolean()
+
+    def mutate(self, info, user_uid):
+        UserPreference.objects.filter(user_uid=user_uid).delete()
+        return ForgetMe(ok=True)
+
+
+class Mutation(graphene.ObjectType):
+    sync_user_preference = SyncUserPreference.Field()
+    forget_me = ForgetMe.Field()
+
+
+schema = graphene.Schema(query=Query, mutation=Mutation)

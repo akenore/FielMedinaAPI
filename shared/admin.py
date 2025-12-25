@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 from modeltranslation.admin import TranslationAdmin
-from .models import Page, UserProfile
+from .models import Page, UserProfile, UserPreference
 
 
 @admin.register(Page)
@@ -35,3 +35,16 @@ class UserProfileAdmin(admin.ModelAdmin):
         obj.user.is_staff = obj.user_type == UserProfile.UserType.STAFF
         obj.user.save(update_fields=["is_staff"])
         super().save_model(request, obj, form, change)
+
+
+@admin.register(UserPreference)
+class UserPreferenceAdmin(admin.ModelAdmin):
+    list_display = (
+        "user_uid",
+        "first_visit",
+        "traveling_with",
+        "interests",
+        "created_at",
+    )
+    list_filter = ("first_visit", "traveling_with")
+    search_fields = ("user_uid", "traveling_with")

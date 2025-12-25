@@ -1,4 +1,5 @@
 import os
+import uuid
 from datetime import timedelta
 from django.contrib.auth import get_user_model
 from io import BytesIO
@@ -218,11 +219,28 @@ def ensure_profile_exists(sender, instance, created, **kwargs):
         profile.save(update_fields=updated_fields)
 
 
-class Package(models.Model):
+class UserPreference(models.Model):
+    user_uid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    first_visit = models.BooleanField(verbose_name=_("First visit"))
+    traveling_with = models.CharField(max_length=20, verbose_name=_("Traveling with"))
+    interests = models.JSONField(verbose_name=_("Interests"))
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        verbose_name = _("User Preference")
+        verbose_name_plural = _("User Preferences")
+
+    def __str__(self):
+        return self.user_uid
+
+
+class Package(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("Name"))
     description = models.TextField(verbose_name=_("Description"))
-    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_("Price"))
+    price = models.DecimalField(
+        max_digits=10, decimal_places=2, verbose_name=_("Price")
+    )
     duration = models.IntegerField(verbose_name=_("Duration"))
     duration_unit = models.CharField(max_length=255, verbose_name=_("Duration Unit"))
     features = models.JSONField(verbose_name=_("Features"))
