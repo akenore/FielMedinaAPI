@@ -134,7 +134,6 @@ ADMIN_LIST_EMAILS = env.list("ADMIN_LIST_EMAILS")
 
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = DEBUG
-    GRAPHQL_GRAPHIQL_ENABLED = True
     ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
     DATABASES = {
@@ -154,7 +153,6 @@ else:
         "https://fielmedina.com",
         "https://www.fielmedina.com",
     ]
-    GRAPHQL_GRAPHIQL_ENABLED = False
     ALLOWED_HOSTS = ["mystory.fielmedina.com"]
     EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
     EMAIL_HOST = env("EMAIL_HOST")
@@ -171,9 +169,6 @@ else:
             "PASSWORD": env("DB_PASSWORD"),
             "HOST": env("DB_HOST"),
             "PORT": env("DB_PORT"),
-            # "OPTIONS": {
-            #     "sslmode": "require",
-            # },
         }
     }
     SECURE_SSL_REDIRECT = True

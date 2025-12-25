@@ -6,6 +6,10 @@ import math
 from django.db.models import Q
 import datetime
 import uuid
+from django.conf import settings
+from graphql.validation import NoSchemaIntrospectionCustomRule
+from strawberry.extensions import AddValidationRules
+
 
 from guard.models import (
     Location,
@@ -697,4 +701,7 @@ class Mutation:
         return SyncUserPreferencePayload(ok=True)
 
 
-schema = strawberry.Schema(query=Query, mutation=Mutation)
+extensions = []
+if not settings.DEBUG:
+    extensions.append(AddValidationRules([NoSchemaIntrospectionCustomRule]))
+schema = strawberry.Schema(query=Query, mutation=Mutation, extensions=extensions)
