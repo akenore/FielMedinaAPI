@@ -1,7 +1,11 @@
-import graphene
+import strawberry
+import strawberry_django
+from strawberry import auto
+from typing import List, Optional
 import math
-from graphene_django import DjangoObjectType
 from django.db.models import Q
+import datetime
+import uuid
 
 from guard.models import (
     Location,
@@ -27,239 +31,415 @@ from cities_light.models import City
 from shared.models import Page, UserPreference
 
 
-class PageType(DjangoObjectType):
-    class Meta:
-        model = Page
-        fields = "__all__"
+@strawberry.type
+class ImageFieldType:
+    @strawberry.field
+    def url(self, root) -> str:
+        return root.url if root else ""
+
+    @strawberry.field
+    def name(self, root) -> str:
+        return root.name if root else ""
+
+    @strawberry.field
+    def path(self, root) -> str:
+        return root.path if root and hasattr(root, "path") else ""
+
+    @strawberry.field
+    def size(self, root) -> int:
+        return root.size if root and hasattr(root, "size") else 0
+
+    @strawberry.field
+    def width(self, root) -> Optional[int]:
+        try:
+            return root.width if root and hasattr(root, "width") else None
+        except Exception:
+            return None
+
+    @strawberry.field
+    def height(self, root) -> Optional[int]:
+        try:
+            return root.height if root and hasattr(root, "height") else None
+        except Exception:
+            return None
 
 
-class WeekdayType(DjangoObjectType):
-    class Meta:
-        model = Weekday
-        fields = "__all__"
+@strawberry_django.type(Page)
+class PageType:
+    id: auto
+    slug: auto
+    slug_en: str
+    slug_fr: str
+    is_active: auto
+    created_at: auto
+    updated_at: auto
+    title: auto
+    title_en: str
+    title_fr: str
+    content: str
+    content_en: str
+    content_fr: str
 
 
-class PartnerType(DjangoObjectType):
-    class Meta:
-        model = Partner
-        fields = "__all__"
+@strawberry_django.type(Weekday)
+class WeekdayType:
+    id: auto
+    day: auto
 
 
-class SponsorType(DjangoObjectType):
-    class Meta:
-        model = Sponsor
-        fields = "__all__"
+@strawberry_django.type(Partner)
+class PartnerType:
+    id: auto
+    name: auto
+    link: auto
+
+    @strawberry.field
+    def image(self, root) -> ImageFieldType:
+        return root.image
 
 
-class ImageLocationType(DjangoObjectType):
-    class Meta:
-        model = ImageLocation
-        fields = "__all__"
+@strawberry_django.type(Sponsor)
+class SponsorType:
+    id: auto
+    name: auto
+    link: auto
+
+    @strawberry.field
+    def image(self, root) -> ImageFieldType:
+        return root.image
 
 
-class LocationCategoryType(DjangoObjectType):
-    class Meta:
-        model = LocationCategory
-        fields = "__all__"
+@strawberry_django.type(ImageLocation)
+class ImageLocationType:
+    id: auto
+    created_at: auto
+
+    @strawberry.field
+    def image(self, root) -> ImageFieldType:
+        return root.image
+
+    @strawberry.field
+    def image_mobile(self, root) -> Optional[ImageFieldType]:
+        return root.image_mobile
 
 
-class LocationType(DjangoObjectType):
-    images = graphene.List(ImageLocationType)
-    open_days = graphene.List(WeekdayType)
-
-    class Meta:
-        model = Location
-        fields = "__all__"
-
-    def resolve_images(self, info):
-        return self.images.all()
-
-    def resolve_open_days(self, info):
-        return self.openDays.all()
+@strawberry_django.type(LocationCategory)
+class LocationCategoryType:
+    id: auto
+    name: auto
+    name_en: str
+    name_fr: str
+    created_at: auto
+    updated_at: auto
 
 
-class ImageHikingType(DjangoObjectType):
-    class Meta:
-        model = ImageHiking
-        fields = "__all__"
+@strawberry_django.type(Location)
+class LocationType:
+    id: auto
+    created_at: auto
+    name: auto
+    name_en: str
+    name_fr: str
+    longitude: auto
+    latitude: auto
+    is_active_ads: auto
+    story: str
+    story_en: str
+    story_fr: str
+    open_from: auto = strawberry_django.field(field_name="openFrom")
+    open_to: auto = strawberry_django.field(field_name="openTo")
+    admission_fee: auto = strawberry_django.field(field_name="admissionFee")
+    city: Optional["CityType"]
+    category: Optional[LocationCategoryType]
+
+    @strawberry.field
+    def images(self, root) -> List[ImageLocationType]:
+        return root.images.all()
+
+    @strawberry.field
+    def open_days(self, root) -> List[WeekdayType]:
+        return root.openDays.all()
 
 
-class HikingType(DjangoObjectType):
-    images = graphene.List(ImageHikingType)
+@strawberry_django.type(ImageHiking)
+class ImageHikingType:
+    id: auto
+    created_at: auto
 
-    class Meta:
-        model = Hiking
-        fields = "__all__"
+    @strawberry.field
+    def image(self, root) -> ImageFieldType:
+        return root.image
 
-    def resolve_images(self, info):
-        return self.images.all()
-
-
-class EventCategoryType(DjangoObjectType):
-    class Meta:
-        model = EventCategory
-        fields = "__all__"
+    @strawberry.field
+    def image_mobile(self, root) -> Optional[ImageFieldType]:
+        return root.image_mobile
 
 
-class ImageEventType(DjangoObjectType):
-    class Meta:
-        model = ImageEvent
-        fields = "__all__"
+@strawberry_django.type(Hiking)
+class HikingType:
+    id: auto
+    created_at: auto
+    updated_at: auto
+    name: auto
+    name_en: str
+    name_fr: str
+    description: auto
+    description_en: str
+    description_fr: str
+    city: Optional["CityType"]
+
+    @strawberry.field
+    def images(self, root) -> List[ImageHikingType]:
+        return root.images.all()
+
+    @strawberry.field
+    def location(self, root) -> List[LocationType]:
+        return root.location.all()
 
 
-class EventType(DjangoObjectType):
-    images = graphene.List(ImageEventType)
-
-    class Meta:
-        model = Event
-        fields = "__all__"
-
-    def resolve_images(self, info):
-        return self.images.all()
-
-
-class ImageAdType(DjangoObjectType):
-    class Meta:
-        model = ImageAd
-        fields = "__all__"
+@strawberry_django.type(EventCategory)
+class EventCategoryType:
+    id: auto
+    name: auto
+    name_en: str
+    name_fr: str
+    created_at: auto
+    updated_at: auto
 
 
-class AdType(DjangoObjectType):
-    images = graphene.List(ImageAdType)
+@strawberry_django.type(ImageEvent)
+class ImageEventType:
+    id: auto
+    created_at: auto
 
-    class Meta:
-        model = Ad
-        fields = "__all__"
+    @strawberry.field
+    def image(self, root) -> ImageFieldType:
+        return root.image
 
-    def resolve_images(self, info):
-        return self.images.all() if hasattr(self, "images") else []
-
-
-class TipType(DjangoObjectType):
-    class Meta:
-        model = Tip
-        fields = "__all__"
+    @strawberry.field
+    def image_mobile(self, root) -> Optional[ImageFieldType]:
+        return root.image_mobile
 
 
-class CityType(DjangoObjectType):
-    class Meta:
-        model = City
-        fields = ("id", "name", "region", "country")
+@strawberry_django.type(Event)
+class EventType:
+    id: auto
+    created_at: auto
+    name: auto
+    name_en: str
+    name_fr: str
+    start_date: auto = strawberry_django.field(field_name="startDate")
+    end_date: auto = strawberry_django.field(field_name="endDate")
+    time: auto
+    price: auto
+    link: auto
+    short_link: auto
+    short_id: auto
+    description: str
+    description_en: str
+    description_fr: str
+    city: Optional["CityType"]
+    category: Optional[EventCategoryType]
+    location: Optional[LocationType]
+
+    @strawberry.field
+    def images(self, root) -> List[ImageEventType]:
+        return root.images.all()
 
 
-class PublicTransportTypeType(DjangoObjectType):
-    class Meta:
-        model = PublicTransportType
-        fields = "__all__"
+@strawberry_django.type(ImageAd)
+class ImageAdType:
+    id: auto
+    created_at: auto
+
+    @strawberry.field
+    def image(self, root) -> ImageFieldType:
+        return root.image
+
+    @strawberry.field
+    def image_mobile(self, root) -> Optional[ImageFieldType]:
+        return root.image_mobile
 
 
-class PublicTransportTimeType(DjangoObjectType):
-    class Meta:
-        model = PublicTransportTime
-        fields = "__all__"
+@strawberry_django.type(Ad)
+class AdType:
+    id: auto
+    created_at: auto
+    updated_at: auto
+    name: auto
+    link: auto
+    short_link: auto
+    short_id: auto
+    clicks: auto
+    is_active: auto
+    city: Optional["CityType"]
+
+    @strawberry.field
+    def image_mobile(self, root) -> Optional[ImageFieldType]:
+        return root.image_mobile
+
+    @strawberry.field
+    def image_tablet(self, root) -> Optional[ImageFieldType]:
+        return root.image_tablet
+
+    @strawberry.field
+    def images(self, root) -> List[ImageAdType]:
+        return root.images.all() if hasattr(root, "images") else []
 
 
-class PublicTransportNodeType(DjangoObjectType):
-    times = graphene.List(PublicTransportTimeType)
+@strawberry_django.type(Tip)
+class TipType:
+    id: auto
+    created_at: auto
+    updated_at: auto
+    description: str
+    description_en: str
+    description_fr: str
+    city: Optional["CityType"]
 
-    class Meta:
-        model = PublicTransport
-        fields = "__all__"
 
-    def resolve_times(self, info):
-        return self.publicTransportTimes.all()
+@strawberry_django.type(City)
+class CityType:
+    id: auto
+    name: auto
+
+    @strawberry.field
+    def name_en(self, root) -> Optional[str]:
+        # root.translations is a dict like {'en': ['Name'], ...}
+        translations = getattr(root, "translations", {})
+        en_names = translations.get("en", [])
+        return en_names[0] if en_names else root.name
+
+    @strawberry.field
+    def name_fr(self, root) -> Optional[str]:
+        translations = getattr(root, "translations", {})
+        fr_names = translations.get("fr", [])
+        return fr_names[0] if fr_names else root.name
+
+    @strawberry.field
+    def name_ar(self, root) -> Optional[str]:
+        translations = getattr(root, "translations", {})
+        ar_names = translations.get("ar", [])
+        return ar_names[0] if ar_names else root.name
+
+    @strawberry.field
+    def region(self, root) -> Optional[str]:
+        return root.region.name if hasattr(root, "region") and root.region else None
+
+    @strawberry.field
+    def region_en(self, root) -> Optional[str]:
+        if not hasattr(root, "region") or not root.region:
+            return None
+        translations = getattr(root.region, "translations", {})
+        en_names = translations.get("en", [])
+        return en_names[0] if en_names else root.region.name
+
+    @strawberry.field
+    def region_fr(self, root) -> Optional[str]:
+        if not hasattr(root, "region") or not root.region:
+            return None
+        translations = getattr(root.region, "translations", {})
+        fr_names = translations.get("fr", [])
+        return fr_names[0] if fr_names else root.region.name
+
+    @strawberry.field
+    def region_ar(self, root) -> Optional[str]:
+        if not hasattr(root, "region") or not root.region:
+            return None
+        translations = getattr(root.region, "translations", {})
+        ar_names = translations.get("ar", [])
+        return ar_names[0] if ar_names else root.region.name
+
+    @strawberry.field
+    def country(self, root) -> Optional[str]:
+        return root.country.name if hasattr(root, "country") and root.country else None
+
+    @strawberry.field
+    def country_en(self, root) -> Optional[str]:
+        if not hasattr(root, "country") or not root.country:
+            return None
+        translations = getattr(root.country, "translations", {})
+        en_names = translations.get("en", [])
+        return en_names[0] if en_names else root.country.name
+
+    @strawberry.field
+    def country_fr(self, root) -> Optional[str]:
+        if not hasattr(root, "country") or not root.country:
+            return None
+        translations = getattr(root.country, "translations", {})
+        fr_names = translations.get("fr", [])
+        return fr_names[0] if fr_names else root.country.name
+
+    @strawberry.field
+    def country_ar(self, root) -> Optional[str]:
+        if not hasattr(root, "country") or not root.country:
+            return None
+        translations = getattr(root.country, "translations", {})
+        ar_names = translations.get("ar", [])
+        return ar_names[0] if ar_names else root.country.name
 
 
-class Query(graphene.ObjectType):
-    # Pages
-    pages = graphene.List(
-        lambda: PageType,
-        is_active=graphene.Boolean(required=False),
-    )
-    page = graphene.Field(lambda: PageType, slug=graphene.String(required=True))
-    # Locations
-    locations = graphene.List(
-        LocationType,
-        city_id=graphene.Int(required=False),
-        category_id=graphene.Int(required=False),
-    )
-    location = graphene.Field(LocationType, id=graphene.ID(required=True))
-    location_categories = graphene.List(LocationCategoryType)
+@strawberry_django.type(PublicTransportType)
+class PublicTransportTypeType:
+    id: auto
+    name: auto
+    name_en: str
+    name_fr: str
 
-    # Hiking
-    hikings = graphene.List(
-        HikingType,
-        city_id=graphene.Int(required=False),
-    )
-    hiking = graphene.Field(HikingType, id=graphene.ID(required=True))
 
-    # Events
-    events = graphene.List(
-        EventType,
-        city_id=graphene.Int(required=False),
-        category_id=graphene.Int(required=False),
-    )
-    event = graphene.Field(EventType, id=graphene.ID(required=True))
-    event_categories = graphene.List(EventCategoryType)
+@strawberry_django.type(PublicTransportTime)
+class PublicTransportTimeType:
+    id: auto
+    created_at: auto
+    updated_at: auto
+    time: auto
 
-    # Ads
-    ads = graphene.List(
-        AdType,
-        city_id=graphene.Int(required=False),
-        is_active=graphene.Boolean(required=False),
-    )
-    ad = graphene.Field(AdType, id=graphene.ID(required=True))
 
-    # Tips (list only, no detail view)
-    tips = graphene.List(
-        TipType,
-        city_id=graphene.Int(required=False),
-    )
+@strawberry_django.type(PublicTransport)
+class PublicTransportNodeType:
+    id: auto
+    created_at: auto
+    updated_at: auto
+    city: Optional[CityType]
 
-    # Public transport
-    public_transports = graphene.List(
-        PublicTransportNodeType,
-        city_id=graphene.Int(required=False),
-        type_id=graphene.Int(required=False),
-        from_region_id=graphene.Int(required=False),
-        to_region_id=graphene.Int(required=False),
-    )
-    public_transport = graphene.Field(
-        PublicTransportNodeType,
-        id=graphene.ID(required=True),
-    )
-    public_transport_types = graphene.List(PublicTransportTypeType)
-    nearest_city = graphene.Field(
-        CityType,
-        lat=graphene.Float(required=True),
-        lon=graphene.Float(required=True),
-        max_distance_km=graphene.Float(
-            required=False, description="Optional max radius in km"
-        ),
-    )
+    @strawberry.field
+    def public_transport_type(self, root) -> Optional[PublicTransportTypeType]:
+        return root.publicTransportType
 
-    # Partners
-    partners = graphene.List(PartnerType)
-    sponsor = graphene.Field(SponsorType, id=graphene.ID(required=True))
+    @strawberry.field
+    def from_region(self, root) -> Optional[str]:
+        return root.fromRegion.name if root.fromRegion else None
 
-    # Sponsors
-    sponsors = graphene.List(SponsorType)
+    @strawberry.field
+    def to_region(self, root) -> Optional[str]:
+        return root.toRegion.name if root.toRegion else None
 
-    def resolve_pages(self, info, is_active=None):
+    @strawberry.field
+    def times(self, root) -> List[PublicTransportTimeType]:
+        return root.publicTransportTimes.all()
+
+
+@strawberry.type
+class Query:
+    @strawberry.field
+    def pages(self, is_active: Optional[bool] = None) -> List[PageType]:
         qs = Page.objects.all()
         if is_active is not None:
             qs = qs.filter(is_active=is_active)
         return qs
 
-    def resolve_page(self, info, slug):
+    @strawberry.field
+    def page(self, slug: str) -> Optional[PageType]:
         return (
             Page.objects.filter(Q(slug_en=slug) | Q(slug_fr=slug))
             .filter(is_active=True)
             .first()
         )
-        # return Page.objects.filter(slug=slug).first()
 
-    def resolve_locations(self, info, city_id=None, category_id=None):
+    @strawberry.field
+    def locations(
+        self, city_id: Optional[int] = None, category_id: Optional[int] = None
+    ) -> List[LocationType]:
         qs = Location.objects.select_related(
             "city", "country", "category"
         ).prefetch_related("images")
@@ -269,13 +449,16 @@ class Query(graphene.ObjectType):
             qs = qs.filter(category_id=category_id)
         return qs
 
-    def resolve_location(self, info, id):
+    @strawberry.field
+    def location(self, id: strawberry.ID) -> Optional[LocationType]:
         return Location.objects.prefetch_related("images").filter(pk=id).first()
 
-    def resolve_location_categories(self, info):
+    @strawberry.field
+    def location_categories(self) -> List[LocationCategoryType]:
         return LocationCategory.objects.all()
 
-    def resolve_hikings(self, info, city_id=None):
+    @strawberry.field
+    def hikings(self, city_id: Optional[int] = None) -> List[HikingType]:
         qs = Hiking.objects.select_related("city").prefetch_related(
             "images", "location"
         )
@@ -283,12 +466,16 @@ class Query(graphene.ObjectType):
             qs = qs.filter(city_id=city_id)
         return qs
 
-    def resolve_hiking(self, info, id):
+    @strawberry.field
+    def hiking(self, id: strawberry.ID) -> Optional[HikingType]:
         return (
             Hiking.objects.prefetch_related("images", "location").filter(pk=id).first()
         )
 
-    def resolve_events(self, info, city_id=None, category_id=None):
+    @strawberry.field
+    def events(
+        self, city_id: Optional[int] = None, category_id: Optional[int] = None
+    ) -> List[EventType]:
         qs = Event.objects.select_related(
             "city", "category", "client", "location"
         ).prefetch_related("images")
@@ -298,17 +485,22 @@ class Query(graphene.ObjectType):
             qs = qs.filter(category_id=category_id)
         return qs
 
-    def resolve_event(self, info, id):
+    @strawberry.field
+    def event(self, id: strawberry.ID) -> Optional[EventType]:
         return (
             Event.objects.prefetch_related("images", "location", "category")
             .filter(pk=id)
             .first()
         )
 
-    def resolve_event_categories(self, info):
+    @strawberry.field
+    def event_categories(self) -> List[EventCategoryType]:
         return EventCategory.objects.all()
 
-    def resolve_ads(self, info, city_id=None, is_active=None):
+    @strawberry.field
+    def ads(
+        self, city_id: Optional[int] = None, is_active: Optional[bool] = None
+    ) -> List[AdType]:
         qs = Ad.objects.select_related("city", "client")
         if city_id is not None:
             qs = qs.filter(city_id=city_id)
@@ -316,23 +508,25 @@ class Query(graphene.ObjectType):
             qs = qs.filter(is_active=is_active)
         return qs
 
-    def resolve_ad(self, info, id):
+    @strawberry.field
+    def ad(self, id: strawberry.ID) -> Optional[AdType]:
         return Ad.objects.filter(pk=id).first()
 
-    def resolve_tips(self, info, city_id=None):
+    @strawberry.field
+    def tips(self, city_id: Optional[int] = None) -> List[TipType]:
         qs = Tip.objects.select_related("city")
         if city_id is not None:
             qs = qs.filter(city_id=city_id)
         return qs
 
-    def resolve_public_transports(
+    @strawberry.field
+    def public_transports(
         self,
-        info,
-        city_id=None,
-        type_id=None,
-        from_region_id=None,
-        to_region_id=None,
-    ):
+        city_id: Optional[int] = None,
+        type_id: Optional[int] = None,
+        from_region_id: Optional[int] = None,
+        to_region_id: Optional[int] = None,
+    ) -> List[PublicTransportNodeType]:
         qs = PublicTransport.objects.select_related(
             "city", "publicTransportType", "fromRegion", "toRegion"
         ).prefetch_related("publicTransportTimes")
@@ -346,7 +540,8 @@ class Query(graphene.ObjectType):
             qs = qs.filter(toRegion_id=to_region_id)
         return qs
 
-    def resolve_public_transport(self, info, id):
+    @strawberry.field
+    def public_transport(self, id: strawberry.ID) -> Optional[PublicTransportNodeType]:
         return (
             PublicTransport.objects.select_related(
                 "city", "publicTransportType", "fromRegion", "toRegion"
@@ -356,15 +551,14 @@ class Query(graphene.ObjectType):
             .first()
         )
 
-    def resolve_public_transport_types(self, info):
+    @strawberry.field
+    def public_transport_types(self) -> List[PublicTransportTypeType]:
         return PublicTransportType.objects.all()
 
-    def resolve_nearest_city(self, info, lat, lon, max_distance_km=None):
-        """
-        Return the closest city to the given coordinate.
-        Optionally filter out cities farther than max_distance_km.
-        """
-
+    @strawberry.field
+    def nearest_city(
+        self, lat: float, lon: float, max_distance_km: Optional[float] = None
+    ) -> Optional[CityType]:
         def haversine(lat1, lon1, lat2, lon2):
             R = 6371  # Earth radius in km
             phi1 = math.radians(lat1)
@@ -402,51 +596,57 @@ class Query(graphene.ObjectType):
 
         return City.objects.filter(pk=nearest).first()
 
-    def resolve_partners(self, info):
+    @strawberry.field
+    def partners(self) -> List[PartnerType]:
         return Partner.objects.all()
 
-    def resolve_sponsors(self, info):
+    @strawberry.field
+    def sponsor(self, id: strawberry.ID) -> Optional[SponsorType]:
+        return Sponsor.objects.filter(pk=id).first()
+
+    @strawberry.field
+    def sponsors(self) -> List[SponsorType]:
         return Sponsor.objects.all()
 
 
-class SyncUserPreference(graphene.Mutation):
-    class Arguments:
-        user_uid = graphene.UUID(required=True)
-        first_visit = graphene.Boolean(required=True)
-        traveling_with = graphene.String(required=True)
-        interests = graphene.List(graphene.String, required=True)
-        updated_at = graphene.DateTime(required=True)
+@strawberry.type
+class SyncUserPreferencePayload:
+    ok: bool
 
-    ok = graphene.Boolean()
 
-    def mutate(self, info, **data):
+@strawberry.type
+class Mutation:
+    @strawberry.mutation
+    def sync_user_preference(
+        self,
+        user_uid: uuid.UUID,
+        first_visit: bool,
+        traveling_with: str,
+        interests: List[str],
+        updated_at: datetime.datetime,
+    ) -> SyncUserPreferencePayload:
         obj, created = UserPreference.objects.get_or_create(
-            user_uid=data["user_uid"], defaults=data
+            user_uid=user_uid,
+            defaults={
+                "first_visit": first_visit,
+                "traveling_with": traveling_with,
+                "interests": interests,
+                "updated_at": updated_at,
+            },
         )
 
-        # Conflict resolution
-        if not created and data["updated_at"] > obj.updated_at:
-            for field in ["first_visit", "traveling_with", "interests"]:
-                setattr(obj, field, data[field])
+        if not created and updated_at > obj.updated_at:
+            obj.first_visit = first_visit
+            obj.traveling_with = traveling_with
+            obj.interests = interests
             obj.save()
 
-        return SyncUserPreference(ok=True)
+        return SyncUserPreferencePayload(ok=True)
 
-
-class ForgetMe(graphene.Mutation):
-    class Arguments:
-        user_uid = graphene.UUID(required=True)
-
-    ok = graphene.Boolean()
-
-    def mutate(self, info, user_uid):
+    @strawberry.mutation
+    def forget_me(self, user_uid: uuid.UUID) -> SyncUserPreferencePayload:
         UserPreference.objects.filter(user_uid=user_uid).delete()
-        return ForgetMe(ok=True)
+        return SyncUserPreferencePayload(ok=True)
 
 
-class Mutation(graphene.ObjectType):
-    sync_user_preference = SyncUserPreference.Field()
-    forget_me = ForgetMe.Field()
-
-
-schema = graphene.Schema(query=Query, mutation=Mutation)
+schema = strawberry.Schema(query=Query, mutation=Mutation)

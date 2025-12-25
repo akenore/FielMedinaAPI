@@ -20,7 +20,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "corsheaders",
-    "graphene_django",
+    "strawberry.django",
     "tinymce",
     "api",
     "guard",
@@ -95,9 +95,6 @@ MEDIA_URL = "upload/"
 MEDIA_ROOT = BASE_DIR / "upload"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-
-GRAPHENE = {"SCHEMA": "api.schema.schema"}
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_PREFLIGHT_MAX_AGE = 86400
