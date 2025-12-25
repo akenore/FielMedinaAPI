@@ -1,5 +1,18 @@
-.env
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Node
 node_modules
+
+# Database
 db.sqlite3
+
+# Logs
 *.log
+
+# macOS
 .DS_Store
+# Environment variables
+.env
