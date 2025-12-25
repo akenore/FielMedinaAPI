@@ -411,8 +411,56 @@ class PublicTransportNodeType:
         return root.fromRegion.name if root.fromRegion else None
 
     @strawberry.field
+    def from_region_en(self, root) -> Optional[str]:
+        if not root.fromRegion:
+            return None
+        translations = getattr(root.fromRegion, "translations", {})
+        names = translations.get("en", [])
+        return names[0] if names else root.fromRegion.name
+
+    @strawberry.field
+    def from_region_fr(self, root) -> Optional[str]:
+        if not root.fromRegion:
+            return None
+        translations = getattr(root.fromRegion, "translations", {})
+        names = translations.get("fr", [])
+        return names[0] if names else root.fromRegion.name
+
+    @strawberry.field
+    def from_region_ar(self, root) -> Optional[str]:
+        if not root.fromRegion:
+            return None
+        translations = getattr(root.fromRegion, "translations", {})
+        names = translations.get("ar", [])
+        return names[0] if names else root.fromRegion.name
+
+    @strawberry.field
     def to_region(self, root) -> Optional[str]:
         return root.toRegion.name if root.toRegion else None
+
+    @strawberry.field
+    def to_region_en(self, root) -> Optional[str]:
+        if not root.toRegion:
+            return None
+        translations = getattr(root.toRegion, "translations", {})
+        names = translations.get("en", [])
+        return names[0] if names else root.toRegion.name
+
+    @strawberry.field
+    def to_region_fr(self, root) -> Optional[str]:
+        if not root.toRegion:
+            return None
+        translations = getattr(root.toRegion, "translations", {})
+        names = translations.get("fr", [])
+        return names[0] if names else root.toRegion.name
+
+    @strawberry.field
+    def to_region_ar(self, root) -> Optional[str]:
+        if not root.toRegion:
+            return None
+        translations = getattr(root.toRegion, "translations", {})
+        names = translations.get("ar", [])
+        return names[0] if names else root.toRegion.name
 
     @strawberry.field
     def times(self, root) -> List[PublicTransportTimeType]:
