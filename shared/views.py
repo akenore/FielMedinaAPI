@@ -168,7 +168,7 @@ class PageListView(UserPassesTestMixin, LoginRequiredMixin, ListView):
     model = Page
     template_name = "guard/views/pages/list.html"
     context_object_name = "pages"
-    paginate_by = 10
+    # paginate_by = 10
     ordering = ["slug"]
 
     def test_func(self):

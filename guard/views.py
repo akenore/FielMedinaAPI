@@ -101,7 +101,7 @@ class LocationsListView(UserPassesTestMixin, LoginRequiredMixin, ListView):
     model = Location
     template_name = "guard/views/locations/list.html"
     context_object_name = "locations"
-    paginate_by = 10
+    # paginate_by = 10
     ordering = ["-created_at"]
 
     def get_context_data(self, **kwargs):
@@ -232,7 +232,7 @@ class SubscribersListView(UserPassesTestMixin, LoginRequiredMixin, ListView):
     model = UserProfile
     template_name = "guard/views/subscribers/list.html"
     context_object_name = "subscribers"
-    paginate_by = 10
+    # paginate_by = 10
     ordering = ["-created_at"]
 
     def test_func(self):
@@ -243,7 +243,7 @@ class PublicTransportListView(UserPassesTestMixin, LoginRequiredMixin, ListView)
     model = PublicTransport
     template_name = "guard/views/publicTransports/list.html"
     context_object_name = "transports"
-    paginate_by = 10
+    # paginate_by = 10
     ordering = ["-created_at"]
 
     def get_context_data(self, **kwargs):
@@ -415,7 +415,7 @@ class EventListView(LoginRequiredMixin, ListView):
     model = Event
     template_name = "guard/views/events/list.html"
     context_object_name = "events"
-    paginate_by = 10
+    # paginate_by = 10
     ordering = ["-created_at"]
 
     def get_queryset(self):
@@ -612,7 +612,7 @@ class TipsListView(UserPassesTestMixin, LoginRequiredMixin, ListView):
     model = Tip
     template_name = "guard/views/tips/list.html"
     context_object_name = "tips"
-    paginate_by = 10
+    # paginate_by = 10
     ordering = ["-created_at"]
 
     def test_func(self):
@@ -676,7 +676,7 @@ class HikingListView(UserPassesTestMixin, LoginRequiredMixin, ListView):
     model = Hiking
     template_name = "guard/views/hiking/list.html"
     context_object_name = "hikings"
-    paginate_by = 10
+    # paginate_by = 10
     ordering = ["-created_at"]
 
     def test_func(self):
@@ -810,7 +810,7 @@ class AdListView(LoginRequiredMixin, ListView):
     model = Ad
     template_name = "guard/views/ads/list.html"
     context_object_name = "ads"
-    paginate_by = 10
+    # paginate_by = 10
     ordering = ["-created_at"]
 
     def get_queryset(self):
@@ -951,7 +951,7 @@ class PartnerListView(UserPassesTestMixin, LoginRequiredMixin, ListView):
     model = Partner
     template_name = "guard/views/partners/list.html"
     context_object_name = "partners"
-    paginate_by = 10
+    # paginate_by = 10
     ordering = ["-id"]
 
     def test_func(self):
@@ -1004,7 +1004,7 @@ class SponsorListView(UserPassesTestMixin, LoginRequiredMixin, ListView):
     model = Sponsor
     template_name = "guard/views/sponsors/list.html"
     context_object_name = "sponsors"
-    paginate_by = 10
+    # paginate_by = 10
     ordering = ["-id"]
 
     def test_func(self):
