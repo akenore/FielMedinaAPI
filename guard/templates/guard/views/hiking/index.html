@@ -541,6 +541,99 @@
 
     // AI Translation Function
     {% include 'shared/js/translation_utils.html' %}
+    
+    // --- City -> Location Filtering Logic ---
+    const citySelect = document.getElementById('{{ form.city.id_for_label }}');
+    const locationFormset = document.getElementById('location-formset');
+
+    if (citySelect) {
+        citySelect.addEventListener('change', async function() {
+            const cityId = this.value;
+            await updateAllLocationDropdowns(cityId);
+        });
+    }
+
+    // Function to fetch locations and update all dropdowns
+    async function updateAllLocationDropdowns(cityId) {
+        let locations = [];
+        if (cityId) {
+            try {
+                const response = await fetch(`/api/locations/${cityId}/`);
+                const data = await response.json();
+                if (data.success) {
+                    locations = data.locations;
+                }
+            } catch (error) {
+                console.error('Error fetching locations:', error);
+            }
+        }
+
+        // Update existing dropdowns
+        const selects = locationFormset.querySelectorAll('select[name$="-location"]');
+        selects.forEach(select => {
+            const currentValue = select.value;
+            populateSelect(select, locations, currentValue);
+        });
+        
+        // Store locations globally or in a data attribute for new rows
+        locationFormset.dataset.currentCityLocations = JSON.stringify(locations);
+    }
+
+    function populateSelect(select, locations, selectedValue) {
+        // Clear options
+        select.innerHTML = '<option value="">---------</option>';
+        
+        locations.forEach(loc => {
+            const option = document.createElement('option');
+            option.value = loc.id;
+            // Use english name or french depending on preference/locale 
+            const name = loc.name_en || loc.name_fr; 
+            option.textContent = name;
+            
+            if (String(loc.id) === String(selectedValue)) {
+                option.selected = true;
+            }
+            select.appendChild(option);
+        });
+    }
+    
+    // Override the Add Location logic to trigger population after add
+    // We attach this to the button container to capture the click *after* the original handler
+    // Or we simply modify the existing handler. Modifying existing handler is safer.
+    
+    /* 
+       Ideally, we would modify line 523 (Reset values) to also populate options.
+       But since I cannot edit inside the function easily without replacing the whole block, 
+       I will use a MutationObserver on the formset container to detect new rows.
+    */
+    
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+             if (mutation.addedNodes.length) {
+                 const newRow = mutation.addedNodes[0];
+                 if (newRow.classList && newRow.classList.contains('location-form-row')) {
+                     const select = newRow.querySelector('select[name$="-location"]');
+                     const locationsData = locationFormset.dataset.currentCityLocations;
+                     
+                     if (locationsData) {
+                         const locations = JSON.parse(locationsData);
+                         // We don't have a value for a new row
+                         populateSelect(select, locations, null);
+                     } else if (citySelect.value) {
+                          // Fallback
+                          updateAllLocationDropdowns(citySelect.value);
+                     } else {
+                          populateSelect(select, [], null);
+                     }
+                 }
+             }
+        });
+    });
+    
+    if (locationFormset) {
+        observer.observe(locationFormset, { childList: true });
+    }
+
 
 </script>
 {% endblock extrascript %}

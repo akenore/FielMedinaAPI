@@ -1088,3 +1088,17 @@ def get_subregions_by_city(request, city_id):
         return JsonResponse({"success": True, "subregions": subregions_list})
     except City.DoesNotExist:
         return JsonResponse({"success": False, "error": "City not found"}, status=404)
+
+
+@login_required
+def get_locations_by_city(request, city_id):
+    try:
+        locations = Location.objects.filter(city_id=city_id).values(
+            "id", "name_en", "name_fr"
+        )
+        locations_list = list(locations)
+        return JsonResponse({"success": True, "locations": locations_list})
+    except Exception:
+        return JsonResponse(
+            {"success": False, "error": "Error fetching locations"}, status=500
+        )

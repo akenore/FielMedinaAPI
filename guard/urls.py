@@ -39,6 +39,7 @@ from .views import (
     SponsorDeleteView,
     get_cities_by_country,
     get_subregions_by_city,
+    get_locations_by_city,
 )
 
 app_name = "guard"
@@ -180,5 +181,10 @@ urlpatterns = [
         "api/subregions/<int:city_id>/",
         get_subregions_by_city,
         name="get_subregions_by_city",
+    ),
+    path(
+        "api/locations/<int:city_id>/",
+        get_locations_by_city,
+        name="get_locations_by_city",
     ),
 ]
