@@ -46,6 +46,11 @@
                   </th>
                   <th>
                      <span class="flex items-center">
+                        {% trans "Bus Number" %}
+                     </span>
+                  </th>
+                  <th>
+                     <span class="flex items-center">
                         {% trans "Departure Times" %}
                      </span>
                   </th>
@@ -63,6 +68,11 @@
                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                         </svg>
                         <span class="text-gray-600 dark:text-gray-400">{{ data.toRegion.name|default:"?" }}</span>
+                     </td>
+                     <td>
+                        <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-sm font-semibold">
+                           {{ data.busNumber|default:"-" }}
+                        </span>
                      </td>
                      <td>
                         <div class="flex flex-wrap gap-1">

@@ -814,7 +814,7 @@ class SponsorForm(FlowbiteFormMixin, forms.ModelForm):
 class PublicTransportForm(FlowbiteFormMixin, forms.ModelForm):
     class Meta:
         model = PublicTransport
-        fields = ("publicTransportType", "city", "fromRegion", "toRegion")
+        fields = ("publicTransportType", "city", "fromRegion", "toRegion", "busNumber")
         widgets = {
             "publicTransportType": forms.Select(
                 attrs={
@@ -836,6 +836,11 @@ class PublicTransportForm(FlowbiteFormMixin, forms.ModelForm):
             "toRegion": forms.Select(
                 attrs={
                     "placeholder": _("Select arrival region"),
+                }
+            ),
+            "busNumber": forms.TextInput(
+                attrs={
+                    "placeholder": _("e.g., Line 32 or Bus 105"),
                 }
             ),
         }

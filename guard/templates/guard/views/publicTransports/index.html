@@ -96,6 +96,17 @@
                         <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.city.errors.0 }}</p>
                     {% endif %}
                 </div>
+
+                <div class="sm:col-span-2">
+                    <label for="{{ form.busNumber.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        {{ form.busNumber.label }}
+                        {% if form.busNumber.field.required %}<span class="text-red-600">*</span>{% endif %}
+                    </label>
+                    {{ form.busNumber }}
+                    {% if form.busNumber.errors %}
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.busNumber.errors.0 }}</p>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>

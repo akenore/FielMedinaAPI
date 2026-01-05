@@ -405,6 +405,7 @@ class PublicTransportNodeType:
     created_at: auto
     updated_at: auto
     city: Optional[CityType]
+    bus_number: auto = strawberry_django.field(field_name="busNumber")
 
     @strawberry.field
     def public_transport_type(self, root) -> Optional[PublicTransportTypeType]:

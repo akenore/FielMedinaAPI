@@ -440,6 +440,7 @@ class PublicTransport(models.Model):
         related_name="publicTransportsToRegion",
         verbose_name=_("To region"),
     )
+    busNumber = models.CharField(max_length=255, verbose_name=_("Bus number"))
 
     class Meta:
         verbose_name = _("Public Transport")
