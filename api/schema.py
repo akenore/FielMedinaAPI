@@ -516,7 +516,7 @@ class Query:
     @strawberry.field
     def hikings(self, city_id: Optional[int] = None) -> List[HikingType]:
         qs = Hiking.objects.select_related("city").prefetch_related(
-            "images", "location"
+            "images", "locations"
         )
         if city_id is not None:
             qs = qs.filter(city_id=city_id)
@@ -525,7 +525,7 @@ class Query:
     @strawberry.field
     def hiking(self, id: strawberry.ID) -> Optional[HikingType]:
         return (
-            Hiking.objects.prefetch_related("images", "location").filter(pk=id).first()
+            Hiking.objects.prefetch_related("images", "locations").filter(pk=id).first()
         )
 
     @strawberry.field
