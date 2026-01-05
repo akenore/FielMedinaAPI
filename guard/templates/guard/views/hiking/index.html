@@ -263,14 +263,90 @@
                         <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.city.errors.0 }}</p>
                     {% endif %}
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Route Locations Section -->
+    <div class="bg-white dark:bg-gray-800 shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="border-b border-gray-200 dark:border-gray-700 pb-4 mb-6">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    {% trans "Route Locations (Ordered)" %}
+                </h2>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{% trans "Add locations in the order they appear on the route." %}</p>
+            </div>
+
+            {{ location_formset.management_form }}
+            <div id="location-formset" class="space-y-4">
+                {% for form in location_formset %}
+                <div class="location-form-row p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-700/50">
+                    {{ form.id }}
+                    {{ form.order }}
+                    <div class="flex items-center gap-4">
+                        <div class="flex-grow">
+                            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                                {% trans "Location" %} {{ forloop.counter }}
+                            </label>
+                            {{ form.location }}
+                            {% if form.location.errors %}
+                                <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.location.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="flex-shrink-0 pt-6">
+                            {% if location_formset.can_delete %}
+                                <div class="flex items-center">
+                                    {{ form.DELETE }}
+                                    <label for="{{ form.DELETE.id_for_label }}" class="ml-2 text-sm font-medium text-red-600 dark:text-red-400 cursor-pointer">
+                                        {% trans "Remove" %}
+                                    </label>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <button type="button" id="add-location-button" class="mt-4 text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                {% trans "Add Next Location" %}
+            </button>
+        </div>
+    </div>
+
+
+    <div class="bg-white dark:bg-gray-800 shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl mt-6">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="border-b border-gray-200 dark:border-gray-700 pb-4 mb-6">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{% trans "Geolocation" %}</h2>
+                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{% trans "Set the terminus point coordinates" %}</p>
+            </div>
+            
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div>
-                    <label for="{{ form.location.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                        {{ form.location.label }}
-                        {% if form.location.field.required %}<span class="text-red-600">*</span>{% endif %}
+                    <label for="{{ form.latitude.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        {{ form.latitude.label }}
                     </label>
-                    {{ form.location }}
-                    {% if form.location.errors %}
-                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.location.errors.0 }}</p>
+                    {{ form.latitude }}
+                    {% if form.latitude.errors %}
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.latitude.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <label for="{{ form.longitude.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        {{ form.longitude.label }}
+                    </label>
+                    {{ form.longitude }}
+                    {% if form.longitude.errors %}
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.longitude.errors.0 }}</p>
                     {% endif %}
                 </div>
             </div>
@@ -406,6 +482,56 @@
         const deleteSection = newForm.querySelector('.flex-shrink-0:has(label)');
         if (deleteSection) deleteSection.remove();
         
+        // Append to formset
+        formset.appendChild(newForm);
+        
+        // Update total forms count
+        totalForms.value = formCount + 1;
+    });
+
+    // Handle dynamic location formset
+    document.getElementById('add-location-button')?.addEventListener('click', function() {
+        const formset = document.getElementById('location-formset');
+        const totalForms = document.querySelector('#id_hikinglocation_set-TOTAL_FORMS');
+        const formCount = parseInt(totalForms.value);
+        
+        const forms = formset.querySelectorAll('.location-form-row');
+        const templateForm = forms[forms.length - 1]; 
+        
+        if (!templateForm) return; 
+        
+        const newForm = templateForm.cloneNode(true);
+        
+        // Update form index
+        const formRegex = new RegExp(`hikinglocation_set-(\\d+)-`, 'g');
+        newForm.innerHTML = newForm.innerHTML.replace(formRegex, `hikinglocation_set-${formCount}-`);
+        
+        // Update label numbering
+        const label = newForm.querySelector('label');
+        if (label) {
+             const text = label.textContent.trim();
+             const match = text.match(/\d+$/);
+             if (match) {
+                 label.textContent = text.replace(/\d+$/, formCount + 1);
+             } else {
+                 label.textContent = label.textContent + " " + (formCount + 1);
+             }
+        }
+
+        // Reset values
+        const selects = newForm.querySelectorAll('select');
+        selects.forEach(select => select.value = '');
+        
+        // Set order
+        const orderInput = newForm.querySelector(`input[name$="-order"]`);
+        if (orderInput) {
+            orderInput.value = formCount;
+        }
+        
+        // Uncheck delete if present
+        const checkbox = newForm.querySelector('input[type="checkbox"]');
+        if (checkbox) checkbox.checked = false;
+
         // Append to formset
         formset.appendChild(newForm);
         

@@ -64,8 +64,10 @@ Guided or solo trail walks.
 | `descriptionEn` | `String!` | Description (English) |
 | `descriptionFr` | `String!` | Description (French) |
 | `city` | `CityType` | Associated city |
-| `location` | `[LocationType!]!` | Points of interest along the trail |
+| `locations` | `[LocationType!]!` | Ordered points of interest along the trail |
 | `images` | `[ImageHikingType!]!` | List of trail images |
+| `latitude` | `Decimal` | Terminus Latitude |
+| `longitude` | `Decimal` | Terminus Longitude |
 
 ---
 

@@ -28,6 +28,7 @@ from .forms import (
     ImageEventFormSet,
     TipForm,
     HikingForm,
+    HikingLocationFormSet,
     ImageHikingFormSet,
     AdForm,
     PublicTransportForm,
@@ -698,15 +699,18 @@ class HikingCreateView(
             context["image_formset"] = ImageHikingFormSet(
                 self.request.POST, self.request.FILES
             )
+            context["location_formset"] = HikingLocationFormSet(self.request.POST)
         else:
             context["image_formset"] = ImageHikingFormSet()
+            context["location_formset"] = HikingLocationFormSet()
         return context
 
     def form_valid(self, form):
         context = self.get_context_data()
         image_formset = context["image_formset"]
+        location_formset = context["location_formset"]
 
-        if image_formset.is_valid():
+        if image_formset.is_valid() and location_formset.is_valid():
             has_image = any(
                 formset_form.cleaned_data.get("image")
                 and not formset_form.cleaned_data.get("DELETE", False)
@@ -721,6 +725,8 @@ class HikingCreateView(
             self.object = form.save()
             image_formset.instance = self.object
             image_formset.save()
+            location_formset.instance = self.object
+            location_formset.save()
             return super().form_valid(form)
         else:
             return self.form_invalid(form)
@@ -748,15 +754,20 @@ class HikingUpdateView(
             context["image_formset"] = ImageHikingFormSet(
                 self.request.POST, self.request.FILES, instance=self.object
             )
+            context["location_formset"] = HikingLocationFormSet(
+                self.request.POST, instance=self.object
+            )
         else:
             context["image_formset"] = ImageHikingFormSet(instance=self.object)
+            context["location_formset"] = HikingLocationFormSet(instance=self.object)
         return context
 
     def form_valid(self, form):
         context = self.get_context_data()
         image_formset = context["image_formset"]
+        location_formset = context["location_formset"]
 
-        if image_formset.is_valid():
+        if image_formset.is_valid() and location_formset.is_valid():
             existing_images = sum(
                 1
                 for formset_form in image_formset
@@ -779,6 +790,8 @@ class HikingUpdateView(
             self.object = form.save()
             image_formset.instance = self.object
             image_formset.save()
+            location_formset.instance = self.object
+            location_formset.save()
             return super().form_valid(form)
         else:
             return self.form_invalid(form)

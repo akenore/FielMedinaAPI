@@ -11,6 +11,7 @@ from .models import (
     Hiking,
     ImageHiking,
     Ad,
+    HikingLocation,
     PublicTransport,
     PublicTransportTime,
     PublicTransportType,
@@ -116,6 +117,11 @@ class TipAdmin(TranslationAdmin):
     search_fields = ["city__name"]
 
 
+class HikingLocationInline(admin.TabularInline):
+    model = HikingLocation
+    extra = 1
+
+
 class ImageHikingInline(admin.TabularInline):
     model = ImageHiking
     extra = 1
@@ -127,17 +133,21 @@ class HikingAdmin(TranslationAdmin):
         "city",
         "name",
     ]
-    list_filter = ["city", "name", "location"]
+    list_filter = ["city", "name", "locations"]
     search_fields = [
         "name",
         "description",
     ]
-    inlines = [ImageHikingInline]
+    inlines = [HikingLocationInline, ImageHikingInline]
 
     fieldsets = (
         (
             _("Basic Information"),
-            {"fields": ("name", "city", "description", "location")},
+            {"fields": ("name", "city", "description")},
+        ),
+        (
+            _("Geolocation"),
+            {"fields": ("latitude", "longitude")},
         ),
     )
 

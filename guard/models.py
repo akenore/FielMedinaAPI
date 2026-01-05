@@ -199,6 +199,19 @@ class Location(models.Model):
         return self.name
 
 
+class HikingLocation(models.Model):
+    hiking = models.ForeignKey("Hiking", on_delete=models.CASCADE)
+    location = models.ForeignKey("Location", on_delete=models.CASCADE)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["order"]
+        unique_together = ["hiking", "location"]
+
+    def __str__(self):
+        return f"{self.hiking.name} - {self.location.name}"
+
+
 class Hiking(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -212,7 +225,16 @@ class Hiking(models.Model):
     )
     name = models.CharField(_("Name"), max_length=255)
     description = models.TextField(_("Description"))
-    location = models.ManyToManyField("Location", verbose_name=_("Location"))
+
+    locations = models.ManyToManyField(
+        "Location", through="HikingLocation", verbose_name=_("Location")
+    )
+    latitude = models.DecimalField(
+        max_digits=9, decimal_places=6, null=True, blank=True
+    )
+    longitude = models.DecimalField(
+        max_digits=9, decimal_places=6, null=True, blank=True
+    )
 
     class Meta:
         verbose_name = _("Hiking")

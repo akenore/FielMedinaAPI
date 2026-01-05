@@ -10,6 +10,7 @@ from .models import (
     ImageEvent,
     Tip,
     Hiking,
+    HikingLocation,
     ImageHiking,
     Ad,
     ImageAd,
@@ -554,12 +555,13 @@ class HikingForm(FlowbiteFormMixin, forms.ModelForm):
     class Meta:
         model = Hiking
         fields = [
-            "city",
-            "location",
             "name_en",
             "name_fr",
             "description_en",
             "description_fr",
+            "city",
+            "latitude",
+            "longitude",
         ]
         widgets = {
             "city": forms.Select(
@@ -569,10 +571,16 @@ class HikingForm(FlowbiteFormMixin, forms.ModelForm):
                     "required": True,
                 }
             ),
-            "location": forms.SelectMultiple(
+            "latitude": forms.NumberInput(
                 attrs={
-                    "class": "block w-full px-3 py-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body",
-                    "placeholder": _("Select locations"),
+                    "placeholder": _("e.g., 36.8065"),
+                    "step": "0.000001",
+                }
+            ),
+            "longitude": forms.NumberInput(
+                attrs={
+                    "placeholder": _("e.g., 10.1815"),
+                    "step": "0.000001",
                 }
             ),
         }
@@ -612,6 +620,31 @@ class HikingForm(FlowbiteFormMixin, forms.ModelForm):
             self.add_error(None, error)
 
         return cleaned_data
+
+
+class HikingLocationForm(FlowbiteFormMixin, forms.ModelForm):
+    class Meta:
+        model = HikingLocation
+        fields = ["location", "order"]
+        widgets = {
+            "location": forms.Select(
+                attrs={
+                    "class": "block w-full px-3 py-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body",
+                    "placeholder": _("Select location"),
+                }
+            ),
+            "order": forms.HiddenInput(),
+        }
+
+
+HikingLocationFormSet = inlineformset_factory(
+    Hiking,
+    HikingLocation,
+    form=HikingLocationForm,
+    extra=1,
+    can_delete=True,
+    fields=["location", "order"],
+)
 
 
 class ImageHikingForm(forms.ModelForm):

@@ -192,13 +192,16 @@ class HikingType:
     description_fr: str
     city: Optional["CityType"]
 
+    latitude: Optional[float]
+    longitude: Optional[float]
+
     @strawberry.field
     def images(self, root) -> List[ImageHikingType]:
         return root.images.all()
 
     @strawberry.field
-    def location(self, root) -> List[LocationType]:
-        return root.location.all()
+    def locations(self, root) -> List[LocationType]:
+        return root.locations.order_by("hikinglocation__order")
 
 
 @strawberry_django.type(EventCategory)

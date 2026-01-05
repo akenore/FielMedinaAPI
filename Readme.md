@@ -16,6 +16,7 @@ FielMedina is a robust backend platform designed to manage and serve local disco
   - Rich Text Editing (TinyMCE)
   - Geographic Data (django-cities-light)
   - Public Transport Management (Bus/Line Numbers)
+  - Hiking Route Ordering & Terminus Geolocation
 
 ---
 
