@@ -143,6 +143,28 @@ query DiscoverCity($cityId: Int!) {
 }
 ```
 
+### Hiking & Route Discovery
+To retrieve a hiking trail with its **ordered locations** and **terminus geolocation**:
+```graphql
+query DiscoverHikes($cityId: Int!) {
+  hikings(cityId: $cityId) {
+    id
+    nameEn
+    # Terminus Geolocation
+    latitude
+    longitude
+    # Ordered Route Checkpoints
+    locations {
+      id
+      nameEn
+      latitude
+      longitude
+      category { nameEn }
+    }
+  }
+}
+```
+
 ---
 
 ## Mutations
