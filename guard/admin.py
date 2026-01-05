@@ -46,7 +46,7 @@ class LocationAdmin(TranslationAdmin):
                     "longitude",
                     "openFrom",
                     "openTo",
-                    "openDays",
+                    "closedDays",
                     "admissionFee",
                     "story",
                 )

@@ -184,9 +184,9 @@ class Location(models.Model):
         null=True,
         help_text=_("Add admission fee if the location has a specific admission fee"),
     )
-    openDays = models.ManyToManyField(
+    closedDays = models.ManyToManyField(
         "Weekday",
-        verbose_name=_("Open Days"),
+        verbose_name=_("Closed Days"),
         blank=True,
         related_name="locations",
     )

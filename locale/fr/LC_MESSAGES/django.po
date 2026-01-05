@@ -444,8 +444,8 @@ msgstr ""
 "Ajoutez les frais d'entrée si le lieu applique des frais d'entrée spécifiques"
 
 #: guard/models.py:189
-msgid "Open Days"
-msgstr "Jours d'ouverture"
+msgid "Closed Days"
+msgstr "Jours de fermeture"
 
 #: guard/models.py:195 guard/models.py:215 guard/models.py:269
 #: guard/templates/guard/views/events/list.html:33

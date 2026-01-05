@@ -161,8 +161,8 @@ class LocationType:
         return root.images.all()
 
     @strawberry.field
-    def open_days(self, root) -> List[WeekdayType]:
-        return root.openDays.all()
+    def closed_days(self, root) -> List[WeekdayType]:
+        return root.closedDays.all()
 
 
 @strawberry_django.type(ImageHiking)

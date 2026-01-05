@@ -26,7 +26,7 @@ Discovery points of interest (POIs).
 | `city` | `CityType` | Associated city |
 | `category` | `LocationCategoryType` | Category (e.g., Museum) |
 | `images` | `[ImageLocationType!]!` | List of images |
-| `openDays` | `[WeekdayType!]!` | Days the location is open |
+| `closedDays` | `[WeekdayType!]!` | Days the location is closed |
 
 ---
 

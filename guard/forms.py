@@ -117,7 +117,7 @@ class LocationForm(FlowbiteFormMixin, forms.ModelForm):
             "openTo",
             "admissionFee",
             "is_active_ads",
-            "openDays",
+            "closedDays",
         ]
         widgets = {
             "category": forms.Select(
@@ -170,7 +170,7 @@ class LocationForm(FlowbiteFormMixin, forms.ModelForm):
                 }
             ),
             "is_active_ads": forms.CheckboxInput(),
-            "openDays": forms.CheckboxSelectMultiple(
+            "closedDays": forms.CheckboxSelectMultiple(
                 attrs={
                     "class": "w-5 h-5 border border-default-medium rounded bg-neutral-secondary-medium focus:ring-2 focus:ring-brand-soft",
                 }
