@@ -28,3 +28,5 @@ upload/
 *.cert
 *.crt
 *.jks
+
+api/mobile_operations.graphql
