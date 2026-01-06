@@ -29,4 +29,4 @@ upload/
 *.crt
 *.jks
 
-api/mobile_operations.graphql
+mobile_operations.graphql
