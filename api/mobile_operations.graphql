@@ -1,0 +1,190 @@
+# FielMedina Mobile GraphQL Operations (With Hiking Location Ordering)
+
+# --- Fragments ---
+
+fragment ImageFields on ImageFieldType {
+  url
+}
+
+fragment CityFields on CityType {
+  id
+  nameEn
+  nameFr
+  nameAr
+  regionEn
+  regionFr
+  regionAr
+  countryEn
+  countryFr
+  countryAr
+}
+
+fragment LocationSummary on LocationType {
+  id
+  nameEn
+  nameFr
+  latitude
+  longitude
+  category {
+    id
+    nameEn
+    nameFr
+  }
+  images {
+    image { ...ImageFields }
+    imageMobile { ...ImageFields }
+  }
+}
+
+# --- Queries ---
+
+# 1. Start-up: Get city based on coordinates
+query GetNearestCity($lat: Float!, $lon: Float!) {
+  nearestCity(lat: $lat, lon: $lon) {
+    ...CityFields
+  }
+}
+
+# 2. City Tips & Categories
+query GetCityTips($cityId: Int, $limit: Int, $offset: Int) {
+  tips(cityId: $cityId, limit: $limit, offset: $offset) {
+    id
+    descriptionEn
+    descriptionFr
+  }
+  
+  locationCategories {
+    id
+    nameEn
+    nameFr
+  }
+}
+
+# 3. Advertisements Standalone
+query GetAdsByCity($cityId: Int, $limit: Int) {
+  ads(cityId: $cityId, isActive: true, limit: $limit) {
+    id
+    name
+    link
+    imageMobile { ...ImageFields }
+    imageTablet { ...ImageFields }
+  }
+}
+
+# 4. Locations List
+query GetLocationsByCity($cityId: Int, $categoryId: Int, $limit: Int, $offset: Int) {
+  locations(cityId: $cityId, categoryId: $categoryId, limit: $limit, offset: $offset) {
+    ...LocationSummary
+    openFrom
+    openTo
+  }
+}
+
+# 5. Location Full Details
+query GetLocationDetails($id: ID!) {
+  location(id: $id) {
+    ...LocationSummary
+    storyEn
+    storyFr
+    admissionFee
+    openFrom
+    openTo
+    closedDays {
+      day
+    }
+  }
+}
+
+# 6. Events List
+query GetEventsByCity($cityId: Int, $categoryId: Int, $limit: Int, $offset: Int) {
+  events(cityId: $cityId, categoryId: $categoryId, limit: $limit, offset: $offset) {
+    id
+    nameEn
+    nameFr
+    startDate
+    endDate
+    time
+    price
+    images {
+      image { ...ImageFields }
+      imageMobile { ...ImageFields }
+    }
+    location {
+      id
+      nameEn
+      nameFr
+    }
+  }
+}
+
+# 7. Hiking Trails (With Explicit Ordering)
+query GetHikingTrails($cityId: Int, $limit: Int, $offset: Int) {
+  hikings(cityId: $cityId, limit: $limit, offset: $offset) {
+    id
+    nameEn
+    nameFr
+    descriptionEn
+    descriptionFr
+    latitude  # Terminus
+    longitude # Terminus
+    images {
+      image { ...ImageFields }
+      imageMobile { ...ImageFields }
+    }
+    locations {
+      order # The sequence number (0, 1, 2...)
+      location {
+        id
+        nameEn
+        nameFr
+        latitude
+        longitude
+      }
+    }
+  }
+}
+
+# 8. Public Transport
+query GetTransports($cityId: Int, $limit: Int, $offset: Int) {
+  publicTransports(cityId: $cityId, limit: $limit, offset: $offset) {
+    id
+    busNumber
+    publicTransportType {
+      nameEn
+      nameFr
+    }
+    fromRegionEn
+    fromRegionFr
+    toRegionEn
+    toRegionFr
+    times {
+      time
+    }
+  }
+}
+
+# --- Mutations ---
+
+mutation SyncPreferences(
+  $userUid: UUID!
+  $firstVisit: Boolean!
+  $travelingWith: String!
+  $interests: [String!]!
+  $updatedAt: DateTime!
+) {
+  syncUserPreference(
+    userUid: $userUid
+    firstVisit: $firstVisit
+    travelingWith: $travelingWith
+    interests: $interests
+    updatedAt: $updatedAt
+  ) {
+    ok
+  }
+}
+
+mutation ForgetMe($userUid: UUID!) {
+  forgetMe(userUid: $userUid) {
+    ok
+  }
+}

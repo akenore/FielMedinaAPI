@@ -15,6 +15,7 @@ from guard.models import (
     Location,
     LocationCategory,
     Hiking,
+    HikingLocation,
     Event,
     EventCategory,
     Ad,
@@ -38,8 +39,13 @@ from shared.models import Page, UserPreference
 @strawberry.type
 class ImageFieldType:
     @strawberry.field
-    def url(self, root) -> str:
-        return root.url if root else ""
+    def url(self, info, root) -> str:
+        if not root:
+            return ""
+        try:
+            return info.context.request.build_absolute_uri(root.url)
+        except Exception:
+            return root.url
 
     @strawberry.field
     def name(self, root) -> str:
@@ -122,7 +128,7 @@ class ImageLocationType:
     def image(self, root) -> ImageFieldType:
         return root.image
 
-    @strawberry.field
+    @strawberry.field(name="imageMobile")
     def image_mobile(self, root) -> Optional[ImageFieldType]:
         return root.image_mobile
 
@@ -174,9 +180,15 @@ class ImageHikingType:
     def image(self, root) -> ImageFieldType:
         return root.image
 
-    @strawberry.field
+    @strawberry.field(name="imageMobile")
     def image_mobile(self, root) -> Optional[ImageFieldType]:
         return root.image_mobile
+
+
+@strawberry_django.type(HikingLocation)
+class HikingLocationType:
+    order: auto
+    location: "LocationType"
 
 
 @strawberry_django.type(Hiking)
@@ -200,8 +212,9 @@ class HikingType:
         return root.images.all()
 
     @strawberry.field
-    def locations(self, root) -> List[LocationType]:
-        return root.locations.order_by("hikinglocation__order")
+    def locations(self, root) -> List[HikingLocationType]:
+        # Fetch directly from the through model to get the 'order' field
+        return root.hikinglocation_set.all().order_by("order")
 
 
 @strawberry_django.type(EventCategory)
@@ -223,7 +236,7 @@ class ImageEventType:
     def image(self, root) -> ImageFieldType:
         return root.image
 
-    @strawberry.field
+    @strawberry.field(name="imageMobile")
     def image_mobile(self, root) -> Optional[ImageFieldType]:
         return root.image_mobile
 
@@ -263,7 +276,7 @@ class ImageAdType:
     def image(self, root) -> ImageFieldType:
         return root.image
 
-    @strawberry.field
+    @strawberry.field(name="imageMobile")
     def image_mobile(self, root) -> Optional[ImageFieldType]:
         return root.image_mobile
 
@@ -281,11 +294,11 @@ class AdType:
     is_active: auto
     city: Optional["CityType"]
 
-    @strawberry.field
+    @strawberry.field(name="imageMobile")
     def image_mobile(self, root) -> Optional[ImageFieldType]:
         return root.image_mobile
 
-    @strawberry.field
+    @strawberry.field(name="imageTablet")
     def image_tablet(self, root) -> Optional[ImageFieldType]:
         return root.image_tablet
 
@@ -494,7 +507,11 @@ class Query:
 
     @strawberry.field
     def locations(
-        self, city_id: Optional[int] = None, category_id: Optional[int] = None
+        self,
+        city_id: Optional[int] = None,
+        category_id: Optional[int] = None,
+        limit: Optional[int] = None,
+        offset: Optional[int] = 0,
     ) -> List[LocationType]:
         qs = Location.objects.select_related(
             "city", "country", "category"
@@ -503,6 +520,10 @@ class Query:
             qs = qs.filter(city_id=city_id)
         if category_id is not None:
             qs = qs.filter(category_id=category_id)
+
+        if limit is not None:
+            qs = qs[offset : offset + limit]
+
         return qs
 
     @strawberry.field
@@ -514,12 +535,21 @@ class Query:
         return LocationCategory.objects.all()
 
     @strawberry.field
-    def hikings(self, city_id: Optional[int] = None) -> List[HikingType]:
+    def hikings(
+        self,
+        city_id: Optional[int] = None,
+        limit: Optional[int] = None,
+        offset: Optional[int] = 0,
+    ) -> List[HikingType]:
         qs = Hiking.objects.select_related("city").prefetch_related(
             "images", "locations"
         )
         if city_id is not None:
             qs = qs.filter(city_id=city_id)
+
+        if limit is not None:
+            qs = qs[offset : offset + limit]
+
         return qs
 
     @strawberry.field
@@ -530,7 +560,11 @@ class Query:
 
     @strawberry.field
     def events(
-        self, city_id: Optional[int] = None, category_id: Optional[int] = None
+        self,
+        city_id: Optional[int] = None,
+        category_id: Optional[int] = None,
+        limit: Optional[int] = None,
+        offset: Optional[int] = 0,
     ) -> List[EventType]:
         qs = Event.objects.select_related(
             "city", "category", "client", "location"
@@ -539,6 +573,10 @@ class Query:
             qs = qs.filter(city_id=city_id)
         if category_id is not None:
             qs = qs.filter(category_id=category_id)
+
+        if limit is not None:
+            qs = qs[offset : offset + limit]
+
         return qs
 
     @strawberry.field
@@ -555,13 +593,21 @@ class Query:
 
     @strawberry.field
     def ads(
-        self, city_id: Optional[int] = None, is_active: Optional[bool] = None
+        self,
+        city_id: Optional[int] = None,
+        is_active: Optional[bool] = None,
+        limit: Optional[int] = None,
+        offset: Optional[int] = 0,
     ) -> List[AdType]:
         qs = Ad.objects.select_related("city", "client")
         if city_id is not None:
             qs = qs.filter(city_id=city_id)
         if is_active is not None:
             qs = qs.filter(is_active=is_active)
+
+        if limit is not None:
+            qs = qs[offset : offset + limit]
+
         return qs
 
     @strawberry.field
@@ -569,10 +615,19 @@ class Query:
         return Ad.objects.filter(pk=id).first()
 
     @strawberry.field
-    def tips(self, city_id: Optional[int] = None) -> List[TipType]:
+    def tips(
+        self,
+        city_id: Optional[int] = None,
+        limit: Optional[int] = None,
+        offset: Optional[int] = 0,
+    ) -> List[TipType]:
         qs = Tip.objects.select_related("city")
         if city_id is not None:
             qs = qs.filter(city_id=city_id)
+
+        if limit is not None:
+            qs = qs[offset : offset + limit]
+
         return qs
 
     @strawberry.field
@@ -582,6 +637,8 @@ class Query:
         type_id: Optional[int] = None,
         from_region_id: Optional[int] = None,
         to_region_id: Optional[int] = None,
+        limit: Optional[int] = None,
+        offset: Optional[int] = 0,
     ) -> List[PublicTransportNodeType]:
         qs = PublicTransport.objects.select_related(
             "city", "publicTransportType", "fromRegion", "toRegion"
@@ -594,6 +651,10 @@ class Query:
             qs = qs.filter(fromRegion_id=from_region_id)
         if to_region_id is not None:
             qs = qs.filter(toRegion_id=to_region_id)
+
+        if limit is not None:
+            qs = qs[offset : offset + limit]
+
         return qs
 
     @strawberry.field
