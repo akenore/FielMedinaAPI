@@ -697,8 +697,21 @@ class AdForm(FlowbiteFormMixin, forms.ModelForm):
 
     class Meta:
         model = Ad
-        fields = ["name", "city", "image_mobile", "image_tablet", "link", "is_active"]
+        fields = [
+            "name",
+            "country",
+            "city",
+            "image_mobile",
+            "image_tablet",
+            "link",
+            "is_active",
+        ]
         widgets = {
+            "country": forms.Select(
+                attrs={
+                    "placeholder": _("Select country"),
+                }
+            ),
             "city": forms.Select(
                 attrs={
                     "placeholder": _("Select city"),
@@ -713,8 +726,11 @@ class AdForm(FlowbiteFormMixin, forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["is_active"].label = _("Active")
 
+        if "country" in self.fields:
+            self.fields["country"].required = True
+
         if "city" in self.fields:
-            self.fields["city"].required = True
+            self.fields["city"].required = False  # Ads can be just country-level now
 
         # Enforce strict requirement for creation, overruling model's blank=True
         self.fields["image_mobile"].required = True

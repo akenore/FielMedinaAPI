@@ -336,6 +336,14 @@ class Ad(models.Model):
     name = models.CharField(
         max_length=255, verbose_name=_("Add a name"), blank=True, null=True
     )
+    country = models.ForeignKey(
+        "cities_light.Country",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="ads",
+        verbose_name=_("Country"),
+    )
     city = models.ForeignKey(
         "cities_light.City",
         on_delete=models.SET_NULL,

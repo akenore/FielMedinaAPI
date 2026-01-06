@@ -96,6 +96,8 @@ Internal advertisements for local businesses.
 | `id` | `ID!` | Unique identifier |
 | `name` | `String` | Internal campaign name |
 | `link` | `String!` | Target destination URL |
+| `country` | `CountryType` | Country focus for the ad |
+| `city` | `CityType` | Optional city focus |
 | `imageMobile` | `ImageFieldType` | Optimized image for mobile (320x50) |
 | `imageTablet` | `ImageFieldType` | Optimized image for tablet (728x90) |
 

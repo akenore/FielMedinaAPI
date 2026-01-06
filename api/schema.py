@@ -32,7 +32,7 @@ from guard.models import (
     Weekday,
 )
 
-from cities_light.models import City
+from cities_light.models import City, Country
 from shared.models import Page, UserPreference
 
 
@@ -281,6 +281,14 @@ class ImageAdType:
         return root.image_mobile
 
 
+@strawberry_django.type(Country)
+class CountryType:
+    id: auto
+    name: auto
+    code2: auto
+    code3: auto
+
+
 @strawberry_django.type(Ad)
 class AdType:
     id: auto
@@ -292,6 +300,7 @@ class AdType:
     short_id: auto
     clicks: auto
     is_active: auto
+    country: Optional[CountryType]
     city: Optional["CityType"]
 
     @strawberry.field(name="imageMobile")
@@ -595,13 +604,16 @@ class Query:
     def ads(
         self,
         city_id: Optional[int] = None,
+        country_id: Optional[int] = None,
         is_active: Optional[bool] = None,
         limit: Optional[int] = None,
         offset: Optional[int] = 0,
     ) -> List[AdType]:
-        qs = Ad.objects.select_related("city", "client")
+        qs = Ad.objects.select_related("city", "country", "client")
         if city_id is not None:
             qs = qs.filter(city_id=city_id)
+        if country_id is not None:
+            qs = qs.filter(country_id=country_id)
         if is_active is not None:
             qs = qs.filter(is_active=is_active)
 
