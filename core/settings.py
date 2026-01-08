@@ -134,8 +134,6 @@ LOGOUT_REDIRECT_URL = "shared:login"
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
 ADMIN_LIST_EMAILS = env.list("ADMIN_LIST_EMAILS")
 
-# Site URL for building absolute URLs (used in notifications, emails, etc.)
-SITE_URL = env("SITE_URL", default="http://localhost:8000" if DEBUG else "https://mystory.fielmedina.com")
 
 if DEBUG:
     SITE_URL = "http://localhost:8000"
