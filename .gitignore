@@ -29,4 +29,9 @@ upload/
 *.crt
 *.jks
 
+# Firebase service account credentials
+firebase_service_account.json
+*-firebase-adminsdk-*.json
+
 mobile_operations.graphql
+fielmedinasousse-firebase-adminsdk-fbsvc-32939c9c5a.json

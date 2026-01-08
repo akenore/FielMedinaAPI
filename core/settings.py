@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     "strawberry.django",
     "strawberry_django",
     "tinymce",
+    "fcm_django",
     "api",
     "guard",
     "shared",
@@ -186,3 +187,32 @@ PUBLIC_SHORT_API = env("PUBLIC_SHORT_API")
 SHORT_IO_DOMAIN = env("SHORT_IO_DOMAIN")
 SHORT_IO_FOLDER_ID = env("SHORT_IO_FOLDER_ID")
 DJANGO_ADMIN_URL = env("DJANGO_ADMIN_URL")
+
+# Firebase Cloud Messaging (FCM) Configuration
+# Path to Firebase service account JSON file (for server-side push notifications)
+GOOGLE_APPLICATION_CREDENTIALS = env(
+    "GOOGLE_APPLICATION_CREDENTIALS",
+    default=str(BASE_DIR / "fielmedinasousse-firebase-adminsdk-fbsvc-32939c9c5a.json"),
+)
+
+# FCM Django Settings (for server-side push notifications)
+FCM_DJANGO_SETTINGS = {
+    "FCM_SERVER_KEY": env("FCM_SERVER_KEY", default=None),
+    "ONE_DEVICE_PER_USER": False,  # Allow multiple devices per user
+    "DELETE_INACTIVE_DEVICES": False,  # Keep inactive devices in database
+    "UPDATE_ON_DUPLICATE_REG_ID": True,  # Update device if duplicate registration ID
+    "APP_VERBOSE_NAME": "FielMedina",
+}
+
+# Firebase Client Configuration (for mobile/web apps)
+# These values are used by client-side apps (iOS/Android/Web) to connect to Firebase
+# You can expose these via your API/GraphQL if needed
+FIREBASE_CLIENT_CONFIG = {
+    "apiKey": env("FIREBASE_API_KEY", default="AIzaSyC7ddaaSc5fo_o8vqShhyf2D9e5fCXJvso"),
+    "authDomain": env("FIREBASE_AUTH_DOMAIN", default="fielmedinasousse.firebaseapp.com"),
+    "projectId": env("FIREBASE_PROJECT_ID", default="fielmedinasousse"),
+    "storageBucket": env("FIREBASE_STORAGE_BUCKET", default="fielmedinasousse.firebasestorage.app"),
+    "messagingSenderId": env("FIREBASE_MESSAGING_SENDER_ID", default="797838304877"),
+    "appId": env("FIREBASE_APP_ID", default="1:797838304877:web:e586351927c5dd38954164"),
+    "measurementId": env("FIREBASE_MEASUREMENT_ID", default="G-KMEWT7N3ND"),
+}
