@@ -11,3 +11,4 @@ django-cities-light
 psycopg[binary]
 requests
 groq
+fcm-django
