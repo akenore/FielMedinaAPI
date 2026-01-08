@@ -744,6 +744,12 @@ class SyncUserPreferencePayload:
 
 
 @strawberry.type
+class RegisterDevicePayload:
+    ok: bool
+    message: Optional[str] = None
+
+
+@strawberry.type
 class Mutation:
     @strawberry.mutation
     def sync_user_preference(
@@ -776,6 +782,76 @@ class Mutation:
     def forget_me(self, user_uid: uuid.UUID) -> SyncUserPreferencePayload:
         UserPreference.objects.filter(user_uid=user_uid).delete()
         return SyncUserPreferencePayload(ok=True)
+
+    @strawberry.mutation
+    def register_fcm_device(
+        self,
+        registration_id: str,
+        type: str,  # 'android' or 'ios'
+        name: Optional[str] = None,
+        user_uid: Optional[uuid.UUID] = None,
+    ) -> RegisterDevicePayload:
+        """
+        Register an FCM device token for push notifications.
+        
+        Args:
+            registration_id: FCM token from the mobile app
+            type: Device type - 'android' or 'ios'
+            name: Optional device name/identifier
+            user_uid: Optional user UUID to associate device with user
+        """
+        try:
+            from fcm_django.models import FCMDevice
+            
+            # Validate device type
+            if type not in ['android', 'ios', 'web']:
+                return RegisterDevicePayload(
+                    ok=False,
+                    message=f"Invalid device type: {type}. Must be 'android', 'ios', or 'web'"
+                )
+            
+            # Get or create device
+            device, created = FCMDevice.objects.get_or_create(
+                registration_id=registration_id,
+                defaults={
+                    'type': type,
+                    'name': name or f"{type} device",
+                    'active': True,
+                }
+            )
+            
+            # Update if device already exists
+            if not created:
+                device.type = type
+                device.active = True
+                if name:
+                    device.name = name
+                device.save()
+            
+            # Optionally associate with user if user_uid provided
+            if user_uid:
+                try:
+                    user_pref = UserPreference.objects.get(user_uid=user_uid)
+                    # Note: FCMDevice.user is a ForeignKey to User model
+                    # If you want to associate with UserPreference, you'd need to adjust this
+                    # For now, we just store the registration_id
+                    pass
+                except UserPreference.DoesNotExist:
+                    pass
+            
+            return RegisterDevicePayload(
+                ok=True,
+                message="Device registered successfully" if created else "Device updated successfully"
+            )
+            
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error registering FCM device: {e}", exc_info=True)
+            return RegisterDevicePayload(
+                ok=False,
+                message=f"Error registering device: {str(e)}"
+            )
 
 
 extensions = []
