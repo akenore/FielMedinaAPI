@@ -355,6 +355,7 @@ class EventForm(FlowbiteFormMixin, forms.ModelForm):
             "time",
             "price",
             "link",
+            "boost",
         ]
         widgets = {
             "location": forms.Select(

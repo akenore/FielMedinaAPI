@@ -300,6 +300,7 @@ class Event(models.Model):
     short_link = models.URLField(blank=True, null=True)
     short_id = models.CharField(max_length=50, blank=True, null=True)
     description = HTMLField(verbose_name=_("Description"))
+    boost = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = _("Event")

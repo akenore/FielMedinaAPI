@@ -255,6 +255,7 @@ class EventType:
     link: auto
     short_link: auto
     short_id: auto
+    boost: auto
     description: str
     description_en: str
     description_fr: str
@@ -574,6 +575,7 @@ class Query:
         category_id: Optional[int] = None,
         limit: Optional[int] = None,
         offset: Optional[int] = 0,
+        boost: Optional[bool] = None,
     ) -> List[EventType]:
         qs = Event.objects.select_related(
             "city", "category", "client", "location"
@@ -582,6 +584,8 @@ class Query:
             qs = qs.filter(city_id=city_id)
         if category_id is not None:
             qs = qs.filter(category_id=category_id)
+        if boost is not None:
+            qs = qs.filter(boost=boost)
 
         if limit is not None:
             qs = qs[offset : offset + limit]
@@ -793,7 +797,7 @@ class Mutation:
     ) -> RegisterDevicePayload:
         """
         Register an FCM device token for push notifications.
-        
+
         Args:
             registration_id: FCM token from the mobile app
             type: Device type - 'android' or 'ios'
@@ -802,24 +806,24 @@ class Mutation:
         """
         try:
             from fcm_django.models import FCMDevice
-            
+
             # Validate device type
-            if type not in ['android', 'ios', 'web']:
+            if type not in ["android", "ios", "web"]:
                 return RegisterDevicePayload(
                     ok=False,
-                    message=f"Invalid device type: {type}. Must be 'android', 'ios', or 'web'"
+                    message=f"Invalid device type: {type}. Must be 'android', 'ios', or 'web'",
                 )
-            
+
             # Get or create device
             device, created = FCMDevice.objects.get_or_create(
                 registration_id=registration_id,
                 defaults={
-                    'type': type,
-                    'name': name or f"{type} device",
-                    'active': True,
-                }
+                    "type": type,
+                    "name": name or f"{type} device",
+                    "active": True,
+                },
             )
-            
+
             # Update if device already exists
             if not created:
                 device.type = type
@@ -827,7 +831,7 @@ class Mutation:
                 if name:
                     device.name = name
                 device.save()
-            
+
             # Optionally associate with user if user_uid provided
             if user_uid:
                 try:
@@ -838,19 +842,21 @@ class Mutation:
                     pass
                 except UserPreference.DoesNotExist:
                     pass
-            
+
             return RegisterDevicePayload(
                 ok=True,
-                message="Device registered successfully" if created else "Device updated successfully"
+                message="Device registered successfully"
+                if created
+                else "Device updated successfully",
             )
-            
+
         except Exception as e:
             import logging
+
             logger = logging.getLogger(__name__)
             logger.error(f"Error registering FCM device: {e}", exc_info=True)
             return RegisterDevicePayload(
-                ok=False,
-                message=f"Error registering device: {str(e)}"
+                ok=False, message=f"Error registering device: {str(e)}"
             )
 
 

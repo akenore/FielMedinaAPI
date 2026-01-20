@@ -1,0 +1,289 @@
+type AdType {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  name: String
+  link: String!
+  shortLink: String
+  shortId: String
+  clicks: Int!
+  isActive: Boolean!
+  country: CountryType
+  city: CityType
+  imageMobile: ImageFieldType
+  imageTablet: ImageFieldType
+  images: [ImageAdType!]!
+}
+
+type CityType {
+  id: ID!
+  name: String!
+  nameEn: String
+  nameFr: String
+  nameAr: String
+  region: String
+  regionEn: String
+  regionFr: String
+  regionAr: String
+  country: String
+  countryEn: String
+  countryFr: String
+  countryAr: String
+}
+
+type CountryType {
+  id: ID!
+  name: String!
+  code2: String
+  code3: String
+}
+
+"""Date (isoformat)"""
+scalar Date
+
+"""Date with time (isoformat)"""
+scalar DateTime
+
+"""Decimal (fixed-point)"""
+scalar Decimal
+
+type EventCategoryType {
+  id: ID!
+  name: String!
+  nameEn: String!
+  nameFr: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type EventType {
+  id: ID!
+  createdAt: DateTime!
+  name: String!
+  nameEn: String!
+  nameFr: String!
+  startDate: Date!
+  endDate: Date!
+  time: Time!
+  price: Decimal!
+  link: String!
+  shortLink: String
+  shortId: String
+  boost: Boolean!
+  description: String!
+  descriptionEn: String!
+  descriptionFr: String!
+  city: CityType
+  category: EventCategoryType
+  location: LocationType
+  images: [ImageEventType!]!
+}
+
+type HikingLocationType {
+  order: Int!
+  location: LocationType!
+}
+
+type HikingType {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  name: String!
+  nameEn: String!
+  nameFr: String!
+  description: String!
+  descriptionEn: String!
+  descriptionFr: String!
+  city: CityType
+  latitude: Float
+  longitude: Float
+  images: [ImageHikingType!]!
+  locations: [HikingLocationType!]!
+}
+
+type ImageAdType {
+  id: ID!
+  createdAt: DateTime!
+  image: ImageFieldType!
+  imageMobile: ImageFieldType
+}
+
+type ImageEventType {
+  id: ID!
+  createdAt: DateTime!
+  image: ImageFieldType!
+  imageMobile: ImageFieldType
+}
+
+type ImageFieldType {
+  url: String!
+  name: String!
+  path: String!
+  size: Int!
+  width: Int
+  height: Int
+}
+
+type ImageHikingType {
+  id: ID!
+  createdAt: DateTime!
+  image: ImageFieldType!
+  imageMobile: ImageFieldType
+}
+
+type ImageLocationType {
+  id: ID!
+  createdAt: DateTime!
+  image: ImageFieldType!
+  imageMobile: ImageFieldType
+}
+
+type LocationCategoryType {
+  id: ID!
+  name: String!
+  nameEn: String!
+  nameFr: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type LocationType {
+  id: ID!
+  createdAt: DateTime!
+  name: String!
+  nameEn: String!
+  nameFr: String!
+  longitude: Decimal!
+  latitude: Decimal!
+  isActiveAds: Boolean!
+  story: String!
+  storyEn: String!
+  storyFr: String!
+  openFrom: Time
+  openTo: Time
+  admissionFee: Decimal
+  city: CityType
+  category: LocationCategoryType
+  images: [ImageLocationType!]!
+  closedDays: [WeekdayType!]!
+}
+
+type Mutation {
+  syncUserPreference(userUid: UUID!, firstVisit: Boolean!, travelingWith: String!, interests: [String!]!, updatedAt: DateTime!): SyncUserPreferencePayload!
+  forgetMe(userUid: UUID!): SyncUserPreferencePayload!
+  registerFcmDevice(registrationId: String!, type: String!, name: String = null, userUid: UUID = null): RegisterDevicePayload!
+}
+
+type PageType {
+  id: ID!
+  slug: String!
+  slugEn: String!
+  slugFr: String!
+  isActive: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  title: String!
+  titleEn: String!
+  titleFr: String!
+  content: String!
+  contentEn: String!
+  contentFr: String!
+}
+
+type PartnerType {
+  id: ID!
+  name: String!
+  link: String!
+  image: ImageFieldType!
+}
+
+type PublicTransportNodeType {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  city: CityType
+  busNumber: String!
+  publicTransportType: PublicTransportTypeType
+  fromRegion: String
+  fromRegionEn: String
+  fromRegionFr: String
+  fromRegionAr: String
+  toRegion: String
+  toRegionEn: String
+  toRegionFr: String
+  toRegionAr: String
+  times: [PublicTransportTimeType!]!
+}
+
+type PublicTransportTimeType {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  time: Time!
+}
+
+type PublicTransportTypeType {
+  id: ID!
+  name: String!
+  nameEn: String!
+  nameFr: String!
+}
+
+type Query {
+  pages(isActive: Boolean = null): [PageType!]!
+  page(slug: String!): PageType
+  locations(cityId: Int = null, categoryId: Int = null, limit: Int = null, offset: Int = 0): [LocationType!]!
+  location(id: ID!): LocationType
+  locationCategories: [LocationCategoryType!]!
+  hikings(cityId: Int = null, limit: Int = null, offset: Int = 0): [HikingType!]!
+  hiking(id: ID!): HikingType
+  events(cityId: Int = null, categoryId: Int = null, limit: Int = null, offset: Int = 0, boost: Boolean = null): [EventType!]!
+  event(id: ID!): EventType
+  eventCategories: [EventCategoryType!]!
+  ads(cityId: Int = null, countryId: Int = null, isActive: Boolean = null, limit: Int = null, offset: Int = 0): [AdType!]!
+  ad(id: ID!): AdType
+  tips(cityId: Int = null, limit: Int = null, offset: Int = 0): [TipType!]!
+  publicTransports(cityId: Int = null, typeId: Int = null, fromRegionId: Int = null, toRegionId: Int = null, limit: Int = null, offset: Int = 0): [PublicTransportNodeType!]!
+  publicTransport(id: ID!): PublicTransportNodeType
+  publicTransportTypes: [PublicTransportTypeType!]!
+  nearestCity(lat: Float!, lon: Float!, maxDistanceKm: Float = null): CityType
+  partners: [PartnerType!]!
+  sponsor(id: ID!): SponsorType
+  sponsors: [SponsorType!]!
+}
+
+type RegisterDevicePayload {
+  ok: Boolean!
+  message: String
+}
+
+type SponsorType {
+  id: ID!
+  name: String!
+  link: String!
+  image: ImageFieldType!
+}
+
+type SyncUserPreferencePayload {
+  ok: Boolean!
+}
+
+"""Time (isoformat)"""
+scalar Time
+
+type TipType {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  description: String!
+  descriptionEn: String!
+  descriptionFr: String!
+  city: CityType
+}
+
+scalar UUID
+
+type WeekdayType {
+  id: ID!
+  day: Int!
+}
