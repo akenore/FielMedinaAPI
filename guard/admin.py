@@ -101,7 +101,7 @@ class EventAdmin(TranslationAdmin):
                 )
             },
         ),
-        (_("Details"), {"fields": ("price", "description")}),
+        (_("Details"), {"fields": ("price", "description", "boost")}),
     )
 
 
