@@ -403,6 +403,7 @@ class EventForm(FlowbiteFormMixin, forms.ModelForm):
                     "placeholder": "https://example.com",
                 }
             ),
+            "boost": forms.CheckboxInput(),
         }
 
     def clean(self):
@@ -439,9 +440,15 @@ class EventForm(FlowbiteFormMixin, forms.ModelForm):
         return cleaned_data
 
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
         if "city" in self.fields:
             self.fields["city"].required = True
+
+        # Only staff can see/edit boost. If not staff, remove it so it's not reset to False.
+        if user and not (user.is_staff or user.is_superuser):
+            if "boost" in self.fields:
+                del self.fields["boost"]
 
         if self.instance and self.instance.pk:
             pass

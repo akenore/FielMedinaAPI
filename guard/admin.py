@@ -76,9 +76,10 @@ class EventAdmin(TranslationAdmin):
         "startDate",
         "endDate",
         "price",
+        "boost",
         "created_at",
     ]
-    list_filter = ["startDate", "endDate", "location"]
+    list_filter = ["startDate", "endDate", "location", "boost"]
     search_fields = ["name", "description", "location__name", "client__user__username"]
     inlines = [ImageEventInline]
 

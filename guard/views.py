@@ -430,6 +430,11 @@ class EventCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     success_url = reverse_lazy("guard:eventsList")
     success_message = _("Event created successfully.")
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.POST:
@@ -491,6 +496,11 @@ class EventUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     form_class = EventForm
     success_url = reverse_lazy("guard:eventsList")
     success_message = _("Event updated successfully.")
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
 
     def get_queryset(self):
         return super().get_queryset().filter(client=self.request.user.profile)
