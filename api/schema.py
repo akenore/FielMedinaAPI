@@ -4,6 +4,7 @@ from strawberry import auto
 from typing import List, Optional
 import math
 from django.db.models import Q
+from django.utils import timezone
 import datetime
 import uuid
 from django.conf import settings
@@ -586,6 +587,10 @@ class Query:
             qs = qs.filter(category_id=category_id)
         if boost is not None:
             qs = qs.filter(boost=boost)
+
+        # Filter out expired events (keep for 1 day after ending)
+        yesterday = timezone.now().date() - datetime.timedelta(days=1)
+        qs = qs.filter(endDate__gte=yesterday)
 
         if limit is not None:
             qs = qs[offset : offset + limit]
